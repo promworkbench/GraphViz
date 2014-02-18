@@ -174,7 +174,7 @@ public class NavigableSVGPanel extends JPanel {
 	private double navZoomFactor = 1.0 + zoomIncrement;
 	private SVGDiagram image;
 	private double initialScale = 1.0;
-	private double scale = 1.0;
+	private double scale = 0.0;
 	private double navScale = 1.0;
 	private double originX = 0;
 	private double originY = 0;
@@ -423,6 +423,7 @@ public class NavigableSVGPanel extends JPanel {
 
 	//Called from paintComponent() when a new image is set.
 	private void initializeParams() {
+		System.out.println("initialize parameters");
 		double xScale = (double) getWidth() / image.getWidth();
 		double yScale = (double) getHeight() / image.getHeight();
 		initialScale = Math.min(xScale, yScale);
@@ -435,6 +436,7 @@ public class NavigableSVGPanel extends JPanel {
 
 	//Centers the current image in the panel.
 	private void centerImage() {
+		System.out.println("center image");
 		originX = (getWidth() - getScreenImageWidth()) / 2;
 		originY = (getHeight() - getScreenImageHeight()) / 2;
 	}
@@ -452,7 +454,7 @@ public class NavigableSVGPanel extends JPanel {
 		this.image = image;
 		//Reset scale so that initializeParameters() is called in paintComponent()
 		//for the new image.
-		scale = initialScale;
+		scale = 0.0;
 
 		firePropertyChange(IMAGE_CHANGED_PROPERTY, oldImage, image);
 		repaint();
@@ -749,6 +751,8 @@ public class NavigableSVGPanel extends JPanel {
 		if (image == null) {
 			return;
 		}
+		
+		System.out.println("scale " + scale);
 
 		if (scale == 0.0) {
 			initializeParams();
