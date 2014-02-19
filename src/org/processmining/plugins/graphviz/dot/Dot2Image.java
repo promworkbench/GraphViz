@@ -2,25 +2,17 @@ package org.processmining.plugins.graphviz.dot;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
-import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 import org.apache.commons.compress.utils.IOUtils;
 
@@ -42,19 +34,18 @@ public class Dot2Image {
 		//	throw new RuntimeException("Graphviz-dot binary not found.");
 		//}
 
-		File dotFile = null;
+		File dotFile;
 		try {
 			dotFile = new File(getDotDirectory(), "dot.exe");
 		} catch (IOException e1) {
 			e1.printStackTrace();
-		} catch (URISyntaxException e1) {
-			e1.printStackTrace();
-		}
-		
-		if (dotFile == null) {
 			throw new RuntimeException("Graphviz-dot binary not found.");
 		}
 
+		if (!dotFile.exists()) {
+			throw new RuntimeException("Graphviz-dot binary not found.");
+		}
+		
 		//System.out.println(dotUrl.getPath());
 
 		String args[] = new String[2];
@@ -198,7 +189,7 @@ public class Dot2Image {
 			"Pathplan.dll",
 			"zlib1.dll"));
 
-	private static File getDotDirectory() throws IOException, IOException, URISyntaxException {
+	private static File getDotDirectory() throws IOException {
 		File jarDirectory = getJarDirectory();
 		System.out.println("jar directory " + jarDirectory);
 
@@ -216,101 +207,23 @@ public class Dot2Image {
 				InputStream inputStream = Dot2Image.class
 						.getResourceAsStream("/org/processmining/plugins/graphviz/dot/binaries/" + fileName);
 				FileOutputStream outputStream = new FileOutputStream(new File(dotDirectory, fileName));
-				IOUtils.copy(inputStream, outputStream); 
+				IOUtils.copy(inputStream, outputStream);
+				outputStream.flush();
+				outputStream.close();
 			}
 		}
 
 		return dotDirectory;
 	}
 
-	private static File getJarDirectory() throws URISyntaxException {
+	private static File getJarDirectory() {
 		ProtectionDomain domain = Dot2Image.class.getProtectionDomain();
 		CodeSource source = domain.getCodeSource();
 		URL url = source.getLocation();
-		return new File(url.getPath());
-	}
-
-	private static URI getJarURI() throws URISyntaxException {
-		final ProtectionDomain domain;
-		final CodeSource source;
-		final URL url;
-		final URI uri;
-
-		domain = Dot2Image.class.getProtectionDomain();
-		source = domain.getCodeSource();
-		url = source.getLocation();
-		uri = url.toURI();
-
-		return (uri);
-	}
-
-	private static URI getFile(final URI where, final String fileName) throws ZipException, IOException {
-		final File location;
-		final URI fileURI;
-
-		location = new File(where);
-
-		// not in a JAR, just return the path on disk
-		if (location.isDirectory()) {
-			fileURI = URI.create(where.toString() + fileName);
-		} else {
-			final ZipFile zipFile;
-
-			zipFile = new ZipFile(location);
-
-			try {
-				fileURI = extract(zipFile, fileName);
-			} finally {
-				zipFile.close();
-			}
+		File file = new File(url.getPath());
+		while (!file.isDirectory()) {
+			file = file.getParentFile();
 		}
-
-		return (fileURI);
-	}
-
-	private static URI extract(final ZipFile zipFile, final String fileName) throws IOException {
-		final File tempFile;
-		final ZipEntry entry;
-		final InputStream zipStream;
-		OutputStream fileStream;
-
-		tempFile = File.createTempFile(fileName, Long.toString(System.currentTimeMillis()));
-		tempFile.deleteOnExit();
-		entry = zipFile.getEntry(fileName);
-
-		if (entry == null) {
-			throw new FileNotFoundException("cannot find file: " + fileName + " in archive: " + zipFile.getName());
-		}
-
-		zipStream = zipFile.getInputStream(entry);
-		fileStream = null;
-
-		try {
-			final byte[] buf;
-			int i;
-
-			fileStream = new FileOutputStream(tempFile);
-			buf = new byte[1024];
-			i = 0;
-
-			while ((i = zipStream.read(buf)) != -1) {
-				fileStream.write(buf, 0, i);
-			}
-		} finally {
-			close(zipStream);
-			close(fileStream);
-		}
-
-		return (tempFile.toURI());
-	}
-
-	private static void close(final Closeable stream) {
-		if (stream != null) {
-			try {
-				stream.close();
-			} catch (final IOException ex) {
-				ex.printStackTrace();
-			}
-		}
+		return file;
 	}
 }
