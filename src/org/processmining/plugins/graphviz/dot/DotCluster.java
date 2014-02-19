@@ -10,6 +10,7 @@ public class DotCluster extends DotNode {
 
 	private final Set<DotNode> nodes;
 	private final List<DotEdge> edges;
+	private String options;
 	
 	public DotCluster() {
 		super("");
@@ -70,6 +71,33 @@ public class DotCluster extends DotNode {
 			}
 		}
 		return null;
+	}
+	
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		result.append("subgraph \"cluster_" + getId() + "\"{\n");
+		
+		result.append(options + "\n");
+		
+		for (DotNode node: nodes) {
+			result.append(node);
+		}
+		
+		for (DotEdge edge : edges) {
+			result.append(edge);
+		}
+		
+		result.append("}");
+		
+		return result.toString();
+	}
+	
+	public String getOptions() {
+		return options;
+	}
+
+	public void setOptions(String options) {
+		this.options = options;
 	}
 	
 }
