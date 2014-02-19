@@ -22,22 +22,20 @@ public class Dot2Image {
 	}
 
 	public static InputStream dot2imageInputStream(String dot, Type type) {
-		//File dotPath = new File("C:\\Program Files (x86)\\Graphviz2.31\\bin");
-		String args[] = new String[2];
-		//args[0] = "C:\\Program Files (x86)\\Graphviz2.31\\bin\\dot.exe";
 
-		URL dotUrl = Dot2Image.class.getResource("dot.exe");
+		//find dot binaries
+		URL dotUrl = Dot2Image.class.getResource("/org/processmining/plugins/graphviz/dot/binaries/dot.exe");
 		if (dotUrl == null) {
-			System.out.println("not found");
-		} else {
-			System.out.println("found");
+			throw new RuntimeException("Graphviz-dot binary not found.");
 		}
+		
+		System.out.println(dotUrl.getPath());
 
-		args[0] = "d:\\dot\\dot.exe";
+		String args[] = new String[2];
+		args[0] = dotUrl.getPath();
 		args[1] = "-T" + type;
 
 		final ProcessBuilder pb = new ProcessBuilder(args);
-		pb.directory(new File("d:\\output"));
 		pb.redirectErrorStream(true);
 
 		Process dotProcess = null;
