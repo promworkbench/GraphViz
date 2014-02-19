@@ -12,11 +12,11 @@ import java.net.URL;
 import org.apache.commons.compress.utils.IOUtils;
 
 public class Dot2Image {
-	
+
 	public enum Type {
 		png, pdf, svg
 	}
-	
+
 	public static InputStream dot2imageInputStream(Dot dot, Type type) {
 		return dot2imageInputStream(dot.toString(), type);
 	}
@@ -25,14 +25,14 @@ public class Dot2Image {
 		//File dotPath = new File("C:\\Program Files (x86)\\Graphviz2.31\\bin");
 		String args[] = new String[2];
 		//args[0] = "C:\\Program Files (x86)\\Graphviz2.31\\bin\\dot.exe";
-		
+
 		URL dotUrl = Dot2Image.class.getResource("dot.exe");
 		if (dotUrl == null) {
 			System.out.println("not found");
 		} else {
 			System.out.println("found");
 		}
-		
+
 		args[0] = "d:\\dot\\dot.exe";
 		args[1] = "-T" + type;
 
@@ -61,40 +61,22 @@ public class Dot2Image {
 
 		return outputOfDot;
 	}
-	
-	public static boolean dot2image(Dot dot, File pngFile, File pdfFile) {
-		return dot2image(dot.toString(), pngFile, pdfFile);
+
+	public static boolean dot2image(String dot, File file, Type type) {
+		try {
+			InputStream inputStream = dot2imageInputStream(dot, type);
+			FileOutputStream outputStream = new FileOutputStream(file);
+			IOUtils.copy(inputStream, outputStream);
+			outputStream.flush();
+			outputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
-	public static boolean dot2image(String dot, File pngFile, File pdfFile) {
-		//convert to graph and write to file
-
-		if (pngFile != null) {
-			try {
-				InputStream inputStream = dot2imageInputStream(dot, Type.png);
-				FileOutputStream outputStream = new FileOutputStream(pngFile);
-				IOUtils.copy(inputStream, outputStream);
-				outputStream.flush();
-				outputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
-
-		if (pdfFile != null) {
-			try {
-				InputStream inputStream = dot2imageInputStream(dot, Type.pdf);
-				FileOutputStream outputStream = new FileOutputStream(pdfFile);
-				IOUtils.copy(inputStream, outputStream);
-				outputStream.flush();
-				outputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
-
-		return true;
+	public static boolean dot2image(Dot dot, File file, Type type) {
+		return dot2image(dot.toString(), file, type);
 	}
 }

@@ -166,8 +166,7 @@ public class NavigableSVGPanel extends JPanel {
 	 */
 	public static final String IMAGE_CHANGED_PROPERTY = "image";
 
-	private static final double SCREEN_NAV_IMAGE_FACTOR = 0.15; // 15% of panel's width
-	private static final double NAV_IMAGE_FACTOR = 0.1; // 30% of panel's width
+	private double navigationImageWidthInPartOfPanel = 0.1;
 
 	private double zoomIncrement = 0.2;
 	private double zoomFactor = 1.0 + zoomIncrement;
@@ -183,7 +182,7 @@ public class NavigableSVGPanel extends JPanel {
 	private boolean navigationImageEnabled = true;
 	private boolean antiAlias = true;
 
-	private Color navigationImageBorderColor = Color.white;
+	private Color navigationImageBorderColor = Color.black;
 
 	private WheelZoomDevice wheelZoomDevice = null;
 	private ButtonZoomDevice buttonZoomDevice = null;
@@ -303,6 +302,9 @@ public class NavigableSVGPanel extends JPanel {
 	 */
 	public NavigableSVGPanel() {
 		setOpaque(false);
+		setDoubleBuffered(true);
+		
+		
 		addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) {
 				if (scale > 0.0) {
@@ -508,9 +510,10 @@ public class NavigableSVGPanel extends JPanel {
 		return (originX > 0 && originX < previousPanelSize.width || originY > 0 && originY < previousPanelSize.height);
 	}
 
-	//Tests whether the image is displayed in its entirety in the panel.
+	//Tests whether the image is displayed in its entirety in the panel
+	//while allowing a margin of 1, due to rounding errors
 	private boolean isFullImageInPanel() {
-		return (originX >= 0 && (originX + getScreenImageWidth()) < getWidth() && originY >= 0 && (originY + getScreenImageHeight()) < getHeight());
+		return (originX >= -1 && (originX + getScreenImageWidth()) <= getWidth() && originY >= -1 && (originY + getScreenImageHeight()) <= getHeight());
 	}
 
 	/**
@@ -666,7 +669,7 @@ public class NavigableSVGPanel extends JPanel {
 
 	//Zooms the navigation image
 	private void zoomNavigationImage() {
-		navScale *= navZoomFactor;
+		setNavScale(getNavScale() * navZoomFactor);
 		repaint();
 	}
 
@@ -763,7 +766,7 @@ public class NavigableSVGPanel extends JPanel {
 		drawSVG(g2, image, originX, originY, getScreenImageWidth(), getScreenImageHeight());
 
 		//Draw navigation image
-		if (isNavigationImageEnabled()) {
+		if (isNavigationImageEnabled() && !isFullImageInPanel()) {
 			drawSVG(g2, image, 0, 0, getScreenNavImageWidth(), getScreenNavImageHeight());
 			drawZoomAreaOutline(g);
 		}
@@ -798,6 +801,13 @@ public class NavigableSVGPanel extends JPanel {
 		double y = -originY * getScreenNavImageHeight() / getScreenImageHeight();
 		double width = getWidth() * getScreenNavImageWidth() / getScreenImageWidth();
 		double height = getHeight() * getScreenNavImageHeight() / getScreenImageHeight();
+		
+		if (x + width > getScreenNavImageWidth()) {
+			width = getScreenNavImageWidth() - x;
+		}
+		if (y + height > getScreenNavImageHeight()) {
+			height = getScreenNavImageHeight() - y;
+		}
 		g.setColor(navigationImageBorderColor);
 		g.drawRect((int) x, (int) y, (int) width, (int) height);
 	}
@@ -811,7 +821,7 @@ public class NavigableSVGPanel extends JPanel {
 	}
 
 	private double getScreenNavImageWidth() {
-		return getWidth() * NAV_IMAGE_FACTOR;
+		return getWidth() * navigationImageWidthInPartOfPanel * navScale;
 	}
 
 	private double getScreenNavImageHeight() {
@@ -824,5 +834,21 @@ public class NavigableSVGPanel extends JPanel {
 
 	public void setNavigationImageBorderColor(Color navigationImageBorderColor) {
 		this.navigationImageBorderColor = navigationImageBorderColor;
+	}
+
+	public double getNavigationImageWidthInPartOfPanel() {
+		return navigationImageWidthInPartOfPanel;
+	}
+
+	public void setNavigationImageWidthInPartOfPanel(double navigationImageWidthInPartOfPanel) {
+		this.navigationImageWidthInPartOfPanel = navigationImageWidthInPartOfPanel;
+	}
+
+	public double getNavScale() {
+		return navScale;
+	}
+
+	public void setNavScale(double navScale) {
+		this.navScale = navScale;
 	}
 }
