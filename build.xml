@@ -12,7 +12,6 @@
 
 		<!-- Set the os to win32, win64, lin32, lin64, mac, or all -->
 		<property name="os" value="win32" />
-		<property name="os" value="win64" />
 
 		<!-- Compilation macro
 		 This Macro compiles the sources is one ${src}-... folder.
@@ -124,7 +123,7 @@
 						<package 
 							name="${project}" 
 							version="${version}" 
-							os="all" 
+							os="${os}" 
 							url="http://www.promtools.org/prom6/packages/${project}/${project}-${version}-${os}.zip"
 							desc="GraphViz"
 							org="AT&amp;T" 
