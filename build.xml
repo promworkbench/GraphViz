@@ -11,7 +11,8 @@
 		<property name="project" value="GraphViz" />
 
 		<!-- Set the os to win32, win64, lin32, lin64, mac, or all -->
-		<property name="os" value="all" />
+		<property name="os" value="win32" />
+		<property name="os" value="win64" />
 
 		<!-- Compilation macro
 		 This Macro compiles the sources is one ${src}-... folder.
