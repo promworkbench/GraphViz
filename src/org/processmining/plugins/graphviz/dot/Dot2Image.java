@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.compress.utils.IOUtils;
+import org.processmining.framework.util.OsUtil;
 
 public class Dot2Image {
 
@@ -45,11 +46,10 @@ public class Dot2Image {
 		if (!dotFile.exists()) {
 			throw new RuntimeException("Graphviz-dot binary not found.");
 		}
-		
-		//System.out.println(dotUrl.getPath());
+
+		System.out.println(dotFile);
 
 		String args[] = new String[2];
-		//args[0] = dotUrl.getPath();
 		args[0] = dotFile.getAbsolutePath();
 		args[1] = "-T" + type;
 
@@ -96,100 +96,51 @@ public class Dot2Image {
 		return dot2image(dot.toString(), file, type);
 	}
 
-	private static List<String> dotFiles = new LinkedList<String>(Arrays.asList(
-			"dot.exe",
-			"cdt.dll",
-			"cgraph.dll",
-			"config6",
-			"dot.exe",
-			"fontconfig_fix.dll",
-			"fontconfig.dll",
-			"freetype6.dll",
-			"glut32.dll",
-			"gvc.dll",
-			"gvplugin_core.dll",
-			"gvplugin_dot_layout.dll",
-			"gvplugin_gd.dll",
-			"gvplugin_gdiplus.dll",
-			"gvplugin_neato_layout.dll",
-			"gvplugin_pango.dll",
-			"iconv.dll",
-			"intl.dll",
-			"jpeg62.dll",
-			"libatk-1.0-0.dll",
-			"libcairo-2.dll",
-			"libexpat-1.dll",
-			"libexpat.dll",
-			"libfontconfig-1.dll",
-			"libfreetype-6.dll",
-			"libgdk_pixbuf-2.0-0.dll",
-			"libgdk-win32-2.0-0.dll",
-			"libgdkglext-win32-1.0-0.dll",
-			"libgio-2.0-0.dll",
-			"libglib-2.0-0.dll",
-			"libgmodule-2.0-0.dll",
-			"libgobject-2.0-0.dll",
-			"libgthread-2.0-0.dll",
-			"libgtk-win32-2.0-0.dll",
-			"libgtkglext-win32-1.0-0.dll",
-			"libltdl-3.dll",
-			"libpango-1.0-0.dll",
-			"libpangocairo-1.0-0.dll",
-			"libpangoft2-1.0-0.dll",
-			"libpangowin32-1.0-0.dll",
-			"cdt.dll",
-			"cgraph.dll",
-			"config6",
-			"dot.exe",
-			"fontconfig_fix.dll",
-			"fontconfig.dll",
-			"freetype6.dll",
-			"glut32.dll",
-			"gvc.dll",
-			"gvplugin_core.dll",
-			"gvplugin_dot_layout.dll",
-			"gvplugin_gd.dll",
-			"gvplugin_gdiplus.dll",
-			"gvplugin_neato_layout.dll",
-			"gvplugin_pango.dll",
-			"iconv.dll",
-			"intl.dll",
-			"jpeg62.dll",
-			"libatk-1.0-0.dll",
-			"libcairo-2.dll",
-			"libexpat-1.dll",
-			"libexpat.dll",
-			"libfontconfig-1.dll",
-			"libfreetype-6.dll",
-			"libgdk_pixbuf-2.0-0.dll",
-			"libgdk-win32-2.0-0.dll",
-			"libgdkglext-win32-1.0-0.dll",
-			"libgio-2.0-0.dll",
-			"libglib-2.0-0.dll",
-			"libgmodule-2.0-0.dll",
-			"libgobject-2.0-0.dll",
-			"libgthread-2.0-0.dll",
-			"libgtk-win32-2.0-0.dll",
-			"libgtkglext-win32-1.0-0.dll",
-			"libltdl-3.dll",
-			"libpango-1.0-0.dll",
-			"libpangocairo-1.0-0.dll",
-			"libpangoft2-1.0-0.dll",
-			"libpangowin32-1.0-0.dll",
-			"libpng12.dll",
-			"libpng14-14.dll",
-			"libxml2.dll",
-			"ltdl.dll",
-			"Pathplan.dll",
-			"zlib1.dll",
-			"libpng12.dll",
-			"libpng14-14.dll",
-			"libxml2.dll",
-			"ltdl.dll",
-			"Pathplan.dll",
-			"zlib1.dll"));
+	private static List<String> dotFiles = new LinkedList<String>(Arrays.asList("dot.exe", "cdt.dll", "cgraph.dll",
+			"config6", "dot.exe", "fontconfig_fix.dll", "fontconfig.dll", "freetype6.dll", "glut32.dll", "gvc.dll",
+			"gvplugin_core.dll", "gvplugin_dot_layout.dll", "gvplugin_gd.dll", "gvplugin_gdiplus.dll",
+			"gvplugin_neato_layout.dll", "gvplugin_pango.dll", "iconv.dll", "intl.dll", "jpeg62.dll",
+			"libatk-1.0-0.dll", "libcairo-2.dll", "libexpat-1.dll", "libexpat.dll", "libfontconfig-1.dll",
+			"libfreetype-6.dll", "libgdk_pixbuf-2.0-0.dll", "libgdk-win32-2.0-0.dll", "libgdkglext-win32-1.0-0.dll",
+			"libgio-2.0-0.dll", "libglib-2.0-0.dll", "libgmodule-2.0-0.dll", "libgobject-2.0-0.dll",
+			"libgthread-2.0-0.dll", "libgtk-win32-2.0-0.dll", "libgtkglext-win32-1.0-0.dll", "libltdl-3.dll",
+			"libpango-1.0-0.dll", "libpangocairo-1.0-0.dll", "libpangoft2-1.0-0.dll", "libpangowin32-1.0-0.dll",
+			"cdt.dll", "cgraph.dll", "config6", "dot.exe", "fontconfig_fix.dll", "fontconfig.dll", "freetype6.dll",
+			"glut32.dll", "gvc.dll", "gvplugin_core.dll", "gvplugin_dot_layout.dll", "gvplugin_gd.dll",
+			"gvplugin_gdiplus.dll", "gvplugin_neato_layout.dll", "gvplugin_pango.dll", "iconv.dll", "intl.dll",
+			"jpeg62.dll", "libatk-1.0-0.dll", "libcairo-2.dll", "libexpat-1.dll", "libexpat.dll",
+			"libfontconfig-1.dll", "libfreetype-6.dll", "libgdk_pixbuf-2.0-0.dll", "libgdk-win32-2.0-0.dll",
+			"libgdkglext-win32-1.0-0.dll", "libgio-2.0-0.dll", "libglib-2.0-0.dll", "libgmodule-2.0-0.dll",
+			"libgobject-2.0-0.dll", "libgthread-2.0-0.dll", "libgtk-win32-2.0-0.dll", "libgtkglext-win32-1.0-0.dll",
+			"libltdl-3.dll", "libpango-1.0-0.dll", "libpangocairo-1.0-0.dll", "libpangoft2-1.0-0.dll",
+			"libpangowin32-1.0-0.dll", "libpng12.dll", "libpng14-14.dll", "libxml2.dll", "ltdl.dll", "Pathplan.dll",
+			"zlib1.dll", "libpng12.dll", "libpng14-14.dll", "libxml2.dll", "ltdl.dll", "Pathplan.dll", "zlib1.dll"));
 
 	private static File getDotDirectory() throws IOException {
+
+		File packageDirectory = OsUtil.getProMPackageDirectory();
+
+		File[] listOfFiles = packageDirectory.listFiles();
+		File graphvizFolder = null;
+		for (File file : listOfFiles) {
+			if (file.getName().startsWith("graphviz-")) {
+				// do something with the filename
+				graphvizFolder = file;
+			}
+		}
+
+		File dotDirectory = new File(new File(graphvizFolder, "lib"), "dotBinaries");
+		if (!dotDirectory.exists()) {
+			dotDirectory = getDotDirectoryByCopying();
+		}
+		
+		return dotDirectory;
+
+		//System.out.println(OsUtil.getProMPackageDirectory());
+		//System.out.println(System.getProperty("user.dir"));
+	}
+
+	private static File getDotDirectoryByCopying() throws IOException {
 		File jarDirectory = getJarDirectory();
 		System.out.println("jar directory " + jarDirectory);
 
@@ -198,7 +149,7 @@ public class Dot2Image {
 
 		//if the binaries do not exist yet, copy them from the jar file
 		if (!dotDirectory.exists()) {
-			System.out.println("dot directory does not exist; create it");
+			System.out.println("dot directory does not exist; create it and copy binaries to it");
 			dotDirectory.mkdir();
 
 			//copy files to dot directory

@@ -6,15 +6,22 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import com.kitfox.svg.SVGDiagram;
@@ -284,6 +291,41 @@ public class NavigableSVGPanel extends JPanel {
 		}
 	}
 
+	private Action zoomInAction = new AbstractAction() {
+		private static final long serialVersionUID = 3863042569537144601L;
+
+		public void actionPerformed(ActionEvent e) {
+			setZoom(1.0 + zoomIncrement);
+		}
+	};
+
+	private Action zoomOutAction = new AbstractAction() {
+		private static final long serialVersionUID = 7842478506942554961L;
+
+		public void actionPerformed(ActionEvent e) {
+			setZoom(1.0 - zoomIncrement);
+		}
+	};
+
+	private Action walkAction = new AbstractAction() {
+		private static final long serialVersionUID = 1114226211978622533L;
+
+		public void actionPerformed(ActionEvent e) {
+			String command = e.getActionCommand();
+			if (command.equals("DOWN")) {
+				state = state.update(state.originX, state.originY - 10, state.scale, state.navScale);
+			} else if (command.equals("UP")) {
+				state = state.update(state.originX, state.originY + 10, state.scale, state.navScale);
+			} else if (command.equals("LEFT")) {
+				state = state.update(state.originX + 10, state.originY, state.scale, state.navScale);
+			} else if (command.equals("RIGHT")) {
+				state = state.update(state.originX - 10, state.originY, state.scale, state.navScale);
+			}
+
+			repaint();
+		}
+	};
+
 	private class State {
 		private final double originX;
 		private final double originY;
@@ -462,6 +504,28 @@ public class NavigableSVGPanel extends JPanel {
 		});
 
 		setZoomDevice(ZoomDevice.MOUSE_WHEEL);
+
+		//listen to ctrl + to zoom in
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, InputEvent.CTRL_MASK),
+				"zoomIn"); // + key in English keyboardsc
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, InputEvent.CTRL_MASK),
+				"zoomIn"); // + key in non-English keyboards
+		getInputMap(WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ADD, InputEvent.CTRL_MASK), "zoomIn"); // + key on the numpad
+		getActionMap().put("zoomIn", zoomInAction);
+
+		//listen to ctrl - to zoom out
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.CTRL_MASK),
+				"zoomOut"); // - key
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SUBTRACT, InputEvent.CTRL_MASK),
+				"zoomOut"); // - key on the numpad
+		getActionMap().put("zoomOut", zoomOutAction);
+
+		//listen to arrow keys to walk around
+		registerKeyboardAction(walkAction, "DOWN", KeyStroke.getKeyStroke("DOWN"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		registerKeyboardAction(walkAction, "UP", KeyStroke.getKeyStroke("UP"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		registerKeyboardAction(walkAction, "LEFT", KeyStroke.getKeyStroke("LEFT"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		registerKeyboardAction(walkAction, "RIGHT", KeyStroke.getKeyStroke("RIGHT"), JComponent.WHEN_IN_FOCUSED_WINDOW);
 	}
 
 	/**
@@ -645,9 +709,8 @@ public class NavigableSVGPanel extends JPanel {
 	 *            the zoom level used to display this panel's image.
 	 */
 	public void setZoom(double newZoom) {
-		System.out.println("zoom on center");
 		Point zoomingCenter = new Point(getWidth() / 2, getHeight() / 2);
-		setZoom(newZoom, zoomingCenter);
+		zoomImage(newZoom, zoomingCenter);
 	}
 
 	/**
@@ -664,32 +727,9 @@ public class NavigableSVGPanel extends JPanel {
 	 *            the zoom level used to display this panel's image.
 	 */
 	public void setZoom(double newZoom, Point zoomingCenter) {
-		System.out.println("zoom on point");
-		Coords imageP = state.panelToImageCoords(zoomingCenter);
-		if (imageP.x < 0.0) {
-			imageP.x = 0.0;
-		}
-		if (imageP.y < 0.0) {
-			imageP.y = 0.0;
-		}
-		if (imageP.x >= image.getWidth()) {
-			imageP.x = image.getWidth() - 1.0;
-		}
-		if (imageP.y >= image.getHeight()) {
-			imageP.y = image.getHeight() - 1.0;
-		}
-
-		Coords correctedP = state.imageToPanelCoords(imageP);
 		double oldZoom = state.getZoom();
-		double scale = state.initialScale * newZoom;
 
-		State intermediateState = new State(state.originX, state.originY, scale, state.navScale, state.initialScale);
-		Coords panelP = intermediateState.imageToPanelCoords(imageP);
-
-		double originX = state.originX + (correctedP.getIntX() - (int) panelP.x);
-		double originY = state.originY + (correctedP.getIntY() - (int) panelP.y);
-
-		state = state.update(originX, originY, scale, state.navScale);
+		zoomImage(newZoom, zoomingCenter);
 
 		firePropertyChange(ZOOM_LEVEL_CHANGED_PROPERTY, new Double(oldZoom), new Double(state.getZoom()));
 
