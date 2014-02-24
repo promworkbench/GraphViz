@@ -363,8 +363,8 @@ public class NavigableSVGPanel extends JPanel {
 		private boolean isValid() {
 
 			//the image cannot become too small
-			if (getScreenImageWidth() < getWidth() * minimumScreenImageInPartOfPanel
-					|| getScreenImageHeight() < getHeight() * minimumScreenImageInPartOfPanel) {
+			if ((getScreenImageWidth() < getWidth() * minimumScreenImageInPartOfPanel && getScreenImageHeight() < getHeight())
+					|| (getScreenImageHeight() < getHeight() * minimumScreenImageInPartOfPanel && getScreenImageWidth() < getWidth())) {
 				return false;
 			}
 

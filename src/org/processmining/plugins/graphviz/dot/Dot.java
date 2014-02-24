@@ -7,11 +7,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 public class Dot {
 	
@@ -19,16 +17,17 @@ public class Dot {
 		topDown, leftRight
 	}
 
-	private final Set<DotNode> nodes;
+	private final List<DotNode> nodes;
 	private final List<DotEdge> edges;
 	private String options = "";
 	
 	private String stringValue = null;
 
 	private GraphDirection direction = GraphDirection.topDown;
+	private boolean keepOrderingOfChildren = true;
 
 	public Dot() {
-		nodes = new HashSet<DotNode>();
+		nodes = new LinkedList<DotNode>();
 		edges = new LinkedList<DotEdge>();
 	}
 
@@ -108,6 +107,10 @@ public class Dot {
 			result.append("rankdir=TD;\n");
 		}
 		
+		if (keepOrderingOfChildren) {
+			result.append("graph [ordering=\"out\"];\n");
+		}
+		
 		result.append(options + "\n");
 		
 		for (DotNode node: nodes) {
@@ -124,7 +127,7 @@ public class Dot {
 	}
 
 	public Dot(InputStream input) throws IOException {
-		nodes = new HashSet<DotNode>();
+		nodes = new LinkedList<DotNode>();
 		edges = new LinkedList<DotEdge>();
 		BufferedReader br = null;
 		StringBuilder result = new StringBuilder();
@@ -180,5 +183,13 @@ public class Dot {
 
 	public void setOptions(String options) {
 		this.options = options;
+	}
+
+	public boolean isKeepOrderingOfChildren() {
+		return keepOrderingOfChildren;
+	}
+
+	public void setKeepOrderingOfChildren(boolean keepOrderingOfChildren) {
+		this.keepOrderingOfChildren = keepOrderingOfChildren;
 	}
 }
