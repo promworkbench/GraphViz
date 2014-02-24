@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
@@ -16,6 +17,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.Rectangle2D;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -24,8 +28,11 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import com.kitfox.svg.Group;
 import com.kitfox.svg.SVGDiagram;
+import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGException;
+import com.kitfox.svg.Title;
 
 /*
  * Obtained and adapted from
@@ -247,6 +254,10 @@ public class NavigableSVGPanel extends JPanel {
 			return (int) Math.round(y);
 		}
 
+		public Point toPoint() {
+			return new Point(getIntX(), getIntY());
+		}
+
 		public String toString() {
 			return "[Coords: x=" + x + ",y=" + y + "]";
 		}
@@ -321,7 +332,6 @@ public class NavigableSVGPanel extends JPanel {
 			} else if (command.equals("RIGHT")) {
 				state = state.update(state.originX - 10, state.originY, state.scale, state.navScale);
 			}
-
 			repaint();
 		}
 	};
@@ -479,12 +489,23 @@ public class NavigableSVGPanel extends JPanel {
 
 		addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
+				Point pointPanelCoordinates = e.getPoint();
 				if (SwingUtilities.isLeftMouseButton(e)) {
 					if (state.isInNavigationImage(e.getPoint())) {
-						Point p = e.getPoint();
-						displayImageAt(p);
+						displayImageAt(pointPanelCoordinates);
 					}
 				}
+
+				if (state.isInImage(pointPanelCoordinates)) {
+					System.out.println("panel " + pointPanelCoordinates);
+					Point pointImageCoordinates = state.panelToImageCoords(pointPanelCoordinates).toPoint();
+					System.out.println("image " + pointImageCoordinates);
+
+					Point weird = new Point(pointImageCoordinates.x, -pointImageCoordinates.y);
+
+					getSVGElementAt(image.getRoot(), weird);
+				}
+
 			}
 		});
 
@@ -890,6 +911,13 @@ public class NavigableSVGPanel extends JPanel {
 			e.printStackTrace();
 		}
 
+		//add bounding boxes
+		List<Rectangle2D> rectangles = getSVGElementAt(image.getRoot(), new Point(0, 0));
+		for (Rectangle2D rectangle : rectangles) {
+			g.drawRect((int) rectangle.getX(), (int) rectangle.getY(), (int) rectangle.getWidth(),
+					(int) rectangle.getHeight());
+		}
+
 		g.scale(1 / scaleX, 1 / scaleY);
 		g.translate(-x, -y);
 	}
@@ -930,5 +958,44 @@ public class NavigableSVGPanel extends JPanel {
 
 	public void setNavigationImageWidthInPartOfPanel(double navigationImageWidthInPartOfPanel) {
 		this.navigationImageWidthInPartOfPanel = navigationImageWidthInPartOfPanel;
+	}
+
+	private List<Rectangle2D> getSVGElementAt(SVGElement element, Point point) {
+		//System.out.println(" examine " + element + " " + element.getTagName() + " " + element.getId());
+
+		List<Rectangle2D> result = new LinkedList<Rectangle2D>();
+
+		if (element instanceof Title) {
+			Title t = (Title) element;
+			if (t.getParent() instanceof Group) {
+				Group parent = (Group) t.getParent();
+				try {
+					//System.out.println("  bounding box " + parent.getBoundingBox());
+					Rectangle2D boundingBox = parent.getBoundingBox();
+
+					//transform the bounding box
+					Rectangle boundingBoxTransformed = new Rectangle();
+					boundingBoxTransformed.setBounds((int) boundingBox.getX(), (int) (boundingBox.getY() + image.getHeight()),
+							(int) boundingBox.getWidth(), (int) boundingBox.getHeight());
+
+					if (parent.getBoundingBox().contains(point)) {
+						//System.out.println("  title discovered " + t.getText());
+						//System.out.println("  parent " + t.getParent());
+						//System.out.println("  parent is group");
+						//System.out.println("  ===== point is in group ===== ");
+					}
+					result.add(boundingBoxTransformed);
+				} catch (SVGException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		for (int i = 0; i < element.getNumChildren(); i++) {
+			SVGElement child = element.getChild(i);
+			result.addAll(getSVGElementAt(child, point));
+		}
+
+		return result;
 	}
 }

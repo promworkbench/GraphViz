@@ -123,8 +123,25 @@
 						<package 
 							name="${project}" 
 							version="${version}" 
-							os="${os}" 
-							url="http://www.promtools.org/prom6/packages/${project}/${project}-${version}-${os}.zip"
+							os="win32" 
+							url="http://www.promtools.org/prom6/packages/${project}/${project}-${version}-win32.zip"
+							desc="GraphViz"
+							org="AT&amp;amp;T" 
+							license="EPL (Eclipse Public License)" 
+							author="AT&amp;amp;T"
+							auto="false"
+							hasPlugins="false"
+							logo="http://www.promtools.org/prom6/packages/prom_subtitle_hat_300.png"
+						>
+							<!--dependency name="Upstream Package 1 (CHANGE)"/>
+							<dependency name="Upstream Package 2 (CHANGE)"/>
+							<dependency name="Upstream Package 3 (CHANGE)"/-->
+						</package>
+						<package 
+							name="${project}" 
+							version="${version}" 
+							os="win64" 
+							url="http://www.promtools.org/prom6/packages/${project}/${project}-${version}-win32.zip"
 							desc="GraphViz"
 							org="AT&amp;amp;T" 
 							license="EPL (Eclipse Public License)" 
