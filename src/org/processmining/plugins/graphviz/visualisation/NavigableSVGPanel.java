@@ -979,7 +979,7 @@ public class NavigableSVGPanel extends JPanel {
 				try {
 					result.add(parent);
 					
-					System.out.println("  bounding box " + getBoundingBoxOf(parent));
+					//System.out.println("  bounding box " + getBoundingBoxOf(parent));
 
 					if (parent.getBoundingBox().contains(point)) {
 						//System.out.println("  title discovered " + t.getText());
