@@ -131,7 +131,7 @@ public class DotPanel extends NavigableSVGPanel {
 			if (i >= 0) {
 				extension = file.getName().substring(i + 1);
 			}
-			return file.isFile() && extension.toLowerCase().equals("png");
+			return file.isDirectory() || extension.toLowerCase().equals("png");
 		}
 
 		public String getDescription() {
@@ -146,7 +146,7 @@ public class DotPanel extends NavigableSVGPanel {
 			if (i >= 0) {
 				extension = file.getName().substring(i + 1);
 			}
-			return file.isFile() && extension.toLowerCase().equals("pdf");
+			return file.isDirectory() || extension.toLowerCase().equals("pdf");
 		}
 
 		public String getDescription() {
@@ -161,7 +161,7 @@ public class DotPanel extends NavigableSVGPanel {
 			if (i >= 0) {
 				extension = file.getName().substring(i + 1);
 			}
-			return file.isFile() && extension.toLowerCase().equals("svg");
+			return file.isDirectory() || extension.toLowerCase().equals("svg");
 		}
 
 		public String getDescription() {
