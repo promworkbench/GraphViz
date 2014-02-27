@@ -35,19 +35,30 @@ public class Dot2Image {
 		//	throw new RuntimeException("Graphviz-dot binary not found.");
 		//}
 
-		File dotFile;
+		File dotDirectory;
 		try {
-			dotFile = new File(getDotDirectory(), "dot.exe");
+			dotDirectory = getDotDirectory();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			throw new RuntimeException("Graphviz-dot binary not found.");
 		}
 
-		if (!dotFile.exists()) {
-			throw new RuntimeException("Graphviz-dot binary not found.");
+		//detect the operating system and locate dot binary
+		String os = System.getProperty("os.name").toLowerCase();
+		File dotFile;
+		if (os.indexOf("win") >= 0) {
+			//windows
+			dotFile = new File(dotDirectory, "dot.exe");
+		} else {
+			//assume linux
+			dotFile = new File(new File(dotDirectory, "linux"), "dot");
 		}
 
 		System.out.println(dotFile);
+
+		if (!dotFile.exists() || !dotFile.canExecute()) {
+			throw new RuntimeException("Graphviz-dot binary not found.");
+		}
 
 		String args[] = new String[2];
 		args[0] = dotFile.getAbsolutePath();
@@ -114,7 +125,14 @@ public class Dot2Image {
 			"libgobject-2.0-0.dll", "libgthread-2.0-0.dll", "libgtk-win32-2.0-0.dll", "libgtkglext-win32-1.0-0.dll",
 			"libltdl-3.dll", "libpango-1.0-0.dll", "libpangocairo-1.0-0.dll", "libpangoft2-1.0-0.dll",
 			"libpangowin32-1.0-0.dll", "libpng12.dll", "libpng14-14.dll", "libxml2.dll", "ltdl.dll", "Pathplan.dll",
-			"zlib1.dll", "libpng12.dll", "libpng14-14.dll", "libxml2.dll", "ltdl.dll", "Pathplan.dll", "zlib1.dll"));
+			"zlib1.dll", "libpng12.dll", "libpng14-14.dll", "libxml2.dll", "ltdl.dll", "Pathplan.dll", "zlib1.dll",
+			//linux
+			"linux/acyclic", "linux/bcomps", "linux/ccomps", "linux/circo", "linux/cluster", "linux/dijkstra",
+			"linux/dot", "linux/dot_builtins", "linux/dot2gxl", "linux/dotty", "linux/fdp", "linux/gc", "linux/gml2gv",
+			"linux/graphml2gv", "linux/gv2gml", "linux/gv2gxl", "linux/gvcolor", "linux/gvgen", "linux/gvmap",
+			"linux/gvmap.sh", "linux/gvpack", "linux/gvpr", "linux/gxl2dot", "linux/gxl2gv", "linux/lneato",
+			"linux/mm2gv", "linux/neato", "linux/nop", "linux/osage", "linux/patchwork", "linux/prune", "linux/sccmap",
+			"linux/sfdp", "linux/tred", "linux/twopi", "linux/unflatten", "linux/vimdot"));
 
 	private static File getDotDirectory() throws IOException {
 
@@ -133,7 +151,7 @@ public class Dot2Image {
 		if (!dotDirectory.exists()) {
 			dotDirectory = getDotDirectoryByCopying();
 		}
-		
+
 		return dotDirectory;
 
 		//System.out.println(OsUtil.getProMPackageDirectory());
@@ -143,7 +161,7 @@ public class Dot2Image {
 	private static File getDotDirectoryByCopying() throws IOException {
 		File jarDirectory = getJarDirectory();
 		System.out.println("jar directory " + jarDirectory);
-		
+
 		File libDirectory = new File(jarDirectory, "GraphViz-lib");
 		if (!libDirectory.exists()) {
 			libDirectory = new File(jarDirectory, "lib-GraphViz");
@@ -160,11 +178,14 @@ public class Dot2Image {
 
 			//copy files to dot directory
 			for (String fileName : dotFiles) {
+				File outputFile = new File(dotDirectory, fileName);
 				System.out.println("copy " + fileName);
 				InputStream inputStream = Dot2Image.class
 						.getResourceAsStream("/org/processmining/plugins/graphviz/dot/binaries/" + fileName);
-				FileOutputStream outputStream = new FileOutputStream(new File(dotDirectory, fileName));
+				FileOutputStream outputStream = new FileOutputStream(outputFile);
 				IOUtils.copy(inputStream, outputStream);
+				outputFile.setExecutable(true);
+				
 				outputStream.flush();
 				outputStream.close();
 			}
