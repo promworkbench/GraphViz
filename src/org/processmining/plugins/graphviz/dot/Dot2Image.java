@@ -52,6 +52,7 @@ public class Dot2Image {
 		} else {
 			//assume linux
 			dotFile = new File(new File(dotDirectory, "linux"), "dot");
+			dotFile.setExecutable(true);
 		}
 
 		System.out.println(dotFile);
