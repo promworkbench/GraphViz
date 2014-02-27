@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -34,6 +33,7 @@ import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGException;
 import com.kitfox.svg.Title;
+import com.kitfox.svg.xml.StyleAttribute;
 
 /*
  * Obtained and adapted from
@@ -197,6 +197,8 @@ public class NavigableSVGPanel extends JPanel {
 
 	private WheelZoomDevice wheelZoomDevice = null;
 	private ButtonZoomDevice buttonZoomDevice = null;
+	
+	private boolean showBoundingBoxes = false;
 
 	/**
 	 * <p>
@@ -558,7 +560,7 @@ public class NavigableSVGPanel extends JPanel {
 	 */
 	public NavigableSVGPanel(SVGDiagram image) {
 		this();
-		setImage(image);
+		setImage(image, true);
 	}
 
 	private void addWheelZoomDevice() {
@@ -655,12 +657,15 @@ public class NavigableSVGPanel extends JPanel {
 	 * @param image
 	 *            an image to be set in the panel
 	 */
-	public void setImage(SVGDiagram image) {
+	public void setImage(SVGDiagram image, boolean resetView) {
 		SVGDiagram oldImage = this.image;
 		this.image = image;
+		
 		//Reset state so that initializeParameters() is called in paintComponent()
 		//for the new image.
-		state = null;
+		if (resetView) {
+			state = null;
+		}
 
 		firePropertyChange(IMAGE_CHANGED_PROPERTY, oldImage, image);
 		repaint();
@@ -912,19 +917,21 @@ public class NavigableSVGPanel extends JPanel {
 			e.printStackTrace();
 		}
 
-		/*
-		//add bounding boxes
-		try {
+		//draw bounding boxes
+		if (isShowBoundingBoxes()) {
 			List<Group> groups = getSVGElementAt(image.getRoot(), new Point(0, 0));
 			for (Group group : groups) {
-				Rectangle2D rectangle = getBoundingBoxOf(group);
-				g.drawRect((int) rectangle.getX(), (int) rectangle.getY(), (int) rectangle.getWidth(),
-						(int) rectangle.getHeight());
+				try {
+					Rectangle2D rectangle = getBoundingBoxOf(group);
+					g.drawRect((int) rectangle.getX(), (int) rectangle.getY(), (int) rectangle.getWidth(),
+							(int) rectangle.getHeight());
+				} catch (SVGException e) {
+					e.printStackTrace();
+				}
+	
 			}
-		} catch (SVGException e) {
-			e.printStackTrace();
-		}*/
-
+		}
+		
 		g.scale(1 / scaleX, 1 / scaleY);
 		g.translate(-x, -y);
 	}
@@ -977,16 +984,26 @@ public class NavigableSVGPanel extends JPanel {
 			if (t.getParent() instanceof Group) {
 				Group parent = (Group) t.getParent();
 				try {
-					result.add(parent);
-					
-					//System.out.println("  bounding box " + getBoundingBoxOf(parent));
+					StyleAttribute sty = new StyleAttribute("class");
+					sty.setName("transform");
+					if (parent.getPresentationAttributes().contains("transform")) {
+						parent.getPres(sty);
+						System.out.println("   transform " + sty.getStringValue());
 
-					if (parent.getBoundingBox().contains(point)) {
-						//System.out.println("  title discovered " + t.getText());
-						//System.out.println("  parent " + t.getParent());
-						//System.out.println("  parent is group");
-						//System.out.println("  ===== point is in group ===== ");
+						System.out.println("  group discovered " + t.getText());
+						System.out.println("   bounding box " + getBoundingBoxOf(parent));
+						System.out.println("   " + parent.getInlineAttributes());
+						System.out.println("   " + parent.getPresentationAttributes());
+
+						parent.getPres(sty);
+						System.out.println("   class " + sty.getStringValue());
 					}
+
+					//System.out.println("  parent " + t.getParent());
+					//System.out.println("  parent is group");
+					//System.out.println("  ===== point is in group ===== ");
+
+					result.add(parent);
 				} catch (SVGException e) {
 					e.printStackTrace();
 				}
@@ -1000,23 +1017,32 @@ public class NavigableSVGPanel extends JPanel {
 
 		return result;
 	}
-	
-	private Rectangle2D getBoundingBoxOf(Group element) {
+
+	private Rectangle2D getBoundingBoxOf(Group element) throws SVGException {
 		//get the bounding box
-//		Rectangle2D boundingBox = element.getBoundingBox();
-		
-		Shape shape = element.getShape();
-		Rectangle2D boundingBox = shape.getBounds2D();
-		
+		Rectangle2D boundingBox = element.getBoundingBox();
+
+		//Shape shape = element.getShape();
+		//Rectangle2D boundingBox = shape.getBounds2D();
+
 		//transform the bounding box
 		int x = (int) (boundingBox.getX());
-		int y = (int) (boundingBox.getY() + image.getHeight());
+		//int y = (int) (boundingBox.getY() + image.getHeight());
+		int y = (int) (boundingBox.getY());
 		int width = (int) (boundingBox.getWidth());
 		int height = (int) (boundingBox.getHeight());
-		
+
 		Rectangle boundingBoxTransformed = new Rectangle();
 		boundingBoxTransformed.setBounds(x, y, width, height);
-		
+
 		return boundingBoxTransformed;
+	}
+
+	public boolean isShowBoundingBoxes() {
+		return showBoundingBoxes;
+	}
+
+	public void setShowBoundingBoxes(boolean showBoundingBoxes) {
+		this.showBoundingBoxes = showBoundingBoxes;
 	}
 }

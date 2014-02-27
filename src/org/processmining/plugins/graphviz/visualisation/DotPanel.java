@@ -65,11 +65,24 @@ public class DotPanel extends NavigableSVGPanel {
 	};
 
 	private Dot dot;
-	
-	public DotPanel(Dot dot) throws IOException {
-		
-		this.dot = dot;
 
+	public DotPanel(Dot dot) throws IOException {
+		changeDot(dot, true);
+
+		//set up save as
+		fc.setAcceptAllFileFilterUsed(false);
+		fc.addChoosableFileFilter(new PNGFilter());
+		fc.addChoosableFileFilter(new PDFFilter());
+		fc.addChoosableFileFilter(new SVGFilter());
+
+		//listen to ctrl+s to save a file
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK), "saveAs");
+		getActionMap().put("saveAs", saveAs);
+	}
+	
+	public void changeDot(Dot dot, boolean resetView) throws IOException {
+		this.dot = dot;
+		
 		//create svg file
 		SVGUniverse universe = new SVGUniverse();
 
@@ -78,32 +91,32 @@ public class DotPanel extends NavigableSVGPanel {
 
 		SVGDiagram diagram = universe.getDiagram(uri);
 
-		setImage(diagram);
-
-		//set up save as
-		fc.setAcceptAllFileFilterUsed(false);
-		fc.addChoosableFileFilter(new PNGFilter());
-		fc.addChoosableFileFilter(new PDFFilter());
-
-		//listen to ctrl+s to save a file
-		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK), "saveAs");
-		getActionMap().put("saveAs", saveAs);
+		setImage(diagram, true);
 	}
 
 	public void saveViewAs() {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			
+
 			//get type and add file extension
 			Type type;
 			FileFilter fileFilter = fc.getFileFilter();
 			if (fileFilter instanceof PNGFilter) {
-				file = new File(file + ".png");
+				if (!file.getName().endsWith(".png")) {
+					file = new File(file + ".png");
+				}
 				type = Type.png;
-			} else {
-				file = new File(file + ".pdf");
+			} else if (fileFilter instanceof PDFFilter) {
+				if (!file.getName().endsWith(".pdf")) {
+					file = new File(file + ".pdf");
+				}
 				type = Type.pdf;
+			} else {
+				if (!file.getName().endsWith(".svg")) {
+					file = new File(file + ".svg");
+				}
+				type = Type.svg;
 			}
 
 			//save the file
@@ -138,6 +151,21 @@ public class DotPanel extends NavigableSVGPanel {
 
 		public String getDescription() {
 			return "pdf";
+		}
+	}
+
+	public class SVGFilter extends FileFilter {
+		public boolean accept(File file) {
+			String extension = "";
+			int i = file.getName().lastIndexOf('.');
+			if (i >= 0) {
+				extension = file.getName().substring(i + 1);
+			}
+			return file.isFile() && extension.toLowerCase().equals("svg");
+		}
+
+		public String getDescription() {
+			return "svg";
 		}
 	}
 }
