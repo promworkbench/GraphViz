@@ -1,25 +1,23 @@
 package org.processmining.plugins.graphviz.dot;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 public class DotCluster extends DotNode {
 
-	private final Set<DotNode> nodes;
+	private static final long serialVersionUID = -365012750106649848L;
+
+	private final List<DotNode> nodes;
 	private final List<DotEdge> edges;
-	private String options;
-	
-	public DotCluster() {
-		super("");
-		nodes = new HashSet<DotNode>();
+	private final List<DotCluster> clusters;
+
+	protected DotCluster() {
+		super("", "");
+		nodes = new LinkedList<DotNode>();
 		edges = new LinkedList<DotEdge>();
-	}
-	
-	public DotNode addNode(String label) {
-		return addNode(label, "");
+		clusters = new LinkedList<DotCluster>();
 	}
 
 	public DotNode addNode(String label, String options) {
@@ -31,7 +29,7 @@ public class DotCluster extends DotNode {
 	public void addNode(DotNode node) {
 		nodes.add(node);
 	}
-	
+
 	public void removeNode(DotNode node) {
 		Iterator<DotNode> it = nodes.iterator();
 		while (it.hasNext()) {
@@ -41,18 +39,10 @@ public class DotCluster extends DotNode {
 		}
 	}
 
-	public DotEdge addEdge(DotNode source, DotNode target) {
-		return addEdge(source, target, "", "");
-	}
-
 	public DotEdge addEdge(DotNode source, DotNode target, String label, String options) {
 		DotEdge result = new DotEdge(source, target, label, options);
-		addEdge(result);
+		edges.add(result);
 		return result;
-	}
-
-	public void addEdge(DotEdge edge) {
-		edges.add(edge);
 	}
 
 	public void removeEdge(DotEdge edge) {
@@ -72,32 +62,71 @@ public class DotCluster extends DotNode {
 		}
 		return null;
 	}
+
+	public DotCluster addCluster() {
+		DotCluster cluster = new DotCluster();
+		clusters.add(cluster);
+		return cluster;
+	}
+
+	public void removeCluster(DotCluster cluster) {
+		clusters.remove(cluster);
+		for (DotCluster c : clusters) {
+			c.removeCluster(cluster);
+		}
+	}
+
+	public List<DotCluster> getClusters() {
+		return Collections.unmodifiableList(clusters);
+	}
+
+	public List<DotNode> getNodesRecursive() {
+		List<DotNode> result = new LinkedList<DotNode>();
+		result.addAll(nodes);
+		result.addAll(clusters);
+
+		for (DotCluster cluster : clusters) {
+			result.addAll(cluster.getNodesRecursive());
+		}
+
+		return Collections.unmodifiableList(result);
+	}
 	
+	public List<DotEdge> getEdgesRecursive() {
+		List<DotEdge> result = new LinkedList<DotEdge>();
+		result.addAll(edges);
+
+		for (DotCluster cluster : clusters) {
+			result.addAll(cluster.getEdgesRecursive());
+		}
+
+		return Collections.unmodifiableList(result);
+	}
+
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 		result.append("subgraph \"cluster_" + getId() + "\"{\n");
-		
-		result.append(options + "\n");
-		
-		for (DotNode node: nodes) {
+
+		result.append(getOptions() + "\n");
+
+		result.append(result);
+
+		result.append("}");
+
+		return result.toString();
+	}
+
+	protected void contentToString(StringBuilder result) {
+		for (DotNode node : nodes) {
 			result.append(node);
 		}
-		
+
 		for (DotEdge edge : edges) {
 			result.append(edge);
 		}
-		
-		result.append("}");
-		
-		return result.toString();
-	}
-	
-	public String getOptions() {
-		return options;
-	}
 
-	public void setOptions(String options) {
-		this.options = options;
+		for (DotCluster cluster : clusters) {
+			result.append(cluster);
+		}
 	}
-	
 }

@@ -7,19 +7,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
-public class Dot {
+public class Dot extends DotCluster {
 	
+	private static final long serialVersionUID = 4124770739980939267L;
+
 	public enum GraphDirection {
 		topDown, leftRight
 	}
-
-	private final List<DotNode> nodes;
-	private final List<DotEdge> edges;
-	private String options = "";
 	
 	private String stringValue = null;
 
@@ -27,63 +22,7 @@ public class Dot {
 	private boolean keepOrderingOfChildren = true;
 
 	public Dot() {
-		nodes = new LinkedList<DotNode>();
-		edges = new LinkedList<DotEdge>();
-	}
-
-	public DotNode addNode(String label) {
-		return addNode(label, "");
-	}
-
-	public DotNode addNode(String label, String options) {
-		DotNode result = new DotNode(label, options);
-		addNode(result);
-		return result;
-	}
-
-	public void addNode(DotNode node) {
-		nodes.add(node);
-	}
-	
-	public void removeNode(DotNode node) {
-		Iterator<DotNode> it = nodes.iterator();
-		while (it.hasNext()) {
-			if (node.equals(it.next())) {
-				it.remove();
-			}
-		}
-	}
-
-	public DotEdge addEdge(DotNode source, DotNode target) {
-		return addEdge(source, target, "", "");
-	}
-
-	public DotEdge addEdge(DotNode source, DotNode target, String label, String options) {
-		DotEdge result = new DotEdge(source, target, label, options);
-		addEdge(result);
-		return result;
-	}
-
-	public void addEdge(DotEdge edge) {
-		edges.add(edge);
-	}
-
-	public void removeEdge(DotEdge edge) {
-		Iterator<DotEdge> it = edges.iterator();
-		while (it.hasNext()) {
-			if (edge == it.next()) {
-				it.remove();
-			}
-		}
-	}
-
-	public DotEdge getFirstEdge(DotNode source, DotNode target) {
-		for (DotEdge edge : edges) {
-			if (edge.getSource() == source && edge.getTarget() == target) {
-				return edge;
-			}
-		}
-		return null;
+		
 	}
 	
 	@Deprecated
@@ -111,15 +50,9 @@ public class Dot {
 			result.append("graph [ordering=\"out\"];\n");
 		}
 		
-		result.append(options + "\n");
+		result.append(getOptions() + "\n");
 		
-		for (DotNode node: nodes) {
-			result.append(node);
-		}
-		
-		for (DotEdge edge : edges) {
-			result.append(edge);
-		}
+		contentToString(result);
 		
 		result.append("}");
 		
@@ -127,8 +60,6 @@ public class Dot {
 	}
 
 	public Dot(InputStream input) throws IOException {
-		nodes = new LinkedList<DotNode>();
-		edges = new LinkedList<DotEdge>();
 		BufferedReader br = null;
 		StringBuilder result = new StringBuilder();
 		try {
@@ -175,14 +106,6 @@ public class Dot {
 
 	public void setStringValue(String stringValue) {
 		this.stringValue = stringValue;
-	}
-
-	public String getOptions() {
-		return options;
-	}
-
-	public void setOptions(String options) {
-		this.options = options;
 	}
 
 	public boolean isKeepOrderingOfChildren() {

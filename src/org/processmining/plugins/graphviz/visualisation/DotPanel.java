@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -23,12 +24,16 @@ import javax.swing.filechooser.FileFilter;
 import org.processmining.plugins.graphviz.dot.Dot;
 import org.processmining.plugins.graphviz.dot.Dot2Image;
 import org.processmining.plugins.graphviz.dot.Dot2Image.Type;
+import org.processmining.plugins.graphviz.dot.DotEdge;
+import org.processmining.plugins.graphviz.dot.DotNode;
 
 import com.kitfox.svg.Group;
 import com.kitfox.svg.RenderableElement;
 import com.kitfox.svg.SVGDiagram;
+import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGException;
 import com.kitfox.svg.SVGUniverse;
+import com.kitfox.svg.Title;
 import com.kitfox.svg.xml.StyleAttribute;
 
 public class DotPanel extends NavigableSVGPanel {
@@ -74,6 +79,8 @@ public class DotPanel extends NavigableSVGPanel {
 	};
 
 	private Dot dot;
+	private HashMap<String, DotNode> id2node;
+	private HashMap<String, DotEdge> id2edge;
 
 	public DotPanel(Dot dot) throws IOException {
 		changeDot(dot, true);
@@ -95,13 +102,10 @@ public class DotPanel extends NavigableSVGPanel {
 				Point pointPanelCoordinates = e.getPoint();
 				if (SwingUtilities.isLeftMouseButton(e)) {
 					if (state.isInImage(pointPanelCoordinates)) {
-						System.out.println("click on panel " + pointPanelCoordinates);
 						Point pointImageCoordinates = state.panelToImageCoords(pointPanelCoordinates).toPoint();
-						System.out.println(" image " + pointImageCoordinates);
 						try {
 							//get the elements at the clicked position
-							List<List<RenderableElement>> elements = image.pick(pointImageCoordinates, true, null);
-							System.out.println(" elements clicked on" + elements);
+							List<List<RenderableElement>> elements = image.pick(pointImageCoordinates, false, null);
 
 							StyleAttribute sty = new StyleAttribute("class");
 							for (List<RenderableElement> path : elements) {
@@ -111,7 +115,28 @@ public class DotPanel extends NavigableSVGPanel {
 
 										//get the class
 										group.getPres(sty);
-										System.out.println(" class " + sty.getStringValue());
+
+										if (sty.getStringValue().equals("node")) {
+											//get the title
+											SVGElement child0 = group.getChild(0);
+											if (child0 instanceof Title) {
+												//we have found a node
+												Title title = (Title) child0;
+												DotNode node = id2node.get(title.getText());
+												System.out.println(" node " + node);
+												node.dispatchEvent(e);
+											}
+										} else if (sty.getStringValue().equals("edge")) {
+											//get the title
+											SVGElement child0 = group.getChild(0);
+											if (child0 instanceof Title) {
+												//we have found an edge
+												Title title = (Title) child0;
+												DotEdge edge = id2edge.get(title.getText());
+												System.out.println(" edge " + edge);
+												edge.dispatchEvent(e);
+											}
+										}
 									}
 								}
 							}
@@ -128,6 +153,15 @@ public class DotPanel extends NavigableSVGPanel {
 
 	public void changeDot(Dot dot, boolean resetView) throws IOException {
 		this.dot = dot;
+		
+		id2node = new HashMap<String, DotNode>();
+		for (DotNode dotNode : dot.getNodesRecursive()) {
+			id2node.put(dotNode.getId(), dotNode);
+		}
+		id2edge = new HashMap<String, DotEdge>();
+		for (DotEdge dotEdge : dot.getEdgesRecursive()) {
+			id2edge.put(dotEdge.getSource().getId() + "->" + dotEdge.getTarget().getId(), dotEdge);
+		}
 
 		//create svg file
 		SVGUniverse universe = new SVGUniverse();

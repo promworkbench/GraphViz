@@ -1,18 +1,23 @@
 package org.processmining.plugins.graphviz.dot;
 
-public class DotEdge {
+import javax.swing.JComponent;
+
+public class DotEdge extends JComponent {
+	
+	private static final long serialVersionUID = 8744582777462666393L;
+
 	private DotNode source;
 	private DotNode target;
 	private String label;
 	private String options;
-	
+
 	public DotEdge(DotNode source, DotNode target) {
 		this.setSource(source);
 		this.setTarget(target);
 		this.setLabel("");
 		this.setOptions("");
 	}
-	
+
 	public DotEdge(DotNode source, DotNode target, String label, String options) {
 		this.setSource(source);
 		this.setTarget(target);
@@ -43,7 +48,7 @@ public class DotEdge {
 	public void setSource(DotNode source) {
 		this.source = source;
 	}
-	
+
 	public String getLabel() {
 		return label;
 	}
@@ -51,13 +56,13 @@ public class DotEdge {
 	public void setLabel(String label) {
 		this.label = label;
 	}
-	
+
 	public String toString() {
 		String result = "\"" + source.getId() + "\" -> \"" + target.getId() + "\" [label=\"" + label + "\"";
 		if (!options.equals("")) {
 			result += ", " + options;
 		}
-		return result + "];\n";
+		return result + "];";
 	}
-	
+
 }
