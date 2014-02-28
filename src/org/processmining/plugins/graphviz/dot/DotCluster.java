@@ -19,6 +19,10 @@ public class DotCluster extends DotNode {
 		edges = new LinkedList<DotEdge>();
 		clusters = new LinkedList<DotCluster>();
 	}
+	
+	public DotNode addNode(String label) {
+		return addNode(label, "");
+	}
 
 	public DotNode addNode(String label, String options) {
 		DotNode result = new DotNode(label, options);
@@ -37,6 +41,14 @@ public class DotCluster extends DotNode {
 				it.remove();
 			}
 		}
+	}
+	
+	public DotEdge addEdge(DotNode source, DotNode target) {
+		return addEdge(source, target, "");
+	}
+	
+	public DotEdge addEdge(DotNode source, DotNode target, String label) {
+		return addEdge(source, target, label, "");
 	}
 
 	public DotEdge addEdge(DotNode source, DotNode target, String label, String options) {
