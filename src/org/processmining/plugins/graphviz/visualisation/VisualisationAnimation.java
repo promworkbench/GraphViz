@@ -17,14 +17,12 @@ import org.processmining.framework.plugin.annotations.PluginVariant;
 import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGUniverse;
 
-@Plugin(name = "Animation test", returnLabels = { "Dot visualization" }, returnTypes = { JComponent.class }, parameterLabels = { "Log" }, userAccessible = false)
+@Plugin(name = "zzAnimation test", returnLabels = { "Dot visualization" }, returnTypes = { JComponent.class }, parameterLabels = { "Log" }, userAccessible = false)
 @Visualizer
 public class VisualisationAnimation {
 
 	@PluginVariant(requiredParameterLabels = { 0 })
 	public JComponent visualize(PluginContext context, XLog log) throws IOException {
-
-		NavigableSVGPanel panel = new NavigableSVGPanel();
 		
 		//create svg file
 		SVGUniverse universe = new SVGUniverse();
@@ -34,8 +32,8 @@ public class VisualisationAnimation {
 
 		SVGDiagram diagram = universe.getDiagram(uri);
 
+		AnimatableSVGPanel panel = new AnimatableSVGPanel(universe);
 		panel.setImage(diagram, true);
-		panel.setEnableAnimation(true, universe);
 		
 		return panel;
 	}
