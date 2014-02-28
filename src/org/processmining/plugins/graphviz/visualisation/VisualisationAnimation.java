@@ -17,7 +17,7 @@ import org.processmining.framework.plugin.annotations.PluginVariant;
 import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGUniverse;
 
-@Plugin(name = "zz Animation test", returnLabels = { "Dot visualization" }, returnTypes = { JComponent.class }, parameterLabels = { "Log" }, userAccessible = false)
+@Plugin(name = "Animation test", returnLabels = { "Dot visualization" }, returnTypes = { JComponent.class }, parameterLabels = { "Log" }, userAccessible = false)
 @Visualizer
 public class VisualisationAnimation {
 

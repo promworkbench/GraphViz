@@ -27,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import com.kitfox.svg.Group;
 import com.kitfox.svg.SVGDiagram;
@@ -200,8 +201,14 @@ public class NavigableSVGPanel extends JPanel {
 	private ButtonZoomDevice buttonZoomDevice = null;
 	
 	private boolean showBoundingBoxes = false;
+	
+	//animation
 	private boolean enableAnimation = true;
 	private SVGUniverse universe = null;
+	private javax.swing.Timer animationTimer;
+	private double animationCurrentTime = 0.0;
+	private double animationMaxTime = 20.0;
+	private long animationLastTimeUpdated;
 
 	/**
 	 * <p>
@@ -338,6 +345,19 @@ public class NavigableSVGPanel extends JPanel {
 			} else if (command.equals("RIGHT")) {
 				state = state.update(state.originX - 10, state.originY, state.scale, state.navScale);
 			}
+			repaint();
+		}
+	};
+	
+	private Action timeStepAction = new AbstractAction() {
+		private static final long serialVersionUID = 3863042569537144601L;
+		public void actionPerformed(ActionEvent arg0) {
+			long now = System.currentTimeMillis();
+			animationCurrentTime = animationCurrentTime + (animationLastTimeUpdated - now) / 1000.0;
+			while (animationCurrentTime > animationMaxTime) {
+				animationCurrentTime -= animationMaxTime;
+			}
+			animationLastTimeUpdated = now;
 			repaint();
 		}
 	};
@@ -542,6 +562,9 @@ public class NavigableSVGPanel extends JPanel {
 		registerKeyboardAction(walkAction, "UP", KeyStroke.getKeyStroke("UP"), JComponent.WHEN_IN_FOCUSED_WINDOW);
 		registerKeyboardAction(walkAction, "LEFT", KeyStroke.getKeyStroke("LEFT"), JComponent.WHEN_IN_FOCUSED_WINDOW);
 		registerKeyboardAction(walkAction, "RIGHT", KeyStroke.getKeyStroke("RIGHT"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		
+		//prepare animation timer
+		animationTimer = new Timer(50, timeStepAction);
 	}
 
 	/**
@@ -882,7 +905,7 @@ public class NavigableSVGPanel extends JPanel {
 		}
 		
 		if (enableAnimation) {
-			universe.setCurTime(System.currentTimeMillis());
+			universe.setCurTime(System.currentTimeMillis() / 1000.0);
 			try {
 				universe.updateTime();
 			} catch (SVGException e) {
@@ -1055,5 +1078,6 @@ public class NavigableSVGPanel extends JPanel {
 	public void setEnableAnimation(boolean enableAnimation, SVGUniverse universe) {
 		this.universe = universe;
 		this.enableAnimation = enableAnimation;
+		animationTimer.start();
 	}
 }
