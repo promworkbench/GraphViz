@@ -32,6 +32,7 @@ import com.kitfox.svg.Group;
 import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGException;
+import com.kitfox.svg.SVGUniverse;
 import com.kitfox.svg.Title;
 import com.kitfox.svg.xml.StyleAttribute;
 
@@ -199,6 +200,8 @@ public class NavigableSVGPanel extends JPanel {
 	private ButtonZoomDevice buttonZoomDevice = null;
 	
 	private boolean showBoundingBoxes = false;
+	private boolean enableAnimation = true;
+	private SVGUniverse universe = null;
 
 	/**
 	 * <p>
@@ -877,6 +880,15 @@ public class NavigableSVGPanel extends JPanel {
 		if (state == null) {
 			initializeParams();
 		}
+		
+		if (enableAnimation) {
+			universe.setCurTime(System.currentTimeMillis());
+			try {
+				universe.updateTime();
+			} catch (SVGException e) {
+				e.printStackTrace();
+			}
+		}
 
 		//set anti-aliasing if desired
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antiAlias ? RenderingHints.VALUE_ANTIALIAS_ON
@@ -1034,5 +1046,14 @@ public class NavigableSVGPanel extends JPanel {
 
 	public void setShowBoundingBoxes(boolean showBoundingBoxes) {
 		this.showBoundingBoxes = showBoundingBoxes;
+	}
+
+	public boolean isEnableAnimation() {
+		return enableAnimation;
+	}
+
+	public void setEnableAnimation(boolean enableAnimation, SVGUniverse universe) {
+		this.universe = universe;
+		this.enableAnimation = enableAnimation;
 	}
 }
