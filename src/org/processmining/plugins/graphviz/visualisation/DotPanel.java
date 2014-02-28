@@ -1,26 +1,35 @@
 package org.processmining.plugins.graphviz.visualisation;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import org.processmining.plugins.graphviz.dot.Dot;
 import org.processmining.plugins.graphviz.dot.Dot2Image;
 import org.processmining.plugins.graphviz.dot.Dot2Image.Type;
 
+import com.kitfox.svg.Group;
+import com.kitfox.svg.RenderableElement;
 import com.kitfox.svg.SVGDiagram;
+import com.kitfox.svg.SVGException;
 import com.kitfox.svg.SVGUniverse;
+import com.kitfox.svg.xml.StyleAttribute;
 
 public class DotPanel extends NavigableSVGPanel {
 
@@ -78,11 +87,48 @@ public class DotPanel extends NavigableSVGPanel {
 		//listen to ctrl+s to save a file
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK), "saveAs");
 		getActionMap().put("saveAs", saveAs);
+
+		//add mouse listener to catch dot nodes
+		addMouseListener(new MouseAdapter() {
+			@SuppressWarnings("unchecked")
+			public void mousePressed(MouseEvent e) {
+				Point pointPanelCoordinates = e.getPoint();
+				if (SwingUtilities.isLeftMouseButton(e)) {
+					if (state.isInImage(pointPanelCoordinates)) {
+						System.out.println("click on panel " + pointPanelCoordinates);
+						Point pointImageCoordinates = state.panelToImageCoords(pointPanelCoordinates).toPoint();
+						System.out.println(" image " + pointImageCoordinates);
+						try {
+							//get the elements at the clicked position
+							List<List<RenderableElement>> elements = image.pick(pointImageCoordinates, true, null);
+							System.out.println(" elements clicked on" + elements);
+
+							StyleAttribute sty = new StyleAttribute("class");
+							for (List<RenderableElement> path : elements) {
+								for (RenderableElement element : path) {
+									if (element instanceof Group) {
+										Group group = (Group) element;
+
+										//get the class
+										group.getPres(sty);
+										System.out.println(" class " + sty.getStringValue());
+									}
+								}
+							}
+
+						} catch (SVGException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		});
 	}
-	
+
 	public void changeDot(Dot dot, boolean resetView) throws IOException {
 		this.dot = dot;
-		
+
 		//create svg file
 		SVGUniverse universe = new SVGUniverse();
 

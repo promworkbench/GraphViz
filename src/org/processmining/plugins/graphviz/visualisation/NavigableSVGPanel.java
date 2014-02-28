@@ -189,8 +189,8 @@ public class NavigableSVGPanel extends JPanel {
 	private boolean antiAlias = true;
 	private double zoomIncrement = 0.2;
 
-	private State state = null;
-	private SVGDiagram image;
+	protected State state = null;
+	protected SVGDiagram image;
 
 	private Point mousePosition;
 	private Dimension previousPanelSize;
@@ -240,7 +240,7 @@ public class NavigableSVGPanel extends JPanel {
 	}
 
 	//This class is required for high precision image coordinates translation.
-	private class Coords {
+	protected class Coords {
 		public double x;
 		public double y;
 
@@ -339,7 +339,7 @@ public class NavigableSVGPanel extends JPanel {
 		}
 	};
 
-	private class State {
+	protected class State {
 		private final double originX;
 		private final double originY;
 		private final double scale;
@@ -498,17 +498,6 @@ public class NavigableSVGPanel extends JPanel {
 						displayImageAt(pointPanelCoordinates);
 					}
 				}
-
-				if (state.isInImage(pointPanelCoordinates)) {
-					System.out.println("panel " + pointPanelCoordinates);
-					Point pointImageCoordinates = state.panelToImageCoords(pointPanelCoordinates).toPoint();
-					System.out.println("image " + pointImageCoordinates);
-
-					Point weird = new Point(pointImageCoordinates.x, -pointImageCoordinates.y);
-
-					getSVGElementAt(image.getRoot(), weird);
-				}
-
 			}
 		});
 
@@ -660,6 +649,7 @@ public class NavigableSVGPanel extends JPanel {
 	public void setImage(SVGDiagram image, boolean resetView) {
 		SVGDiagram oldImage = this.image;
 		this.image = image;
+		image.setDeviceViewport(new Rectangle(0, 0, (int) image.getWidth(), (int) image.getHeight()));
 		
 		//Reset state so that initializeParameters() is called in paintComponent()
 		//for the new image.
