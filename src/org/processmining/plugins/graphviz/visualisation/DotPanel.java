@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -106,10 +108,13 @@ public class DotPanel extends NavigableSVGPanel {
 						try {
 							//get the elements at the clicked position
 							List<List<RenderableElement>> elements = image.pick(pointImageCoordinates, false, null);
+							Set<DotNode> calledNodes = new HashSet<DotNode>();
+							Set<DotEdge> calledEdges = new HashSet<DotEdge>();
 
 							StyleAttribute sty = new StyleAttribute("class");
 							for (List<RenderableElement> path : elements) {
 								for (RenderableElement element : path) {
+								//RenderableElement element = path.iterator().next();
 									if (element instanceof Group) {
 										Group group = (Group) element;
 
@@ -123,8 +128,10 @@ public class DotPanel extends NavigableSVGPanel {
 												//we have found a node
 												Title title = (Title) child0;
 												DotNode node = id2node.get(title.getText());
-												System.out.println(" node " + node);
-												node.dispatchEvent(e);
+												if (!calledNodes.contains(node)) {
+													node.dispatchEvent(e);
+													calledNodes.add(node);
+												}
 											}
 										} else if (sty.getStringValue().equals("edge")) {
 											//get the title
@@ -133,8 +140,10 @@ public class DotPanel extends NavigableSVGPanel {
 												//we have found an edge
 												Title title = (Title) child0;
 												DotEdge edge = id2edge.get(title.getText());
-												System.out.println(" edge " + edge);
-												edge.dispatchEvent(e);
+												if (!calledNodes.contains(edge)) {
+													edge.dispatchEvent(e);
+													calledEdges.add(edge);
+												}
 											}
 										}
 									}
@@ -142,7 +151,6 @@ public class DotPanel extends NavigableSVGPanel {
 							}
 
 						} catch (SVGException e1) {
-							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 					}
