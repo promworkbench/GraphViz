@@ -13,7 +13,7 @@ public class Dot extends DotCluster {
 	private static final long serialVersionUID = 4124770739980939267L;
 
 	public enum GraphDirection {
-		topDown, leftRight
+		topDown, leftRight, downTop, rightLeft
 	}
 	
 	private String stringValue = null;
@@ -42,10 +42,14 @@ public class Dot extends DotCluster {
 		result.append("digraph G {\n");
 		if (direction == GraphDirection.leftRight) {
 			result.append("rankdir=LR;\n");
-		} else {
+		} else if (direction == GraphDirection.topDown){
 			result.append("rankdir=TD;\n");
+		} else if (direction == GraphDirection.rightLeft) {
+			result.append("rankdir=RL;\n");
+		} else {
+			result.append("rankdir=BT;\n");
 		}
-		
+			
 		if (keepOrderingOfChildren) {
 			result.append("graph [ordering=\"out\"];\n");
 		}

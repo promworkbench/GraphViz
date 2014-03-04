@@ -20,13 +20,13 @@ import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import org.processmining.plugins.graphviz.dot.Dot;
 import org.processmining.plugins.graphviz.dot.Dot2Image;
 import org.processmining.plugins.graphviz.dot.Dot2Image.Type;
 import org.processmining.plugins.graphviz.dot.DotEdge;
+import org.processmining.plugins.graphviz.dot.DotElement;
 import org.processmining.plugins.graphviz.dot.DotNode;
 
 import com.kitfox.svg.Group;
@@ -35,7 +35,6 @@ import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGException;
 import com.kitfox.svg.SVGUniverse;
-import com.kitfox.svg.Title;
 import com.kitfox.svg.xml.StyleAttribute;
 
 public class DotPanel extends NavigableSVGPanel {
@@ -79,138 +78,6 @@ public class DotPanel extends NavigableSVGPanel {
 			super.approveSelection();
 		}
 	};
-
-	private Dot dot;
-	private HashMap<String, DotNode> id2node;
-	private HashMap<String, DotEdge> id2edge;
-
-	public DotPanel(Dot dot) throws IOException {
-		changeDot(dot, true);
-
-		//set up save as
-		fc.setAcceptAllFileFilterUsed(false);
-		fc.addChoosableFileFilter(new PNGFilter());
-		fc.addChoosableFileFilter(new PDFFilter());
-		fc.addChoosableFileFilter(new SVGFilter());
-
-		//listen to ctrl+s to save a file
-		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK), "saveAs");
-		getActionMap().put("saveAs", saveAs);
-
-		//add mouse listener to catch dot nodes
-		addMouseListener(new MouseAdapter() {
-			@SuppressWarnings("unchecked")
-			public void mousePressed(MouseEvent e) {
-				Point pointPanelCoordinates = e.getPoint();
-				if (SwingUtilities.isLeftMouseButton(e)) {
-					if (state.isInImage(pointPanelCoordinates)) {
-						Point pointImageCoordinates = state.panelToImageCoords(pointPanelCoordinates).toPoint();
-						try {
-							//get the elements at the clicked position
-							List<List<RenderableElement>> elements = image.pick(pointImageCoordinates, false, null);
-							Set<DotNode> calledNodes = new HashSet<DotNode>();
-							Set<DotEdge> calledEdges = new HashSet<DotEdge>();
-
-							StyleAttribute sty = new StyleAttribute("class");
-							for (List<RenderableElement> path : elements) {
-								for (RenderableElement element : path) {
-								//RenderableElement element = path.iterator().next();
-									if (element instanceof Group) {
-										Group group = (Group) element;
-
-										//get the class
-										group.getPres(sty);
-
-										if (sty.getStringValue().equals("node")) {
-											//get the title
-											SVGElement child0 = group.getChild(0);
-											if (child0 instanceof Title) {
-												//we have found a node
-												Title title = (Title) child0;
-												DotNode node = id2node.get(title.getText());
-												if (!calledNodes.contains(node)) {
-													node.dispatchEvent(e);
-													calledNodes.add(node);
-												}
-											}
-										} else if (sty.getStringValue().equals("edge")) {
-											//get the title
-											SVGElement child0 = group.getChild(0);
-											if (child0 instanceof Title) {
-												//we have found an edge
-												Title title = (Title) child0;
-												DotEdge edge = id2edge.get(title.getText());
-												if (!calledNodes.contains(edge)) {
-													edge.dispatchEvent(e);
-													calledEdges.add(edge);
-												}
-											}
-										}
-									}
-								}
-							}
-
-						} catch (SVGException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
-			}
-		});
-	}
-
-	public void changeDot(Dot dot, boolean resetView) throws IOException {
-		this.dot = dot;
-		
-		id2node = new HashMap<String, DotNode>();
-		for (DotNode dotNode : dot.getNodesRecursive()) {
-			id2node.put(dotNode.getId(), dotNode);
-		}
-		id2edge = new HashMap<String, DotEdge>();
-		for (DotEdge dotEdge : dot.getEdgesRecursive()) {
-			id2edge.put(dotEdge.getSource().getId() + "->" + dotEdge.getTarget().getId(), dotEdge);
-		}
-
-		//create svg file
-		SVGUniverse universe = new SVGUniverse();
-
-		InputStream stream = Dot2Image.dot2imageInputStream(dot, Type.svg);
-		URI uri = universe.loadSVG(stream, "hoi");
-
-		SVGDiagram diagram = universe.getDiagram(uri);
-
-		setImage(diagram, true);
-	}
-
-	public void saveViewAs() {
-		int returnVal = fc.showSaveDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-
-			//get type and add file extension
-			Type type;
-			FileFilter fileFilter = fc.getFileFilter();
-			if (fileFilter instanceof PNGFilter) {
-				if (!file.getName().endsWith(".png")) {
-					file = new File(file + ".png");
-				}
-				type = Type.png;
-			} else if (fileFilter instanceof PDFFilter) {
-				if (!file.getName().endsWith(".pdf")) {
-					file = new File(file + ".pdf");
-				}
-				type = Type.pdf;
-			} else {
-				if (!file.getName().endsWith(".svg")) {
-					file = new File(file + ".svg");
-				}
-				type = Type.svg;
-			}
-
-			//save the file
-			Dot2Image.dot2image(dot, file, type);
-		}
-	}
 
 	public class PNGFilter extends FileFilter {
 		public boolean accept(File file) {
@@ -256,4 +123,150 @@ public class DotPanel extends NavigableSVGPanel {
 			return "svg";
 		}
 	}
+
+	private Dot dot;
+	private HashMap<String, DotElement> id2element;
+
+	public DotPanel(Dot dot) throws IOException {
+		this();
+		changeDot(dot, true);
+	}
+
+	public DotPanel() {
+		//set up save as
+		fc.setAcceptAllFileFilterUsed(false);
+		fc.addChoosableFileFilter(new PNGFilter());
+		fc.addChoosableFileFilter(new PDFFilter());
+		fc.addChoosableFileFilter(new SVGFilter());
+
+		//listen to ctrl+s to save a file
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK), "saveAs");
+		getActionMap().put("saveAs", saveAs);
+
+		//add mouse listeners
+		addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				for (DotElement element : getClicked(e)) {
+					element.mousePressed(e);
+				}
+			}
+
+			public void mouseClicked(MouseEvent e) {
+				for (DotElement element : getClicked(e)) {
+					element.mouseClicked(e);
+				}
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				for (DotElement element : getClicked(e)) {
+					element.mouseReleased(e);
+				}
+			}
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	private Set<DotElement> getClicked(MouseEvent e) {
+		HashSet<DotElement> result = new HashSet<DotElement>();
+		Point pointPanelCoordinates = e.getPoint();
+		if (state.isInImage(pointPanelCoordinates)) {
+			Point pointImageCoordinates = state.panelToImageCoords(pointPanelCoordinates).toPoint();
+			try {
+				//get the elements at the clicked position
+				List<List<RenderableElement>> elements = image.pick(pointImageCoordinates, false, null);
+
+				StyleAttribute classAttribute = new StyleAttribute("class");
+				StyleAttribute idAttribute = new StyleAttribute("id");
+				for (List<RenderableElement> path : elements) {
+					for (RenderableElement element : path) {
+						//RenderableElement element = path.iterator().next();
+						if (element instanceof Group) {
+							Group group = (Group) element;
+
+							//get the class
+							group.getPres(classAttribute);
+
+							//get the id
+							group.getPres(idAttribute);
+							String id = idAttribute.getStringValue();
+
+							if (classAttribute.getStringValue().equals("node")
+									|| classAttribute.getStringValue().equals("edge")) {
+								//we have found a node or edge
+								result.add(id2element.get(id));
+							}
+						}
+					}
+				}
+
+			} catch (SVGException e1) {
+				e1.printStackTrace();
+			}
+		}
+		return result;
+	}
+
+	public void changeDot(Dot dot, boolean resetView) throws IOException {
+		this.dot = dot;
+
+		id2element = new HashMap<String, DotElement>();
+		for (DotNode dotNode : dot.getNodesRecursive()) {
+			id2element.put(dotNode.getId(), dotNode);
+		}
+		for (DotEdge dotEdge : dot.getEdgesRecursive()) {
+			id2element.put(dotEdge.getId(), dotEdge);
+		}
+
+		//create svg file
+		SVGUniverse universe = new SVGUniverse();
+
+		InputStream stream = Dot2Image.dot2imageInputStream(dot, Type.svg);
+		URI uri = universe.loadSVG(stream, "hoi");
+
+		SVGDiagram diagram = universe.getDiagram(uri);
+
+		setImage(diagram, true);
+	}
+
+	/*
+	 * Get the svg element of a node
+	 */
+	public Group getSVGElementOf(DotElement element) {
+		SVGElement svgElement = image.getElement(element.getId());
+		if (svgElement instanceof Group) {
+			return (Group) svgElement;
+		}
+		return null;
+	}
+
+	public void saveViewAs() {
+		int returnVal = fc.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+
+			//get type and add file extension
+			Type type;
+			FileFilter fileFilter = fc.getFileFilter();
+			if (fileFilter instanceof PNGFilter) {
+				if (!file.getName().endsWith(".png")) {
+					file = new File(file + ".png");
+				}
+				type = Type.png;
+			} else if (fileFilter instanceof PDFFilter) {
+				if (!file.getName().endsWith(".pdf")) {
+					file = new File(file + ".pdf");
+				}
+				type = Type.pdf;
+			} else {
+				if (!file.getName().endsWith(".svg")) {
+					file = new File(file + ".svg");
+				}
+				type = Type.svg;
+			}
+
+			//save the file
+			Dot2Image.dot2image(dot, file, type);
+		}
+	}
+
 }

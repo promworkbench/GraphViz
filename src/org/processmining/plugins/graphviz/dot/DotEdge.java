@@ -1,21 +1,16 @@
 package org.processmining.plugins.graphviz.dot;
 
-import javax.swing.JComponent;
 
-public class DotEdge extends JComponent {
+public class DotEdge extends AbstractDotElement {
 	
 	private static final long serialVersionUID = 8744582777462666393L;
 
 	private DotNode source;
 	private DotNode target;
-	private String label;
-	private String options;
-
+	
 	public DotEdge(DotNode source, DotNode target) {
 		this.setSource(source);
 		this.setTarget(target);
-		this.setLabel("");
-		this.setOptions("");
 	}
 
 	public DotEdge(DotNode source, DotNode target, String label, String options) {
@@ -23,22 +18,6 @@ public class DotEdge extends JComponent {
 		this.setTarget(target);
 		this.setLabel(label);
 		this.setOptions(options);
-	}
-	
-	public void appendOption(String option) {
-		if (options.equals("")) {
-			options += option;
-		} else {
-			options += ", " + option;
-		}
-	}
-
-	public String getOptions() {
-		return options;
-	}
-
-	public void setOptions(String options) {
-		this.options = options;
 	}
 
 	public DotNode getTarget() {
@@ -57,20 +36,12 @@ public class DotEdge extends JComponent {
 		this.source = source;
 	}
 
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
 	public String toString() {
-		String result = "\"" + source.getId() + "\" -> \"" + target.getId() + "\" [label=\"" + label + "\"";
-		if (!options.equals("")) {
-			result += ", " + options;
+		String result = "\"" + source.getId() + "\" -> \"" + target.getId() + "\" [label=\"" + getLabel() + "\" id=\"" + getId()
+				+ "\"";
+		if (!getOptions().equals("")) {
+			result += ", " + getOptions();
 		}
 		return result + "];";
 	}
-
 }
