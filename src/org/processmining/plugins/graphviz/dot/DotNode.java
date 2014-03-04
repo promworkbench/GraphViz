@@ -38,6 +38,14 @@ public class DotNode extends JComponent {
 		this.options = options;
 	}
 	
+	public void appendOption(String option) {
+		if (options.equals("")) {
+			options += option;
+		} else {
+			options += ", " + option;
+		}
+	}
+	
 	public boolean equals(Object object){
 		if (!(object instanceof DotNode)) {
 			return false;

@@ -24,6 +24,14 @@ public class DotEdge extends JComponent {
 		this.setLabel(label);
 		this.setOptions(options);
 	}
+	
+	public void appendOption(String option) {
+		if (options.equals("")) {
+			options += option;
+		} else {
+			options += ", " + option;
+		}
+	}
 
 	public String getOptions() {
 		return options;
