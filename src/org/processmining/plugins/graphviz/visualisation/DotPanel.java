@@ -263,9 +263,17 @@ public class DotPanel extends NavigableSVGPanel {
 				}
 				type = Type.svg;
 			}
+			
+			final File file2 = file;
+			final Type type2 = type;
 
-			//save the file
-			Dot2Image.dot2image(dot, file, type);
+			//save the file asynchronously
+			new Thread(new Runnable() {
+			           public void run() {
+			        	   Dot2Image.dot2image(dot, file2, type2);			
+				}
+			}).start();
+			
 		}
 	}
 

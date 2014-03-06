@@ -31,6 +31,15 @@ public abstract class AbstractDotElement implements DotElement {
 	public void setLabel(String label) {
 		this.label = label;
 	}
+	
+	public String labelToString() {
+		String label2 = label.replaceAll("\"", "\\\"");
+		if (label2.length() > 2 && label2.substring(0, 1).equals("<") && label2.substring(label2.length()-1, label2.length()).equals(">")) {
+			return label2;
+		} else {
+			return "\"" + label2 + "\"";
+		}
+	}
 
 	public String getOptions() {
 		return options;

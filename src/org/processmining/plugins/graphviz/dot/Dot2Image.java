@@ -28,13 +28,7 @@ public class Dot2Image {
 	}
 
 	public static InputStream dot2imageInputStream(String dot, Type type) {
-
-		//find dot binaries
-		//URL dotUrl = Dot2Image.class.getResource("/org/processmining/plugins/graphviz/dot/binaries/dot.exe");
-		//if (dotUrl == null) {
-		//	throw new RuntimeException("Graphviz-dot binary not found.");
-		//}
-
+		
 		File dotDirectory;
 		try {
 			dotDirectory = getDotDirectory();

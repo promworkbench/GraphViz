@@ -37,7 +37,7 @@ public class DotEdge extends AbstractDotElement {
 	}
 
 	public String toString() {
-		String result = "\"" + source.getId() + "\" -> \"" + target.getId() + "\" [label=\"" + getLabel() + "\" id=\"" + getId()
+		String result = "\"" + source.getId() + "\" -> \"" + target.getId() + "\" [label=" + labelToString() + " id=\"" + getId()
 				+ "\"";
 		if (!getOptions().equals("")) {
 			result += ", " + getOptions();

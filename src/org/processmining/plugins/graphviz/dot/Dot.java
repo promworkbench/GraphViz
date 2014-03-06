@@ -9,8 +9,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class Dot extends DotCluster {
-	
-	private static final long serialVersionUID = 4124770739980939267L;
 
 	public enum GraphDirection {
 		topDown, leftRight, downTop, rightLeft
