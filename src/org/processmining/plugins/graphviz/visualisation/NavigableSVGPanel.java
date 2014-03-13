@@ -408,6 +408,9 @@ public class NavigableSVGPanel extends JPanel {
 
 		//Tests whether a given point in the panel falls within the image boundaries.	
 		public boolean isInImage(Point p) {
+			if (isInNavigationImage(p)) {
+				return false;
+			}
 			Coords coords = panelToImageCoords(p);
 			int x = coords.getIntX();
 			int y = coords.getIntY();

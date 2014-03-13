@@ -2,6 +2,7 @@ package org.processmining.plugins.graphviz.visualisation;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -33,8 +35,10 @@ import com.kitfox.svg.Group;
 import com.kitfox.svg.RenderableElement;
 import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGElement;
+import com.kitfox.svg.SVGElementException;
 import com.kitfox.svg.SVGException;
 import com.kitfox.svg.SVGUniverse;
+import com.kitfox.svg.animation.AnimationElement;
 import com.kitfox.svg.xml.StyleAttribute;
 
 public class DotPanel extends NavigableSVGPanel {
@@ -126,6 +130,7 @@ public class DotPanel extends NavigableSVGPanel {
 
 	private Dot dot;
 	private HashMap<String, DotElement> id2element;
+	private Set<DotElement> selectedElements = new HashSet<DotElement>();
 
 	public DotPanel(Dot dot) throws IOException {
 		this();
@@ -144,25 +149,99 @@ public class DotPanel extends NavigableSVGPanel {
 		getActionMap().put("saveAs", saveAs);
 
 		//add mouse listeners
+		final DotPanel this2 = this;
 		addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
+				e.setSource(this2);
 				for (DotElement element : getClicked(e)) {
 					element.mousePressed(e);
 				}
 			}
 
 			public void mouseClicked(MouseEvent e) {
+				e.setSource(this2);
+
+				boolean selectionChange = false;
 				for (DotElement element : getClicked(e)) {
 					element.mouseClicked(e);
+
+					selectionChange = selectionChange || processSelection(element, e);
+				}
+
+				if (selectionChange) {
+					selectionChanged();
 				}
 			}
 
 			public void mouseReleased(MouseEvent e) {
+				e.setSource(this2);
 				for (DotElement element : getClicked(e)) {
 					element.mouseReleased(e);
 				}
 			}
 		});
+	}
+
+	private boolean processSelection(DotElement element, MouseEvent e) {
+		if (element.isSelectable()) {
+			if (e.isControlDown()) {
+				//only change this element
+				if (selectedElements.contains(element)) {
+					selectedElements.remove(element);
+					for (ActionListener a : element.getDeselectionListeners()) {
+						a.actionPerformed(new ActionEvent(this, 0, null));
+					}
+				} else {
+					selectedElements.add(element);
+					for (ActionListener a : element.getSelectionListeners()) {
+						a.actionPerformed(new ActionEvent(this, 0, null));
+					}
+				}
+			} else {
+				if (selectedElements.contains(element)) {
+					//clicked on selected element without keypress
+					if (selectedElements.size() > 1) {
+						//deselect all other selected elements
+						Iterator<DotElement> it = selectedElements.iterator();
+						while (it.hasNext()) {
+							DotElement selectedElement = it.next();
+							if (selectedElement != element) {
+								for (ActionListener a : selectedElement.getDeselectionListeners()) {
+									a.actionPerformed(new ActionEvent(this, 0, null));
+								}
+								it.remove();
+							}
+						}
+					} else {
+						//only this element was selected, deselect it
+						selectedElements.remove(element);
+						for (ActionListener a : element.getDeselectionListeners()) {
+							a.actionPerformed(new ActionEvent(this, 0, null));
+						}
+					}
+				} else {
+					//clicked on not selected element without keypress
+					//deselect all selected elements
+					Iterator<DotElement> it = selectedElements.iterator();
+					while (it.hasNext()) {
+						DotElement selectedElement = it.next();
+						if (selectedElement != element) {
+							for (ActionListener a : selectedElement.getDeselectionListeners()) {
+								a.actionPerformed(new ActionEvent(this, 0, null));
+							}
+							it.remove();
+						}
+					}
+					//select this element
+					selectedElements.add(element);
+					for (ActionListener a : element.getSelectionListeners()) {
+						a.actionPerformed(new ActionEvent(this, 0, null));
+					}
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -229,12 +308,69 @@ public class DotPanel extends NavigableSVGPanel {
 	}
 
 	/*
-	 * Get the svg element of a node
+	 * Get the svg element of a DotElement
 	 */
 	public Group getSVGElementOf(DotElement element) {
 		SVGElement svgElement = image.getElement(element.getId());
 		if (svgElement instanceof Group) {
 			return (Group) svgElement;
+		}
+		return null;
+	}
+
+	/*
+	 * Set a css-property of a DotElement; returns the old value or null
+	 */
+	public String setCSSAttributeOf(DotElement element, String attribute, String value) {
+		Group group = getSVGElementOf(element);
+		return setCSSAttributeOf(group, attribute, value);
+	}
+
+	public String getAttributeOf(SVGElement element, String attribute) {
+		try {
+			if (element.hasAttribute(attribute, AnimationElement.AT_CSS)) {
+				StyleAttribute sty = new StyleAttribute(attribute);
+				element.getStyle(sty);
+				return sty.getStringValue();
+			}
+			if (element.hasAttribute(attribute, AnimationElement.AT_XML)) {
+				StyleAttribute sty = new StyleAttribute(attribute);
+				element.getPres(sty);
+				return sty.getStringValue();
+			}
+		} catch (SVGElementException e) {
+			e.printStackTrace();
+		} catch (SVGException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/*
+	 * Set a css-property of an SVG element; returns the old value or null
+	 * providing null as value removes the attribute
+	 */
+	public String setCSSAttributeOf(SVGElement element, String attribute, String value) {
+		try {
+			if (element.hasAttribute(attribute, AnimationElement.AT_CSS)) {
+				StyleAttribute sty = new StyleAttribute(attribute);
+				element.getStyle(sty);
+				String oldValue = sty.getStringValue();
+				if (value != null) {
+					element.setAttribute(attribute, AnimationElement.AT_CSS, value);
+				} else {
+					element.removeAttribute(attribute, AnimationElement.AT_CSS);
+				}
+				return oldValue;
+			} else {
+				if (value != null) {
+					element.addAttribute(attribute, AnimationElement.AT_CSS, value);
+				}
+			}
+		} catch (SVGElementException e) {
+			e.printStackTrace();
+		} catch (SVGException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -263,18 +399,25 @@ public class DotPanel extends NavigableSVGPanel {
 				}
 				type = Type.svg;
 			}
-			
+
 			final File file2 = file;
 			final Type type2 = type;
 
 			//save the file asynchronously
 			new Thread(new Runnable() {
-			           public void run() {
-			        	   Dot2Image.dot2image(dot, file2, type2);			
+				public void run() {
+					Dot2Image.dot2image(dot, file2, type2);
 				}
 			}).start();
-			
+
 		}
 	}
 
+	public Set<DotElement> getSelectedElements() {
+		return selectedElements;
+	}
+
+	public void selectionChanged() {
+
+	}
 }
