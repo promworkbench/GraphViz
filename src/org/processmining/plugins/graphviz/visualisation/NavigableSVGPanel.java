@@ -884,6 +884,7 @@ public class NavigableSVGPanel extends JPanel {
 		//Draw navigation image
 		if (isNavigationImageEnabled() && !state.isFullImageInPanel()) {
 			drawSVG(g2, image, 0, 0, state.getScreenNavImageWidth(), state.getScreenNavImageHeight());
+			g2.drawRect(0, 0, (int) state.getScreenNavImageWidth(), (int) state.getScreenNavImageHeight());
 			drawZoomAreaOutline(g);
 		}
 	}

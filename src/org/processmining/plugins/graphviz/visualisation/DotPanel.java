@@ -130,7 +130,7 @@ public class DotPanel extends NavigableSVGPanel {
 
 	private Dot dot;
 	private HashMap<String, DotElement> id2element;
-	private Set<DotElement> selectedElements = new HashSet<DotElement>();
+	private Set<DotElement> selectedElements;
 
 	public DotPanel(Dot dot) throws IOException {
 		this();
@@ -287,6 +287,7 @@ public class DotPanel extends NavigableSVGPanel {
 
 	public void changeDot(Dot dot, boolean resetView) throws IOException {
 		this.dot = dot;
+		selectedElements = new HashSet<DotElement>();
 
 		id2element = new HashMap<String, DotElement>();
 		for (DotNode dotNode : dot.getNodesRecursive()) {
