@@ -417,6 +417,14 @@ public class DotPanel extends NavigableSVGPanel {
 	public Set<DotElement> getSelectedElements() {
 		return selectedElements;
 	}
+	
+	public List<DotEdge> getEdges() {
+		return dot.getEdgesRecursive();
+	}
+	
+	public List<DotNode> getNodes() {
+		return dot.getNodesRecursive();
+	}
 
 	public void selectionChanged() {
 

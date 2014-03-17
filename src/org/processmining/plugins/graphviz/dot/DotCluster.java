@@ -43,6 +43,10 @@ public class DotCluster extends DotNode {
 		}
 	}
 	
+	public void addEdge(DotEdge edge) {
+		edges.add(edge);
+	}
+	
 	public DotEdge addEdge(DotNode source, DotNode target) {
 		return addEdge(source, target, "");
 	}

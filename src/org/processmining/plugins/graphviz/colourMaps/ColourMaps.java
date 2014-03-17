@@ -3,7 +3,7 @@ package org.processmining.plugins.graphviz.colourMaps;
 import java.awt.Color;
 
 public class ColourMaps {
-	public static String colourMapBlackBody(int weight, int maxWeight) {
+	public static String colourMapBlackBody(long weight, long maxWeight) {
 		float x = weight / (float) maxWeight;
 
 		/*
@@ -21,7 +21,7 @@ public class ColourMaps {
 		return "#" + hexColour.substring(2, hexColour.length());
 	}
 
-	public static String colourMapRed(int weight, int maxWeight) {
+	public static String colourMapRed(long weight, long maxWeight) {
 		float x = weight / (float) maxWeight;
 
 		x = (x * (float) 0.75) + (float) 0.25;
@@ -31,7 +31,7 @@ public class ColourMaps {
 		return "#" + hexColour.substring(2, hexColour.length());
 	}
 
-	public static String colourMapGreen(int weight, int maxWeight) {
+	public static String colourMapGreen(long weight, long maxWeight) {
 		float x = weight / (float) maxWeight;
 
 		x = (x * (float) 0.75) + (float) 0.25;
@@ -41,7 +41,7 @@ public class ColourMaps {
 		return "#" + hexColour.substring(2, hexColour.length());
 	}
 
-	public static String colourMapBlue(int weight, int maxWeight) {
+	public static String colourMapBlue(long weight, long maxWeight) {
 		float x = weight / (float) maxWeight;
 
 		x = (x * (float) 0.75) + (float) 0.25;
@@ -51,7 +51,7 @@ public class ColourMaps {
 		return "#" + hexColour.substring(2, hexColour.length());
 	}
 
-	public static String colourMapGreyBlack(int weight, int maxWeight) {
+	public static String colourMapGreyBlack(long weight, long maxWeight) {
 		float x = weight / (float) maxWeight;
 
 		x = (x * (float) 0.6) + (float) 0.4;
