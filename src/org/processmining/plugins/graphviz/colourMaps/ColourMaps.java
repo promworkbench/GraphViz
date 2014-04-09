@@ -24,7 +24,7 @@ public class ColourMaps {
 	public static String colourMapRed(long weight, long maxWeight) {
 		float x = weight / (float) maxWeight;
 
-		x = (x * (float) 0.75) + (float) 0.25;
+		x = (x * (float) 0.5) + (float) 0.5;
 		Color colour = new Color(1, 1 - x, 1 - x);
 
 		String hexColour = Integer.toHexString(colour.getRGB());
