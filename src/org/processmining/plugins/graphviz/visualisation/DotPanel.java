@@ -304,6 +304,10 @@ public class DotPanel extends NavigableSVGPanel {
 		URI uri = universe.loadSVG(stream, "hoi");
 
 		SVGDiagram diagram = universe.getDiagram(uri);
+		
+		if (diagram == null) {
+			throw new RuntimeException("the dot-structure given is not valid\n" + dot.toString());
+		}
 
 		setImage(diagram, true);
 	}

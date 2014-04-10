@@ -642,6 +642,10 @@ public class NavigableSVGPanel extends JPanel {
 	 *            an image to be set in the panel
 	 */
 	public void setImage(SVGDiagram image, boolean resetView) {
+		if (image == null) {
+			System.out.println("invalid dot given");
+			throw new NullPointerException("invalid dot given");
+		}
 		SVGDiagram oldImage = this.image;
 		this.image = image;
 		image.setDeviceViewport(new Rectangle(0, 0, (int) image.getWidth(), (int) image.getHeight()));
