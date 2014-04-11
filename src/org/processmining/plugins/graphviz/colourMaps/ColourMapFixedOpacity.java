@@ -1,6 +1,6 @@
 package org.processmining.plugins.graphviz.colourMaps;
 
-public class ColourMapFixedOpacity implements ColourMap {
+public class ColourMapFixedOpacity extends ColourMap {
 	private final ColourMap base;
 	private final String opacity;
 	public ColourMapFixedOpacity(ColourMap base, float opacity) {

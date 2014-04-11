@@ -1,6 +1,6 @@
 package org.processmining.plugins.graphviz.colourMaps;
 
-public class ColourMapOpacity implements ColourMap {
+public class ColourMapOpacity extends ColourMap {
 	private final ColourMap base;
 	public ColourMapOpacity(ColourMap base) {
 		this.base = base;
