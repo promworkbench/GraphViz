@@ -53,7 +53,7 @@ public class Dot2Image {
 			dotFile.setExecutable(true);
 		}
 
-		System.out.println(dotFile);
+//		System.out.println(dotFile);
 
 		if (!dotFile.exists() || !dotFile.canExecute()) {
 			throw new RuntimeException("Graphviz-dot binary not found.");
@@ -179,7 +179,7 @@ public class Dot2Image {
 
 	private static File getDotDirectoryByCopying() throws IOException {
 		File jarDirectory = getJarDirectory();
-		System.out.println("jar directory " + jarDirectory);
+//		System.out.println("jar directory " + jarDirectory);
 
 		File libDirectory = new File(jarDirectory, "GraphViz-lib");
 		if (!libDirectory.exists()) {
@@ -188,7 +188,7 @@ public class Dot2Image {
 		}
 
 		File dotDirectory = new File(libDirectory, "dotBinaries");
-		System.out.println("dot directory " + dotDirectory);
+//		System.out.println("dot directory " + dotDirectory);
 
 		//if the binaries do not exist yet, copy them from the jar file
 		if (!dotDirectory.exists()) {

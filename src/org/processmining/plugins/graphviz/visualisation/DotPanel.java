@@ -309,7 +309,18 @@ public class DotPanel extends NavigableSVGPanel {
 			throw new RuntimeException("the dot-structure given is not valid\n" + dot.toString());
 		}
 
-		setImage(diagram, true);
+		setImage(diagram, resetView);
+	}
+	
+	/*
+	 * select a dotElement
+	 */
+	public void select(DotElement element) {
+		selectedElements.add(element);
+		for (ActionListener a : element.getSelectionListeners()) {
+			a.actionPerformed(new ActionEvent(this, 0, null));
+		}
+		selectionChanged();
 	}
 
 	/*
