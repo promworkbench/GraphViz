@@ -166,14 +166,14 @@ public class SVGDiagram implements Serializable
 
     public float getWidth()
     {
-        if (root == null) return 0;
-        return root.getDeviceWidth();
+        if (root == null) return 1;
+        return Math.max(1, root.getDeviceWidth());
     }
     
     public float getHeight()
     {
-        if (root == null) return 0;
-        return root.getDeviceHeight();
+        if (root == null) return 1;
+        return Math.max(1, root.getDeviceHeight());
     }
     
     /**
