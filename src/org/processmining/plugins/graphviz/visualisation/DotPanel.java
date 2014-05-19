@@ -440,6 +440,10 @@ public class DotPanel extends NavigableSVGPanel {
 	public List<DotNode> getNodes() {
 		return dot.getNodesRecursive();
 	}
+	
+	public Dot getDot() {
+		return dot;
+	}
 
 	public void selectionChanged() {
 
