@@ -36,6 +36,13 @@
 
 package com.kitfox.svg.animation;
 
+import java.io.StringReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+
 import com.kitfox.svg.SVGConst;
 import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGException;
@@ -43,11 +50,6 @@ import com.kitfox.svg.SVGLoaderHelper;
 import com.kitfox.svg.animation.parser.AnimTimeParser;
 import com.kitfox.svg.animation.parser.ParseException;
 import com.kitfox.svg.xml.StyleAttribute;
-import java.io.StringReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 
 
 /**
@@ -317,12 +319,12 @@ public abstract class AnimationElement extends SVGElement
 
     }
 
-    double evalStartTime()
+    public double evalStartTime()
     {
         return beginTime == null ? Double.NaN : beginTime.evalTime();
     }
 
-    double evalDurTime()
+    public double evalDurTime()
     {
         return durTime == null ? Double.NaN : durTime.evalTime();
     }
@@ -332,7 +334,7 @@ public abstract class AnimationElement extends SVGElement
      *
      * @see hasEndTime
      */
-    double evalEndTime()
+    public double evalEndTime()
     {
         return endTime == null ? Double.NaN : endTime.evalTime();
     }
