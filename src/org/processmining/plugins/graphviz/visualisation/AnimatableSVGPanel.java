@@ -11,14 +11,18 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
+import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGException;
 import com.kitfox.svg.SVGUniverse;
+import com.kitfox.svg.animation.AnimationElement;
 
 public class AnimatableSVGPanel extends NavigableSVGPanel {
 
@@ -226,5 +230,27 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 
 	public void setRepeat(boolean repeat) {
 		this.repeat = repeat;
+	}
+	
+
+	public static List<Double> getExtremeTimes(SVGElement e) {
+		double max = Double.NEGATIVE_INFINITY;
+		double min = Double.POSITIVE_INFINITY;
+		if (e instanceof AnimationElement) {
+			min = Math.min(min, ((AnimationElement) e).evalStartTime());
+			max = Math.max(max, ((AnimationElement) e).evalStartTime() + ((AnimationElement) e).evalDurTime());
+		}
+
+		//recurse
+		for (int i = 0; i < e.getNumChildren(); i++) {
+			List<Double> ex = getExtremeTimes(e.getChild(i));
+			min = Math.min(min, ex.get(0));
+			max = Math.max(max, ex.get(1));
+		}
+		
+		List<Double> r = new ArrayList<>();
+		r.add(min);
+		r.add(max);
+		return r;
 	}
 }

@@ -893,7 +893,7 @@ public class NavigableSVGPanel extends JPanel {
 		}
 	}
 
-	private void drawSVG(Graphics2D g, SVGDiagram image, double x, double y, double width, double height) {
+	public static void drawSVG(Graphics2D g, SVGDiagram image, double x, double y, double width, double height) {
 
 		double scaleX = width / image.getWidth();
 		double scaleY = height / image.getHeight();
