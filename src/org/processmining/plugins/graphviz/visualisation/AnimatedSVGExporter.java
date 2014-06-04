@@ -11,8 +11,8 @@ public class AnimatedSVGExporter {
 
 	private final SVGUniverse universe;
 	private final SVGDiagram image;
-	private int width = 200;
-	private int height = 200;
+	private int width;
+	private int height;
 
 	public AnimatedSVGExporter(SVGUniverse universe, SVGDiagram image, int width, int height) {
 		this.universe = universe;
