@@ -41,7 +41,7 @@ import com.kitfox.svg.SVGUniverse;
 import com.kitfox.svg.animation.AnimationElement;
 import com.kitfox.svg.xml.StyleAttribute;
 
-public class DotPanel extends NavigableSVGPanel {
+public class DotPanel extends AnimatableSVGPanel {
 
 	/**
 	 * 
@@ -132,12 +132,11 @@ public class DotPanel extends NavigableSVGPanel {
 	private HashMap<String, DotElement> id2element;
 	private Set<DotElement> selectedElements;
 
-	public DotPanel(Dot dot) throws IOException {
-		this();
-		changeDot(dot, true);
-	}
-
-	public DotPanel() {
+	public DotPanel(Dot dot) {
+		super(dot2svg(dot));
+		this.dot = dot;
+		prepareNodeSelection(dot);
+		
 		//set up save as
 		fc.setAcceptAllFileFilterUsed(false);
 		fc.addChoosableFileFilter(new PNGFilter());
@@ -285,8 +284,22 @@ public class DotPanel extends NavigableSVGPanel {
 		return result;
 	}
 
-	public void changeDot(Dot dot, boolean resetView) throws IOException {
+	/*
+	 * set dot as the new graph
+	 * resetView: revert view to begin position
+	 */
+	public void changeDot(Dot dot, boolean resetView) {
+		
+		prepareNodeSelection(dot);
+
+		//create svg file
+		SVGDiagram diagram = dot2svg(dot);
 		this.dot = dot;
+
+		setImage(diagram, resetView);
+	}
+
+	private void prepareNodeSelection(Dot dot) {
 		selectedElements = new HashSet<DotElement>();
 
 		id2element = new HashMap<String, DotElement>();
@@ -296,20 +309,28 @@ public class DotPanel extends NavigableSVGPanel {
 		for (DotEdge dotEdge : dot.getEdgesRecursive()) {
 			id2element.put(dotEdge.getId(), dotEdge);
 		}
-
-		//create svg file
+	}
+	
+	/*
+	 * convert Dot into svg
+	 */
+	public static SVGDiagram dot2svg(Dot dot) {
 		SVGUniverse universe = new SVGUniverse();
 
 		InputStream stream = Dot2Image.dot2imageInputStream(dot, Type.svg);
-		URI uri = universe.loadSVG(stream, "hoi");
+		URI uri;
+		try {
+			uri = universe.loadSVG(stream, "hoi");
+		} catch (IOException e) {
+			return null;
+		}
 
 		SVGDiagram diagram = universe.getDiagram(uri);
 		
 		if (diagram == null) {
 			throw new RuntimeException("the dot-structure given is not valid\n" + dot.toString());
 		}
-
-		setImage(diagram, resetView);
+		return diagram;
 	}
 	
 	/*
@@ -326,7 +347,7 @@ public class DotPanel extends NavigableSVGPanel {
 	/*
 	 * Get the svg element of a DotElement
 	 */
-	public Group getSVGElementOf(DotElement element) {
+	public static Group getSVGElementOf(SVGDiagram image, DotElement element) {
 		SVGElement svgElement = image.getElement(element.getId());
 		if (svgElement instanceof Group) {
 			return (Group) svgElement;
@@ -337,12 +358,12 @@ public class DotPanel extends NavigableSVGPanel {
 	/*
 	 * Set a css-property of a DotElement; returns the old value or null
 	 */
-	public String setCSSAttributeOf(DotElement element, String attribute, String value) {
-		Group group = getSVGElementOf(element);
+	public static String setCSSAttributeOf(SVGDiagram image, DotElement element, String attribute, String value) {
+		Group group = getSVGElementOf(image, element);
 		return setCSSAttributeOf(group, attribute, value);
 	}
 
-	public String getAttributeOf(SVGElement element, String attribute) {
+	public static String getAttributeOf(SVGElement element, String attribute) {
 		try {
 			if (element.hasAttribute(attribute, AnimationElement.AT_CSS)) {
 				StyleAttribute sty = new StyleAttribute(attribute);
@@ -366,7 +387,7 @@ public class DotPanel extends NavigableSVGPanel {
 	 * Set a css-property of an SVG element; returns the old value or null
 	 * providing null as value removes the attribute
 	 */
-	public String setCSSAttributeOf(SVGElement element, String attribute, String value) {
+	public static String setCSSAttributeOf(SVGElement element, String attribute, String value) {
 		try {
 			if (element.hasAttribute(attribute, AnimationElement.AT_CSS)) {
 				StyleAttribute sty = new StyleAttribute(attribute);
@@ -439,6 +460,10 @@ public class DotPanel extends NavigableSVGPanel {
 	
 	public List<DotNode> getNodes() {
 		return dot.getNodesRecursive();
+	}
+	
+	public SVGDiagram getSVG() {
+		return image;
 	}
 	
 	public Dot getDot() {

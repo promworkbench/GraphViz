@@ -462,11 +462,11 @@ public class NavigableSVGPanel extends JPanel {
 
 	/**
 	 * <p>
-	 * Creates a new navigable image panel with no default image and the mouse
+	 * Creates a new navigable image panel with the given image and the mouse
 	 * scroll wheel as the zooming device.
 	 * </p>
 	 */
-	public NavigableSVGPanel() {
+	public NavigableSVGPanel(SVGDiagram image) {
 		setOpaque(false);
 		setDoubleBuffered(true);
 		setFocusable(true);
@@ -534,16 +534,7 @@ public class NavigableSVGPanel extends JPanel {
 		registerKeyboardAction(walkAction, "UP", KeyStroke.getKeyStroke("UP"), JComponent.WHEN_IN_FOCUSED_WINDOW);
 		registerKeyboardAction(walkAction, "LEFT", KeyStroke.getKeyStroke("LEFT"), JComponent.WHEN_IN_FOCUSED_WINDOW);
 		registerKeyboardAction(walkAction, "RIGHT", KeyStroke.getKeyStroke("RIGHT"), JComponent.WHEN_IN_FOCUSED_WINDOW);
-	}
-
-	/**
-	 * <p>
-	 * Creates a new navigable image panel with the specified image and the
-	 * mouse scroll wheel as the zooming device.
-	 * </p>
-	 */
-	public NavigableSVGPanel(SVGDiagram image) {
-		this();
+		
 		setImage(image, true);
 	}
 

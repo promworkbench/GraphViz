@@ -19,21 +19,25 @@ import javax.swing.Action;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
+import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGException;
-import com.kitfox.svg.SVGUniverse;
 import com.kitfox.svg.animation.AnimationElement;
 
+/*
+ * Panel that adds animation/video playback to the SVG panel
+ */
 public class AnimatableSVGPanel extends NavigableSVGPanel {
 
 	private static final long serialVersionUID = -767306259426707029L;
 
+	private double animationMinTime = 0.0;
 	private double animationMaxTime = 20.0;
 	private boolean repeat = true;
+	private boolean animationEnabled = true;
 
 	private long animationLastTimeUpdated;
-	private SVGUniverse universe = null;
-	private double animationCurrentTime = 0.0;
+	private double animationCurrentTime = animationMinTime;
 	private javax.swing.Timer animationTimer;
 
 	private Rectangle controls;
@@ -47,9 +51,9 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		public void actionPerformed(ActionEvent arg0) {
 			long now = System.currentTimeMillis();
 			animationCurrentTime = animationCurrentTime + (now - animationLastTimeUpdated) / 1000.0;
-			while (animationCurrentTime > animationMaxTime) {
+			while (animationCurrentTime > animationMaxTime - animationMinTime) {
 				if (repeat) {
-					animationCurrentTime -= animationMaxTime;
+					animationCurrentTime -= (animationMaxTime - animationMinTime);
 				} else {
 					stop();
 					rewind();
@@ -71,11 +75,11 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	private MouseAdapter controlsClickedAdapter = new MouseAdapter() {
 		public void mousePressed(MouseEvent e) {
 			Point point = e.getPoint();
-			if (controls.contains(point)) {
+			if (animationEnabled && controls.contains(point)) {
 				if (controlsProgressLine.contains(point)) {
 					//clicked in progress line area
 					double progress = (e.getX() - controlsProgressLine.x) / (controlsProgressLine.width * 1.0);
-					seek(progress * animationMaxTime);
+					seek(animationMinTime + progress * (animationMaxTime - animationMinTime));
 				} else if (controlsPlayPause.contains(point)) {
 					//clicked on play/pause button
 					startStop();
@@ -91,17 +95,19 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		}
 
 		public void mouseMoved(MouseEvent e) {
-			boolean newb = controls.contains(e.getPoint());
-			if (newb != mouseIsInControls) {
-				makeUpdate();
+			if (animationEnabled) {
+				boolean newb = controls.contains(e.getPoint());
+				if (newb != mouseIsInControls) {
+					makeUpdate();
+				}
+				mouseIsInControls = newb;
 			}
-			mouseIsInControls = newb;
 		}
 	};
 
-	public AnimatableSVGPanel(SVGUniverse universe) {
-		this.universe = universe;
-
+	public AnimatableSVGPanel(SVGDiagram image) {
+		super(image);
+		
 		//prepare animation timer
 		animationTimer = new Timer(30, timeStepAction);
 		start();
@@ -120,9 +126,9 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 
 	protected void paintComponent(Graphics g) {
 		//update universe time
-		universe.setCurTime(animationCurrentTime);
+		image.getUniverse().setCurTime(animationCurrentTime);
 		try {
-			universe.updateTime();
+			image.getUniverse().updateTime();
 		} catch (SVGException e) {
 			e.printStackTrace();
 		}
@@ -130,7 +136,9 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		super.paintComponent(g);
 
 		//draw the overlay controls
-		drawOverlayControls(g);
+		if (animationEnabled) {
+			drawOverlayControls(g);
+		}
 	}
 
 	private void drawOverlayControls(Graphics g) {
@@ -208,7 +216,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	}
 
 	public void rewind() {
-		animationCurrentTime = 0.0;
+		animationCurrentTime = animationMinTime;
 	}
 
 	public void seek(double newTime) {
@@ -252,5 +260,22 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		r.add(min);
 		r.add(max);
 		return r;
+	}
+
+	public boolean isEnableAnimation() {
+		return animationEnabled;
+	}
+
+	public void setEnableAnimation(boolean enableAnimation) {
+		if (enableAnimation != this.animationEnabled) {
+			if (!enableAnimation) {
+				//turn off animation
+				stop();
+			} else {
+				//turn on animation
+				start();
+			}
+		}
+		this.animationEnabled = enableAnimation;
 	}
 }
