@@ -9,7 +9,6 @@
 	<classpathentry kind="lib" path="stdlib/collections-generic-4.01.jar"/>
 	<classpathentry kind="lib" path="stdlib/colt.jar"/>
 	<classpathentry kind="lib" path="stdlib/commons-compress-1.0.jar"/>
-	<classpathentry kind="lib" path="stdlib/commons-math-1.2.jar"/>
 	<classpathentry kind="lib" path="stdlib/FilterableSortableTablePanel.jar"/>
 	<classpathentry kind="lib" path="stdlib/flanagan.jar"/>
 	<classpathentry kind="lib" path="stdlib/jargs.jar"/>
@@ -21,8 +20,6 @@
 	<classpathentry kind="lib" path="stdlib/jung-graph-impl-2.0.jar"/>
 	<classpathentry kind="lib" path="stdlib/jung-io-2.0.jar"/>
 	<classpathentry kind="lib" path="stdlib/jung-visualization-2.0.jar"/>
-	<classpathentry kind="lib" path="stdlib/OpenXES-XStream.jar"/>
-	<classpathentry kind="lib" path="stdlib/OpenXES.jar"/>
 	<classpathentry kind="lib" path="stdlib/simmetrics.jar"/>
 	<classpathentry kind="lib" path="stdlib/slickerbox1.0rc1.jar"/>
 	<classpathentry kind="lib" path="stdlib/Spex.jar"/>
