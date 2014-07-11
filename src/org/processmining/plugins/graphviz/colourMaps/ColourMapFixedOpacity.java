@@ -9,8 +9,12 @@ public class ColourMapFixedOpacity extends ColourMap {
 		this.base = base;
 		this.opacity = (int) (opacity * 255);
 	}
-	public Color colour(long weight, long maxWeight) {
-		Color colour = base.colour(weight, maxWeight);
+	public Color colour2(long weight, long maxWeight) {
+		Color colour = base.colour2(weight, maxWeight);
 		return new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), opacity);
+	}
+	public String colour(long weight, long maxWeight) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
