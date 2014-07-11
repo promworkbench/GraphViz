@@ -1,8 +1,11 @@
 package org.processmining.plugins.graphviz.colourMaps;
 
+import java.awt.Color;
+
+
 public class ColourMapBlackBody extends ColourMap {
 
-	public String colour(long weight, long maxWeight) {
+	public Color colour(long weight, long maxWeight) {
 		return ColourMaps.colourMapBlackBody(weight, maxWeight);
 	}
 

@@ -4,14 +4,11 @@ import java.awt.Color;
 
 public class ColourMapLightBlue extends ColourMap {
 
-	public String colour(long weight, long maxWeight) {
+	public Color colour(long weight, long maxWeight) {
 		float x = weight / (float) maxWeight;
 
 		x = (x * 0.25f) + 0.1f;
-		Color colour = new Color(1 - x, 1 - x, 1);
-
-		String hexColour = Integer.toHexString(colour.getRGB());
-		return "#" + hexColour.substring(2, hexColour.length());
+		return new Color(1 - x, 1 - x, 1);
 	}
 
 }

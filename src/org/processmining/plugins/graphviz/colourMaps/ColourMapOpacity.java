@@ -1,12 +1,15 @@
 package org.processmining.plugins.graphviz.colourMaps;
 
+import java.awt.Color;
+
 public class ColourMapOpacity extends ColourMap {
 	private final ColourMap base;
 	public ColourMapOpacity(ColourMap base) {
 		this.base = base;
 	}
-	public String colour(long weight, long maxWeight) {
-		float x = weight / (float) maxWeight;
-		return base.colour(weight, maxWeight) + Integer.toHexString((int) (x * 255));
+	public Color colour(long weight, long maxWeight) {
+		float opacity = weight / (float) maxWeight;
+		Color colour = base.colour(weight, maxWeight);
+		return new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), opacity);
 	}
 }

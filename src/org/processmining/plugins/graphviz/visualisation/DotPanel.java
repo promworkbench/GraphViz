@@ -1,5 +1,6 @@
 package org.processmining.plugins.graphviz.visualisation;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
+import org.processmining.plugins.graphviz.colourMaps.ColourMap;
 import org.processmining.plugins.graphviz.dot.Dot;
 import org.processmining.plugins.graphviz.dot.Dot2Image;
 import org.processmining.plugins.graphviz.dot.Dot2Image.Type;
@@ -382,10 +384,19 @@ public class DotPanel extends AnimatableSVGPanel {
 		}
 		return null;
 	}
+	
+	public static String setCSSAttributeOf(SVGElement element, String attribute, Color colour) {
+		return setCSSAttributeOf(element, attribute, ColourMap.toHexString(colour));
+	}
 
-	/*
+	/**
 	 * Set a css-property of an SVG element; returns the old value or null
 	 * providing null as value removes the attribute
+	 * 
+	 * @param element
+	 * @param attribute
+	 * @param value
+	 * @return
 	 */
 	public static String setCSSAttributeOf(SVGElement element, String attribute, String value) {
 		try {

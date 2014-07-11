@@ -1,11 +1,14 @@
 package org.processmining.plugins.graphviz.colourMaps;
 
+import java.awt.Color;
+
+
 public class ColourMapFixed extends ColourMap {
-	private String colour = "#FFFFFF";
-	public ColourMapFixed(String colour) {
+	private Color colour;
+	public ColourMapFixed(Color colour) {
 		this.colour = colour;
 	}
-	public String colour(long weight, long maxWeight) {
+	public Color colour(long weight, long maxWeight) {
 		return colour;
 	}
 	
