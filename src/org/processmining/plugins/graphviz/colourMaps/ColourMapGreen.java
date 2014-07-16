@@ -8,9 +8,4 @@ public class ColourMapGreen extends ColourMap {
 		return ColourMaps.colourMapGreen(weight, maxWeight);
 	}
 
-	public String colour(long weight, long maxWeight) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

@@ -11,9 +11,4 @@ public class ColourMapLightBlue extends ColourMap {
 		return new Color(1 - x, 1 - x, 1);
 	}
 
-	public String colour(long weight, long maxWeight) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

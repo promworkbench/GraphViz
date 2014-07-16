@@ -13,8 +13,5 @@ public class ColourMapFixedOpacity extends ColourMap {
 		Color colour = base.colour2(weight, maxWeight);
 		return new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), opacity);
 	}
-	public String colour(long weight, long maxWeight) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 }

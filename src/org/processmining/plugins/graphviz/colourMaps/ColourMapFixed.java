@@ -11,9 +11,4 @@ public class ColourMapFixed extends ColourMap {
 	public Color colour2(long weight, long maxWeight) {
 		return colour;
 	}
-	public String colour(long weight, long maxWeight) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 }
