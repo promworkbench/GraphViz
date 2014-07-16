@@ -7,9 +7,9 @@ public class ColourMapOpacity extends ColourMap {
 	public ColourMapOpacity(ColourMap base) {
 		this.base = base;
 	}
-	public Color colour2(long weight, long maxWeight) {
+	public Color colour(long weight, long maxWeight) {
 		float opacity = weight / (float) maxWeight;
-		Color colour = base.colour2(weight, maxWeight);
+		Color colour = base.colour(weight, maxWeight);
 		return new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), opacity);
 	}
 

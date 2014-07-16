@@ -8,7 +8,7 @@ public class ColourMapFixed extends ColourMap {
 	public ColourMapFixed(Color colour) {
 		this.colour = colour;
 	}
-	public Color colour2(long weight, long maxWeight) {
+	public Color colour(long weight, long maxWeight) {
 		return colour;
 	}
 }

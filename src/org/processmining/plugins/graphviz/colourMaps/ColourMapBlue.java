@@ -5,7 +5,7 @@ import java.awt.Color;
 
 public class ColourMapBlue extends ColourMap {
 
-	public Color colour2(long weight, long maxWeight) {
+	public Color colour(long weight, long maxWeight) {
 		return ColourMaps.colourMapBlue(weight, maxWeight);
 	}
 	

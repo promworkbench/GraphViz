@@ -3,24 +3,25 @@ package org.processmining.plugins.graphviz.colourMaps;
 import java.awt.Color;
 
 public abstract class ColourMap {
-	public abstract Color colour2(long weight, long maxWeight);
+	public abstract Color colour(long weight, long maxWeight);
 	
-	public Color colour2(long weight, long min, long max) {
+	@Deprecated
+	public Color colour3(long weight, long min, long max) {
 		if (max == min) {
-			return colour2(weight, weight);
+			return colour(weight, weight);
 		}
-		return colour2(weight - min, max - min);
+		return colour(weight - min, max - min);
 	}
 	
 	public Color colour(long weight, long min, long max) {
 		if (max == min) {
-			return colour2(weight, weight);
+			return colour(weight, weight);
 		}
-		return colour2(weight - min, max - min);
+		return colour(weight - min, max - min);
 	}
 		
 	public String colourString(long weight, long min, long max) {
-		return toHexString(colour2(weight, min, max));
+		return toHexString(colour(weight, min, max));
 	}
 
 	public static String toHexString(Color colour) {
