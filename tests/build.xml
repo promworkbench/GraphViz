@@ -108,7 +108,8 @@
 	    	<!-- parameters to run ProM -->
 	    	<jvmarg value="-ea"/>
 	    	<jvmarg value="-Xmx1G"/>
-	    	<jvmarg value="-Djava.library.path=.//lib;.//stdlib;.//packagelib"/>
+	    	<!-- [HV This introduces conflicting ant] jvmarg value="-Djava.library.path=.//lib;.//stdlib;.//packagelib"/-->
+	    	<jvmarg value="-Djava.library.path=.//stdlib;.//packagelib"/>
 	    	<!-- fixed location for cobertura to log method calls and generate report from -->
 	    	<jvmarg value="-Dnet.sourceforge.cobertura.datafile=${cobertura.datafile}"/>
 	    	
