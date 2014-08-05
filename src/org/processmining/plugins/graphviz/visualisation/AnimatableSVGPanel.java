@@ -95,7 +95,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		}
 
 		public void mouseMoved(MouseEvent e) {
-			if (animationEnabled) {
+			if (animationEnabled && controls != null && e != null && e.getPoint() != null) {
 				boolean newb = controls.contains(e.getPoint());
 				if (newb != mouseIsInControls) {
 					makeUpdate();

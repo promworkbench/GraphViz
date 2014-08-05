@@ -249,7 +249,7 @@ public class DotPanel extends AnimatableSVGPanel {
 	private Set<DotElement> getClicked(MouseEvent e) {
 		HashSet<DotElement> result = new HashSet<DotElement>();
 		Point pointPanelCoordinates = e.getPoint();
-		if (state.isInImage(pointPanelCoordinates)) {
+		if (state != null && state.isInImage(pointPanelCoordinates)) {
 			Point pointImageCoordinates = state.panelToImageCoords(pointPanelCoordinates).toPoint();
 			try {
 				//get the elements at the clicked position

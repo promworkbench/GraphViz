@@ -259,19 +259,21 @@ public class NavigableSVGPanel extends JPanel {
 
 	private class WheelZoomDevice implements MouseWheelListener {
 		public void mouseWheelMoved(MouseWheelEvent e) {
-			Point p = e.getPoint();
-			boolean zoomIn = (e.getWheelRotation() < 0);
-			if (state.isInNavigationImage(p)) {
-				if (zoomIn) {
-					zoomNavigationImage(1.0 + zoomIncrement);
-				} else {
-					zoomNavigationImage(1.0 - zoomIncrement);
-				}
-			} else if (state.isInImage(p)) {
-				if (zoomIn) {
-					zoomImage(1.0 + zoomIncrement, p);
-				} else {
-					zoomImage(1.0 - zoomIncrement, p);
+			if (state != null) {
+				Point p = e.getPoint();
+				boolean zoomIn = (e.getWheelRotation() < 0);
+				if (state.isInNavigationImage(p)) {
+					if (zoomIn) {
+						zoomNavigationImage(1.0 + zoomIncrement);
+					} else {
+						zoomNavigationImage(1.0 - zoomIncrement);
+					}
+				} else if (state.isInImage(p)) {
+					if (zoomIn) {
+						zoomImage(1.0 + zoomIncrement, p);
+					} else {
+						zoomImage(1.0 - zoomIncrement, p);
+					}
 				}
 			}
 		}
@@ -279,18 +281,20 @@ public class NavigableSVGPanel extends JPanel {
 
 	private class ButtonZoomDevice extends MouseAdapter {
 		public void mouseClicked(MouseEvent e) {
-			Point p = e.getPoint();
-			if (SwingUtilities.isRightMouseButton(e)) {
-				if (state.isInNavigationImage(p)) {
-					zoomNavigationImage(1.0 - zoomIncrement);
-				} else if (state.isInImage(p)) {
-					zoomImage(1.0 - zoomIncrement, p);
-				}
-			} else {
-				if (state.isInNavigationImage(p)) {
-					zoomNavigationImage(1.0 + zoomIncrement);
-				} else if (state.isInImage(p)) {
-					zoomImage(1.0 + zoomIncrement, p);
+			if (state != null) {
+				Point p = e.getPoint();
+				if (SwingUtilities.isRightMouseButton(e)) {
+					if (state.isInNavigationImage(p)) {
+						zoomNavigationImage(1.0 - zoomIncrement);
+					} else if (state.isInImage(p)) {
+						zoomImage(1.0 - zoomIncrement, p);
+					}
+				} else {
+					if (state.isInNavigationImage(p)) {
+						zoomNavigationImage(1.0 + zoomIncrement);
+					} else if (state.isInImage(p)) {
+						zoomImage(1.0 + zoomIncrement, p);
+					}
 				}
 			}
 		}
@@ -480,27 +484,25 @@ public class NavigableSVGPanel extends JPanel {
 						scaleOrigin();
 					}
 					repaint();
+					previousPanelSize = getSize();
 				}
-				previousPanelSize = getSize();
 			}
 		});
 
 		addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				Point pointPanelCoordinates = e.getPoint();
-				if (SwingUtilities.isLeftMouseButton(e)) {
-					if (state.isInNavigationImage(e.getPoint())) {
-						displayImageAt(pointPanelCoordinates);
-					}
+				if (state != null && SwingUtilities.isLeftMouseButton(e) && state.isInNavigationImage(e.getPoint())) {
+					displayImageAt(pointPanelCoordinates);
 				}
 			}
 		});
 
 		addMouseMotionListener(new MouseMotionListener() {
 			public void mouseDragged(MouseEvent e) {
-				if (SwingUtilities.isLeftMouseButton(e) && !state.isInNavigationImage(e.getPoint())) {
-					Point p = e.getPoint();
-					moveImage(p);
+				Point point = e.getPoint();
+				if (state != null && SwingUtilities.isLeftMouseButton(e) && !state.isInNavigationImage(point)) {
+					moveImage(point);
 				}
 			}
 
@@ -534,7 +536,7 @@ public class NavigableSVGPanel extends JPanel {
 		registerKeyboardAction(walkAction, "UP", KeyStroke.getKeyStroke("UP"), JComponent.WHEN_IN_FOCUSED_WINDOW);
 		registerKeyboardAction(walkAction, "LEFT", KeyStroke.getKeyStroke("LEFT"), JComponent.WHEN_IN_FOCUSED_WINDOW);
 		registerKeyboardAction(walkAction, "RIGHT", KeyStroke.getKeyStroke("RIGHT"), JComponent.WHEN_IN_FOCUSED_WINDOW);
-		
+
 		setImage(image, true);
 	}
 
@@ -640,7 +642,7 @@ public class NavigableSVGPanel extends JPanel {
 		SVGDiagram oldImage = this.image;
 		this.image = image;
 		image.setDeviceViewport(new Rectangle(0, 0, (int) image.getWidth(), (int) image.getHeight()));
-		
+
 		//Reset state so that initializeParameters() is called in paintComponent()
 		//for the new image.
 		if (resetView) {
@@ -897,7 +899,7 @@ public class NavigableSVGPanel extends JPanel {
 		} catch (SVGException e) {
 			e.printStackTrace();
 		}
-		
+
 		g.scale(1 / scaleX, 1 / scaleY);
 		g.translate(-x, -y);
 	}
