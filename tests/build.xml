@@ -124,7 +124,7 @@
 
 	      <!-- JUnit: test cases to run -->
     	  <sysproperty key="test.testFileRoot" path="${dir.testfiles}"/>
-	      <test name="org.processmining.tests.newpackage.NewPackageTest" todir="${test.basedir}" />
+	      <!--=<test name="org.processmining.tests.newpackage.NewPackageTest" todir="${test.basedir}" />-->
 	    </junit>
 		
 		<!-- Cobertura: generate HTML coverage report -->
