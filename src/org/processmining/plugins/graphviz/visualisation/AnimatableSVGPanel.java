@@ -34,7 +34,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	private double animationMinTime = 0.0;
 	private double animationMaxTime = 20.0;
 	private boolean repeat = true;
-	private boolean animationEnabled = true;
+	private boolean animationEnabled = false;
 
 	private long animationLastTimeUpdated;
 	private double animationCurrentTime = animationMinTime;

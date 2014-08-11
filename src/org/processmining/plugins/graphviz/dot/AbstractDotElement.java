@@ -21,7 +21,7 @@ public abstract class AbstractDotElement implements DotElement {
 	private final List<MouseListener> mouseListeners;
 
 	public AbstractDotElement() {
-		id = UUID.randomUUID().toString();
+		id = "e" + UUID.randomUUID().toString();
 		mouseListeners = new LinkedList<MouseListener>();
 		label = "";
 		options = "";
