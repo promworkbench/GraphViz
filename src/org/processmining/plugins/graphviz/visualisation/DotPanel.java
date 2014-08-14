@@ -8,6 +8,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -138,7 +139,7 @@ public class DotPanel extends AnimatableSVGPanel {
 		super(dot2svg(dot));
 		this.dot = dot;
 		prepareNodeSelection(dot);
-		
+
 		//set up save as
 		fc.setAcceptAllFileFilterUsed(false);
 		fc.addChoosableFileFilter(new PNGFilter());
@@ -250,7 +251,8 @@ public class DotPanel extends AnimatableSVGPanel {
 		HashSet<DotElement> result = new HashSet<DotElement>();
 		Point pointPanelCoordinates = e.getPoint();
 		if (isInImage(pointPanelCoordinates)) {
-			Point pointImageCoordinates = panelToImageCoords(pointPanelCoordinates).toPoint();
+			Point2D pointImageCoordinates = ZoomPan.getImage2PanelTransformation(getSVG(), panel).transformToImage(
+					pointPanelCoordinates, state.getZoomPanState());
 			try {
 				//get the elements at the clicked position
 				List<List<RenderableElement>> elements = image.pick(pointImageCoordinates, false, null);
@@ -273,7 +275,10 @@ public class DotPanel extends AnimatableSVGPanel {
 							if (classAttribute.getStringValue().equals("node")
 									|| classAttribute.getStringValue().equals("edge")) {
 								//we have found a node or edge
-								result.add(id2element.get(id));
+								DotElement dotElement = id2element.get(id);
+								if (dotElement != null) {
+									result.add(dotElement);
+								}
 							}
 						}
 					}
@@ -287,11 +292,10 @@ public class DotPanel extends AnimatableSVGPanel {
 	}
 
 	/*
-	 * set dot as the new graph
-	 * resetView: revert view to begin position
+	 * set dot as the new graph resetView: revert view to begin position
 	 */
 	public void changeDot(Dot dot, boolean resetView) {
-		
+
 		prepareNodeSelection(dot);
 
 		//create svg file
@@ -312,7 +316,7 @@ public class DotPanel extends AnimatableSVGPanel {
 			id2element.put(dotEdge.getId(), dotEdge);
 		}
 	}
-	
+
 	/*
 	 * convert Dot into svg
 	 */
@@ -328,13 +332,13 @@ public class DotPanel extends AnimatableSVGPanel {
 		}
 
 		SVGDiagram diagram = universe.getDiagram(uri);
-		
+
 		if (diagram == null) {
 			throw new RuntimeException("the dot-structure given is not valid\n" + dot.toString());
 		}
 		return diagram;
 	}
-	
+
 	/*
 	 * select a dotElement
 	 */
@@ -384,7 +388,7 @@ public class DotPanel extends AnimatableSVGPanel {
 		}
 		return null;
 	}
-	
+
 	public static String setCSSAttributeOf(SVGElement element, String attribute, Color colour) {
 		return setCSSAttributeOf(element, attribute, ColourMap.toHexString(colour));
 	}
@@ -464,19 +468,19 @@ public class DotPanel extends AnimatableSVGPanel {
 	public Set<DotElement> getSelectedElements() {
 		return selectedElements;
 	}
-	
+
 	public List<DotEdge> getEdges() {
 		return dot.getEdgesRecursive();
 	}
-	
+
 	public List<DotNode> getNodes() {
 		return dot.getNodesRecursive();
 	}
-	
+
 	public SVGDiagram getSVG() {
 		return image;
 	}
-	
+
 	public Dot getDot() {
 		return dot;
 	}

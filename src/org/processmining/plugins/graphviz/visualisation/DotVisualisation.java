@@ -1,7 +1,5 @@
 package org.processmining.plugins.graphviz.visualisation;
 
-import java.io.IOException;
-
 import javax.swing.JComponent;
 
 import org.processmining.contexts.uitopia.annotations.Visualizer;
@@ -15,7 +13,7 @@ import org.processmining.plugins.graphviz.dot.Dot;
 public class DotVisualisation {
 
 	@PluginVariant(requiredParameterLabels = { 0 })
-	public JComponent visualize(PluginContext context, Dot dot) throws IOException {
+	public JComponent visualize(PluginContext context, Dot dot) {
 
 		return new DotPanel(dot);
 	}
