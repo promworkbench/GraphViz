@@ -43,7 +43,7 @@ public abstract class AbstractDotElement implements DotElement {
 		if (label.length() > 2 && label.substring(0, 1).equals("<") && label.substring(label.length()-1, label.length()).equals(">")) {
 			return label;
 		} else {
-			String label2 = label.replaceAll("\"", "\\\"");
+			String label2 = label.replace("\"", "\\\"");
 			return "\"" + label2 + "\"";
 		}
 	}

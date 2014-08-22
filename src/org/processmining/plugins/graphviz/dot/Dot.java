@@ -22,14 +22,6 @@ public class Dot extends DotCluster {
 	public Dot() {
 		
 	}
-	
-	@Deprecated
-	public void append(String s) {
-		if (stringValue == null) {
-			stringValue = "";
-		}
-		stringValue += s;
-	}
 
 	public String toString() {
 		if (stringValue != null) {

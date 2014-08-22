@@ -135,14 +135,17 @@ public class DotCluster extends DotNode {
 	protected void contentToString(StringBuilder result) {
 		for (DotNode node : nodes) {
 			result.append(node);
+			result.append("\n");
 		}
 
 		for (DotEdge edge : edges) {
 			result.append(edge);
+			result.append("\n");
 		}
 
 		for (DotCluster cluster : clusters) {
 			result.append(cluster);
+			result.append("\n");
 		}
 	}
 }
