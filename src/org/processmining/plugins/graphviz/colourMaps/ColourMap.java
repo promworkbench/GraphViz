@@ -25,7 +25,15 @@ public abstract class ColourMap {
 	}
 
 	public static String toHexString(Color colour) {
-		String hexColour = Integer.toHexString(colour.getRGB());
-		return "#" + hexColour.substring(2, hexColour.length());
+		return "#" + toHex(colour.getRed()) + toHex(colour.getGreen()) + toHex(colour.getBlue());
+	}
+	
+	public static String toHex(int i) {
+		String s = Integer.toHexString(i);
+		if (s.length() == 2) {
+			return s;
+		} else {
+			return "0" + s;
+		} 
 	}
 }
