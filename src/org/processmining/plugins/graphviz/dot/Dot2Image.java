@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
@@ -69,7 +69,7 @@ public class Dot2Image {
 		Process dotProcess = null;
 		try {
 			dotProcess = pb.start();
-			BufferedWriter out2 = new BufferedWriter(new PrintWriter(dotProcess.getOutputStream()));
+			BufferedWriter out2 = new BufferedWriter(new OutputStreamWriter(dotProcess.getOutputStream(), "UTF-8"));
 			out2.write(dot.toString());
 			out2.flush();
 			out2.close();
