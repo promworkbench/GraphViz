@@ -28,7 +28,7 @@ public class Dot2Image {
 	}
 
 	public static InputStream dot2imageInputStream(String dot, Type type) {
-		
+
 		File dotDirectory;
 		try {
 			dotDirectory = getDotDirectory();
@@ -53,7 +53,7 @@ public class Dot2Image {
 			dotFile.setExecutable(true);
 		}
 
-//		System.out.println(dotFile);
+		//		System.out.println(dotFile);
 
 		if (!dotFile.exists() || !dotFile.canExecute()) {
 			throw new RuntimeException("Graphviz-dot binary not found.");
@@ -123,35 +123,12 @@ public class Dot2Image {
 			"libgdkglext-win32-1.0-0.dll", "libgio-2.0-0.dll", "libglib-2.0-0.dll", "libgmodule-2.0-0.dll",
 			"libgobject-2.0-0.dll", "libgthread-2.0-0.dll", "libgtk-win32-2.0-0.dll", "libgtkglext-win32-1.0-0.dll",
 			"libltdl-3.dll", "libpango-1.0-0.dll", "libpangocairo-1.0-0.dll", "libpangoft2-1.0-0.dll",
-			"libpangowin32-1.0-0.dll", "libpng12.dll", "libpng14-14.dll",
-			"libxml2.dll",
-			"ltdl.dll",
-			"Pathplan.dll",
-			"zlib1.dll",
-			"libpng12.dll",
-			"libpng14-14.dll",
-			"libxml2.dll",
-			"ltdl.dll",
-			"Pathplan.dll",
-			"zlib1.dll",
+			"libpangowin32-1.0-0.dll", "libpng12.dll", "libpng14-14.dll", "libxml2.dll", "ltdl.dll", "Pathplan.dll",
+			"zlib1.dll", "libpng12.dll", "libpng14-14.dll", "libxml2.dll", "ltdl.dll", "Pathplan.dll", "zlib1.dll",
 			//linux
-			"linux/acyclic", "linux/bcomps", "linux/ccomps", "linux/circo", "linux/cluster", "linux/dijkstra",
-			"linux/dot", "linux/dot_builtins", "linux/dot2gxl", "linux/dotty", "linux/fdp", "linux/gc", "linux/gml2gv",
-			"linux/graphml2gv", "linux/gv2gml", "linux/gv2gxl", "linux/gvcolor", "linux/gvgen", "linux/gvmap",
-			"linux/gvmap.sh", "linux/gvpack", "linux/gvpr", "linux/gxl2dot", "linux/gxl2gv", "linux/lneato",
-			"linux/mm2gv", "linux/neato", "linux/nop", "linux/osage", "linux/patchwork", "linux/prune", "linux/sccmap",
-			"linux/sfdp",
-			"linux/tred",
-			"linux/twopi",
-			"linux/unflatten",
-			"linux/vimdot",
+			"linux/dot",
 			//mac
-			"mac/acyclic", "mac/bcomps", "mac/ccomps", "mac/circo", "mac/cluster", "mac/dijkstra", "mac/dot",
-			"mac/dot_builtins", "mac/dot2gxl", "mac/dotty", "mac/fdp", "mac/gc", "mac/gml2gv", "mac/graphml2gv",
-			"mac/gv-fc-cache", "mac/gv2gml", "mac/gv2gxl", "mac/gvcolor", "mac/gvgen", "mac/gvmap", "mac/gvmap.sh",
-			"mac/gvpack", "mac/gvpr", "mac/gxl2dot", "mac/gxl2gv", "mac/lefty", "mac/lneato", "mac/mm2gv", "mac/neato",
-			"mac/nop", "mac/osage", "mac/patchwork", "mac/prune", "mac/sccmap", "mac/sfdp", "mac/tred", "mac/twopi",
-			"mac/unflatten", "mac/vimdot"));
+			"mac/dot"));
 
 	private static File getDotDirectory() throws IOException {
 
@@ -179,7 +156,7 @@ public class Dot2Image {
 
 	private static File getDotDirectoryByCopying() throws IOException {
 		File jarDirectory = getJarDirectory();
-//		System.out.println("jar directory " + jarDirectory);
+		//		System.out.println("jar directory " + jarDirectory);
 
 		File libDirectory = new File(jarDirectory, "GraphViz-lib");
 		if (!libDirectory.exists()) {
@@ -187,12 +164,13 @@ public class Dot2Image {
 			new File(jarDirectory, "lib-GraphViz").mkdir();
 		}
 
-		File dotDirectory = new File(libDirectory, "dotBinaries");
-//		System.out.println("dot directory " + dotDirectory);
+		File dotDirectory = new File(libDirectory, "dotBinaries2");
+		//		System.out.println("dot directory " + dotDirectory);
 
 		//if the binaries do not exist yet, copy them from the jar file
+//		System.out.println("use dot directory " + dotDirectory);
 		if (!dotDirectory.exists()) {
-			System.out.println("dot directory does not exist; create it and copy binaries to it");
+			System.out.println("dot directory " + dotDirectory + " does not exist; create it and copy binaries to it");
 			dotDirectory.mkdir();
 			new File(dotDirectory, "linux").mkdir();
 			new File(dotDirectory, "mac").mkdir();
