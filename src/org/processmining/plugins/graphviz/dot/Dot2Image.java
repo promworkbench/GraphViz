@@ -47,7 +47,7 @@ public class Dot2Image {
 			//assume mac
 			dotFile = new File(new File(dotDirectory, "mac"), "dot");
 			dotFile.setExecutable(true);
-		} else if (System.getProperty("sun.arch.data.model") == "32"){
+		} else if (System.getProperty("os.arch") == "32"){
 			//assume linux 32 bit
 			dotFile = new File(new File(dotDirectory, "linux32"), "dot");
 			dotFile.setExecutable(true);
