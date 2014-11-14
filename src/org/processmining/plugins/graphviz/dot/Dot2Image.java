@@ -47,9 +47,13 @@ public class Dot2Image {
 			//assume mac
 			dotFile = new File(new File(dotDirectory, "mac"), "dot");
 			dotFile.setExecutable(true);
+		} else if (System.getProperty("sun.arch.data.model") == "32"){
+			//assume linux 32 bit
+			dotFile = new File(new File(dotDirectory, "linux32"), "dot");
+			dotFile.setExecutable(true);
 		} else {
-			//assume linux
-			dotFile = new File(new File(dotDirectory, "linux"), "dot");
+			//assume linux 64 bit
+			dotFile = new File(new File(dotDirectory, "linux64"), "dot");
 			dotFile.setExecutable(true);
 		}
 
@@ -126,7 +130,7 @@ public class Dot2Image {
 			"libpangowin32-1.0-0.dll", "libpng12.dll", "libpng14-14.dll", "libxml2.dll", "ltdl.dll", "Pathplan.dll",
 			"zlib1.dll", "libpng12.dll", "libpng14-14.dll", "libxml2.dll", "ltdl.dll", "Pathplan.dll", "zlib1.dll",
 			//linux
-			"linux/dot",
+			"linux32/dot", "linux64/dot",
 			//mac
 			"mac/dot"));
 
@@ -163,8 +167,8 @@ public class Dot2Image {
 			libDirectory = new File(jarDirectory, "lib-GraphViz");
 			new File(jarDirectory, "lib-GraphViz").mkdir();
 		}
-
-		File dotDirectory = new File(libDirectory, "dotBinaries2");
+		
+		File dotDirectory = new File(libDirectory, "dotBinaries3");
 		//		System.out.println("dot directory " + dotDirectory);
 
 		//if the binaries do not exist yet, copy them from the jar file
@@ -172,8 +176,9 @@ public class Dot2Image {
 		if (!dotDirectory.exists()) {
 			System.out.println("dot directory " + dotDirectory + " does not exist; create it and copy binaries to it");
 			dotDirectory.mkdir();
-			new File(dotDirectory, "linux").mkdir();
 			new File(dotDirectory, "mac").mkdir();
+			new File(dotDirectory, "linux32").mkdir();
+			new File(dotDirectory, "linux64").mkdir();
 
 			//copy files to dot directory
 			for (String fileName : dotFiles) {
