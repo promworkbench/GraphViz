@@ -92,9 +92,10 @@
 					<exclude name="**/*.jj" />
 					<exclude name="**/*.jjt" />
 					<exclude name="**/*.dll" />
-					<exclude name="**/*.config6" />
+					<exclude name="**/config6" />
 					<exclude name="**/*.exe" />
-					<exclude name="**/*.dot" />
+					<exclude name="**/dot" />
+					<exclude name="**/.form" />
 				</fileset>
 			</javadoc>
 		</target>
