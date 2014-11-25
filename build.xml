@@ -95,7 +95,7 @@
 					<exclude name="**/config6" />
 					<exclude name="**/*.exe" />
 					<exclude name="**/dot" />
-					<exclude name="**/.form" />
+					<exclude name="**/*.form" />
 				</fileset>
 			</javadoc>
 		</target>
