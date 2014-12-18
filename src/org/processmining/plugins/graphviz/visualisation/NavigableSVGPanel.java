@@ -41,6 +41,7 @@ public class NavigableSVGPanel extends JPanel {
 	protected SVGDiagram image;
 	protected final JPanel panel;
 	private Point mousePosition;
+	protected boolean preventDragImage = false;
 
 	private Action zoomInAction = new AbstractAction() {
 		private static final long serialVersionUID = 3863042569537144601L;
@@ -119,7 +120,7 @@ public class NavigableSVGPanel extends JPanel {
 		addMouseMotionListener(new MouseMotionListener() {
 			public void mouseDragged(MouseEvent e) {
 				Point point = e.getPoint();
-				if (SwingUtilities.isLeftMouseButton(e) && !isInNavigation(point)) {
+				if (SwingUtilities.isLeftMouseButton(e) && !isInNavigation(point) && !preventDragImage) {
 					if (mousePosition != null) {
 						ZoomPan.onPan(state.getZoomPanState(), mousePosition, point);
 					}
