@@ -280,7 +280,6 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	}
 
 	public void setAnimationExtremeTimes(double animationMinTime, double animationMaxTime) {
-		System.out.println("set new extremes " + animationMinTime + " - " + animationMaxTime);
 		if (animationMinTime != Double.POSITIVE_INFINITY) {
 			this.animationMinTime = animationMinTime;
 		}
