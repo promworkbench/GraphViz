@@ -152,8 +152,14 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	}
 
 	protected void paintComponent(Graphics g) {
-		//update universe time
-		image.getUniverse().setCurTime(animationCurrentTime);
+		
+		if (animationEnabled) {
+			//animation is enabled, use current animation time
+			image.getUniverse().setCurTime(animationCurrentTime);
+		} else {
+			//if animation is disabled, use the begin time
+			image.getUniverse().setCurTime(animationMinTime);
+		}
 		try {
 			image.getUniverse().updateTime();
 		} catch (SVGException e) {
