@@ -291,17 +291,33 @@ public class DotPanel extends AnimatableSVGPanel {
 		return result;
 	}
 
-	/*
-	 * set dot as the new graph resetView: revert view to begin position
+	/**
+	 * Sets a new image
+	 * 
+	 * @param dot
+	 *            ; set dot to this
+	 * @param resetView
+	 *            ; whether reset the view to centered+fitting
 	 */
 	public void changeDot(Dot dot, boolean resetView) {
-
-		prepareNodeSelection(dot);
-
-		//create svg file
 		SVGDiagram diagram = dot2svg(dot);
-		this.dot = dot;
+		changeDot(dot, diagram, resetView);
+	}
 
+	/**
+	 * Sets a new precomputed image. Assumptions are made about the dot & the
+	 * diagram, so do not provide arbitrary ones.
+	 * 
+	 * @param dot
+	 *            ; set dot to this
+	 * @param diagram
+	 *            ; use this SVG image
+	 * @param resetView
+	 *            ; whether reset the view to centered+fitting
+	 */
+	public void changeDot(Dot dot, SVGDiagram diagram, boolean resetView) {
+		prepareNodeSelection(dot);
+		this.dot = dot;
 		setImage(diagram, resetView);
 	}
 
