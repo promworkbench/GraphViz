@@ -168,7 +168,7 @@ public class Dot2Image {
 			new File(jarDirectory, "lib-GraphViz").mkdir();
 		}
 		
-		File dotDirectory = new File(libDirectory, "dotBinaries3");
+		File dotDirectory = new File(libDirectory, "dotBinaries4");
 		//		System.out.println("dot directory " + dotDirectory);
 
 		//if the binaries do not exist yet, copy them from the jar file
