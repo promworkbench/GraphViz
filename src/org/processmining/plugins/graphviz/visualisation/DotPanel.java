@@ -170,6 +170,11 @@ public class DotPanel extends AnimatableSVGPanel {
 					selectionChange = selectionChange || processSelection(element, e);
 				}
 
+				if (!selectionChange && !e.isControlDown()) {
+					//the user did not click on anything clickable. Remove the selection.
+					selectionChange = removeSelection();
+				}
+				
 				if (selectionChange) {
 					selectionChanged();
 				}
@@ -182,6 +187,20 @@ public class DotPanel extends AnimatableSVGPanel {
 				}
 			}
 		});
+	}
+	
+	/**
+	 * Deselect all nodes
+	 */
+	private boolean removeSelection() {
+		for (DotElement element : selectedElements) {
+			for (ActionListener a : element.getDeselectionListeners()) {
+				a.actionPerformed(new ActionEvent(this, 0, null));
+			}
+		}
+		boolean result = !selectedElements.isEmpty();
+		selectedElements.clear();
+		return result;
 	}
 
 	private boolean processSelection(DotElement element, MouseEvent e) {
