@@ -27,20 +27,25 @@ import com.kitfox.svg.animation.AnimationElement;
  */
 public class AnimatableSVGPanel extends NavigableSVGPanel {
 
+	public interface Callback<I, O> {
+		public O call(I arg);
+	}
+
 	private static final long serialVersionUID = -767306259426707029L;
 
 	private double animationMinTime = 0.0;
 	private double animationMaxTime = 20.0;
 	private boolean repeat = true;
 	private boolean animationEnabled = false;
+	private Callback<Long, Object> timeStepCallback = null;
 
 	private long animationLastTimeUpdated;
 	private double animationCurrentTime = animationMinTime;
 	private javax.swing.Timer animationTimer;
 
-	private Rectangle controls;
-	private Rectangle controlsPlayPause;
-	private Rectangle controlsProgressLine;
+	protected Rectangle controls;
+	protected Rectangle controlsPlayPause;
+	protected Rectangle controlsProgressLine;
 	private boolean mouseIsInControls;
 	private boolean startOnMouseRelease = false;
 
@@ -59,6 +64,9 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 				}
 			}
 			animationLastTimeUpdated = now;
+			if (timeStepCallback != null) {
+				timeStepCallback.call(animationLastTimeUpdated);
+			}
 			repaint();
 		}
 	};
@@ -85,8 +93,8 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 				}
 			}
 		}
-		
-		public void mouseReleased(MouseEvent e) { 
+
+		public void mouseReleased(MouseEvent e) {
 			if (startOnMouseRelease) {
 				start();
 				startOnMouseRelease = false;
@@ -152,7 +160,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	}
 
 	protected void paintComponent(Graphics g) {
-		
+
 		if (animationEnabled) {
 			//animation is enabled, use current animation time
 			image.getUniverse().setCurTime(animationCurrentTime);
@@ -237,7 +245,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 			start();
 		}
 	}
-	
+
 	public boolean isPlaying() {
 		return animationTimer.isRunning();
 	}
@@ -248,6 +256,9 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	 */
 	public void start() {
 		animationLastTimeUpdated = System.currentTimeMillis();
+		if (timeStepCallback != null) {
+			timeStepCallback.call(animationLastTimeUpdated);
+		}
 		animationTimer.start();
 	}
 
@@ -335,5 +346,13 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	 */
 	public void setEnableAnimation(boolean enableAnimation) {
 		this.animationEnabled = enableAnimation;
+	}
+
+	public Callback<Long, Object> getTimeStepCallback() {
+		return timeStepCallback;
+	}
+
+	public void setTimeStepCallback(Callback<Long, Object> timeStepCallback) {
+		this.timeStepCallback = timeStepCallback;
 	}
 }

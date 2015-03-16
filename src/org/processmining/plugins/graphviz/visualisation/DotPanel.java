@@ -170,11 +170,12 @@ public class DotPanel extends AnimatableSVGPanel {
 					selectionChange = selectionChange || processSelection(element, e);
 				}
 
-				if (!selectionChange && !e.isControlDown()) {
+				if (!selectionChange && !e.isControlDown() && !isInNavigation(e.getPoint())
+						&& !controls.contains(e.getPoint())) {
 					//the user did not click on anything clickable. Remove the selection.
 					selectionChange = removeSelection();
 				}
-				
+
 				if (selectionChange) {
 					selectionChanged();
 				}
@@ -188,7 +189,7 @@ public class DotPanel extends AnimatableSVGPanel {
 			}
 		});
 	}
-	
+
 	/**
 	 * Deselect all nodes
 	 */
