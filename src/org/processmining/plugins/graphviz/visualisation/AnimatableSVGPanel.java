@@ -37,7 +37,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	private double animationMaxTime = 20.0;
 	private boolean repeat = true;
 	private boolean animationEnabled = false;
-	private Callback<Long, Object> timeStepCallback = null;
+	private Callback<Double, Object> timeStepCallback = null;
 
 	private long animationLastTimeUpdated;
 	private double animationCurrentTime = animationMinTime;
@@ -65,7 +65,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 			}
 			animationLastTimeUpdated = now;
 			if (timeStepCallback != null) {
-				timeStepCallback.call(animationLastTimeUpdated);
+				timeStepCallback.call(animationCurrentTime);
 			}
 			repaint();
 		}
@@ -257,7 +257,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	public void start() {
 		animationLastTimeUpdated = System.currentTimeMillis();
 		if (timeStepCallback != null) {
-			timeStepCallback.call(animationLastTimeUpdated);
+			timeStepCallback.call(animationCurrentTime);
 		}
 		animationTimer.start();
 	}
@@ -276,6 +276,9 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	 */
 	public void rewind() {
 		animationCurrentTime = animationMinTime;
+		if (timeStepCallback != null) {
+			timeStepCallback.call(animationCurrentTime);
+		}
 	}
 
 	/**
@@ -286,6 +289,9 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	public void seek(double newTime) {
 		animationCurrentTime = newTime;
 		makeUpdate();
+		if (timeStepCallback != null) {
+			timeStepCallback.call(animationCurrentTime);
+		}
 	}
 
 	public double getAnimationMaxTime() {
@@ -348,11 +354,11 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		this.animationEnabled = enableAnimation;
 	}
 
-	public Callback<Long, Object> getTimeStepCallback() {
+	public Callback<Double, Object> getTimeStepCallback() {
 		return timeStepCallback;
 	}
 
-	public void setTimeStepCallback(Callback<Long, Object> timeStepCallback) {
+	public void setTimeStepCallback(Callback<Double, Object> timeStepCallback) {
 		this.timeStepCallback = timeStepCallback;
 	}
 }
