@@ -341,19 +341,23 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		return new double[] { min, max };
 	}
 
+	/**
+	 * 
+	 * @return whether the animation is enabled.
+	 */
 	public boolean isEnableAnimation() {
 		return animationEnabled;
 	}
 
 	/**
-	 * Sets whether the animation is enabled. Does not call start/stop/rewind.
+	 * Sets whether the animation is enabled. Does not call start/stop/rewind. If not enabled, seek bar will be hidden.
 	 * 
 	 * @param enableAnimation
 	 */
 	public void setEnableAnimation(boolean enableAnimation) {
 		this.animationEnabled = enableAnimation;
 	}
-
+	
 	public Callback<Double, Object> getTimeStepCallback() {
 		return timeStepCallback;
 	}
