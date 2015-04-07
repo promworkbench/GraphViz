@@ -28,6 +28,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.processmining.plugins.graphviz.colourMaps.ColourMap;
 import org.processmining.plugins.graphviz.dot.Dot;
+import org.processmining.plugins.graphviz.dot.Dot.GraphDirection;
 import org.processmining.plugins.graphviz.dot.Dot2Image;
 import org.processmining.plugins.graphviz.dot.Dot2Image.Type;
 import org.processmining.plugins.graphviz.dot.DotEdge;
@@ -51,6 +52,35 @@ public class DotPanel extends AnimatableSVGPanel {
 	 */
 	private static final long serialVersionUID = -6201301504669783161L;
 
+	private Action changeGraphDirection = new AbstractAction() {
+		private static final long serialVersionUID = -38576326322179480L;
+
+		public void actionPerformed(ActionEvent e) {
+			GraphDirection newDirection;
+			switch (dot.getDirection()) {
+				case downTop :
+					newDirection = GraphDirection.leftRight;
+					break;
+				case leftRight :
+					newDirection = GraphDirection.rightLeft;
+					break;
+				case rightLeft :
+					newDirection = GraphDirection.topDown;
+					break;
+				case topDown :
+					newDirection = GraphDirection.downTop;
+					break;
+				default :
+					newDirection = GraphDirection.downTop;
+					break;
+			}
+			if (graphDirectionChanged(newDirection)) {
+				dot.setDirection(newDirection);
+				changeDot(dot, true);
+			}
+		}
+	};
+	
 	private Action saveAs = new AbstractAction() {
 		private static final long serialVersionUID = 3863042569537144601L;
 
@@ -146,7 +176,15 @@ public class DotPanel extends AnimatableSVGPanel {
 		fc.addChoosableFileFilter(new PDFFilter());
 		fc.addChoosableFileFilter(new SVGFilter());
 
+		//listen to ctrl+d for a change in graph layouting direction
+		helperControlsShortcuts.add("ctrl d");
+		helperControlsExplanations.add("change graph direction");
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_MASK), "changeGraphDirection");
+		getActionMap().put("changeGraphDirection", changeGraphDirection);
+		
 		//listen to ctrl+s to save a file
+		helperControlsShortcuts.add("ctrl s");
+		helperControlsExplanations.add("export image");
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK), "saveAs");
 		getActionMap().put("saveAs", saveAs);
 
@@ -170,8 +208,8 @@ public class DotPanel extends AnimatableSVGPanel {
 					selectionChange = selectionChange || processSelection(element, e);
 				}
 
-				if (!selectionChange && !e.isControlDown() && !isInNavigation(e.getPoint())
-						&& controls != null && !controls.contains(e.getPoint())) {
+				if (!selectionChange && !e.isControlDown() && !isInNavigation(e.getPoint()) && controls != null
+						&& !controls.contains(e.getPoint())) {
 					//the user did not click on anything clickable. Remove the selection.
 					selectionChange = removeSelection();
 				}
@@ -191,7 +229,9 @@ public class DotPanel extends AnimatableSVGPanel {
 	}
 
 	/**
-	 * Deselect all nodes
+	 * Deselect all nodes; return whether the selection changed
+	 * 
+	 * @return
 	 */
 	private boolean removeSelection() {
 		for (DotElement element : selectedElements) {
@@ -386,8 +426,11 @@ public class DotPanel extends AnimatableSVGPanel {
 		selectionChanged();
 	}
 
-	/*
-	 * Get the svg element of a DotElement
+	/**
+	 * 
+	 * @param image
+	 * @param element
+	 * @return the svg element of a DotElement
 	 */
 	public static Group getSVGElementOf(SVGDiagram image, DotElement element) {
 		SVGElement svgElement = image.getElement(element.getId());
@@ -397,8 +440,14 @@ public class DotPanel extends AnimatableSVGPanel {
 		return null;
 	}
 
-	/*
-	 * Set a css-property of a DotElement; returns the old value or null
+	/**
+	 * Set a css-property of a DotElement; returns the old value or null.
+	 * 
+	 * @param image
+	 * @param element
+	 * @param attribute
+	 * @param value
+	 * @return
 	 */
 	public static String setCSSAttributeOf(SVGDiagram image, DotElement element, String attribute, String value) {
 		Group group = getSVGElementOf(image, element);
@@ -520,8 +569,17 @@ public class DotPanel extends AnimatableSVGPanel {
 	public Dot getDot() {
 		return dot;
 	}
+	
+	/**
+	 * Called when the graph direction changes.
+	 * @param direction 
+	 * @return Whether the view should be updated by the DotPanel.
+	 */
+	protected boolean graphDirectionChanged(GraphDirection direction) {
+		return true;
+	}
 
-	public void selectionChanged() {
-
+	protected void selectionChanged() {
+		
 	}
 }

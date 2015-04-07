@@ -228,7 +228,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		g.setColor(backupColour);
 	}
 
-	private void makeUpdate() {
+	protected void makeUpdate() {
 		if (!animationPlaying()) {
 			repaint();
 		}

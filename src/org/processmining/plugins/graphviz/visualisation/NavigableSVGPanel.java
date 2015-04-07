@@ -1,5 +1,9 @@
 package org.processmining.plugins.graphviz.visualisation;
 
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -12,10 +16,15 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -43,6 +52,23 @@ public class NavigableSVGPanel extends JPanel {
 	private Point mousePosition;
 	protected boolean preventDragImage = false;
 
+	private MouseMotionListener helperControlsMouseMovesAdapter = new MouseMotionListener() {
+
+		public void mouseMoved(MouseEvent e) {
+			if (helperControlsArc != null && e != null && e.getPoint() != null) {
+				boolean n = helperControlsArc.contains(e.getPoint());
+				if (n != mouseIsInHelperControls) {
+					repaint();
+				}
+				mouseIsInHelperControls = n;
+			}
+		}
+
+		public void mouseDragged(MouseEvent arg0) {
+
+		}
+	};
+
 	private Action zoomInAction = new AbstractAction() {
 		private static final long serialVersionUID = 3863042569537144601L;
 
@@ -65,6 +91,16 @@ public class NavigableSVGPanel extends JPanel {
 		}
 	};
 
+	private Action viewResetAction = new AbstractAction() {
+		private static final long serialVersionUID = 1114226211978622533L;
+
+		public void actionPerformed(ActionEvent e) {
+			//reset the view
+			state.getZoomPanState().reset();
+			repaint();
+		}
+	};
+
 	private Action walkAction = new AbstractAction() {
 		private static final long serialVersionUID = 1114226211978622533L;
 
@@ -83,6 +119,17 @@ public class NavigableSVGPanel extends JPanel {
 			repaint();
 		}
 	};
+
+	private static Font helperControlsButtonFont = new Font("TimesRoman", Font.PLAIN, 20);
+	private static String helperControlsButtonString = "?";
+	private Arc2D helperControlsArc = null;
+	private boolean mouseIsInHelperControls = false;
+	private static int helperControlsWidth = 300;
+	private static Font helperControlsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+	protected List<String> helperControlsShortcuts = new ArrayList<>(Arrays.asList("up/down", "left/right", "ctrl +",
+			"ctrl -", "ctrl 0"));
+	protected List<String> helperControlsExplanations = new ArrayList<>(Arrays.asList("pan up/down", "pan left/right",
+			"zoom in", "zoom out", "reset view"));
 
 	public NavigableSVGPanel(final SVGDiagram setImage) {
 		setOpaque(false);
@@ -158,7 +205,7 @@ public class NavigableSVGPanel extends JPanel {
 
 		//listen to ctrl + to zoom in
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, InputEvent.CTRL_MASK),
-				"zoomIn"); // + key in English keyboardsc
+				"zoomIn"); // + key in English keyboards
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, InputEvent.CTRL_MASK),
 				"zoomIn"); // + key in non-English keyboards
 		getInputMap(WHEN_IN_FOCUSED_WINDOW)
@@ -177,6 +224,40 @@ public class NavigableSVGPanel extends JPanel {
 		registerKeyboardAction(walkAction, "UP", KeyStroke.getKeyStroke("UP"), JComponent.WHEN_IN_FOCUSED_WINDOW);
 		registerKeyboardAction(walkAction, "LEFT", KeyStroke.getKeyStroke("LEFT"), JComponent.WHEN_IN_FOCUSED_WINDOW);
 		registerKeyboardAction(walkAction, "RIGHT", KeyStroke.getKeyStroke("RIGHT"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+		//listen to ctrl 0 to reset view
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_0, InputEvent.CTRL_MASK),
+				"viewReset"); // - key
+		getActionMap().put("viewReset", viewResetAction);
+
+		//add mouse motion listener for helper controls
+		addMouseMotionListener(helperControlsMouseMovesAdapter);
+		setMouseExit(this);
+	}
+
+	private MouseListener exitListener = new MouseListener() {
+		public void mouseReleased(MouseEvent e) {
+		}
+
+		public void mousePressed(MouseEvent e) {
+		}
+
+		public void mouseExited(MouseEvent e) {
+			mouseIsInHelperControls = false;
+		}
+
+		public void mouseEntered(MouseEvent e) {
+		}
+
+		public void mouseClicked(MouseEvent e) {
+		}
+	};
+
+	private void setMouseExit(Container c) {
+		c.addMouseListener(exitListener);
+		if (c.getParent() != null) {
+			setMouseExit(c);
+		}
 	}
 
 	/**
@@ -239,6 +320,7 @@ public class NavigableSVGPanel extends JPanel {
 
 	/**
 	 * Zoom the navigation
+	 * 
 	 * @param zoomFactor
 	 */
 	private void zoomNavigation(double zoomFactor) {
@@ -279,13 +361,17 @@ public class NavigableSVGPanel extends JPanel {
 		t.inverseTransform(g2, state.getZoomPanState());
 
 		//Draw navigation image
-		if (state.isNavigationImageEnabled() && !ZoomPan.isImageCompletelyInPanel(state.getZoomPanState(), image, panel)) {
+		if (state.isNavigationImageEnabled()
+				&& !ZoomPan.isImageCompletelyInPanel(state.getZoomPanState(), image, panel)) {
 			int width = (int) Math.round(getNavigationWidth());
 			int height = (int) Math.round(getNavigationHeight());
 			drawSVG(g2, image, 0, 0, width, height);
 			g2.drawRect(0, 0, width, height);
 			drawNavigationOutline(g2, t);
 		}
+
+		//draw helper controls
+		drawHelperControls(g2);
 	}
 
 	public static void drawSVG(Graphics2D g, SVGDiagram image, int x, int y, int width, int height) {
@@ -293,7 +379,6 @@ public class NavigableSVGPanel extends JPanel {
 		double scaleX = width / image.getWidth();
 		double scaleY = height / image.getHeight();
 
-//		g.setClip(x, y, width, height);
 		g.translate(x, y);
 		g.scale(scaleX, scaleY);
 
@@ -305,7 +390,6 @@ public class NavigableSVGPanel extends JPanel {
 
 		g.scale(1 / scaleX, 1 / scaleY);
 		g.translate(-x, -y);
-//		g.setClip(null);
 	}
 
 	/**
@@ -342,6 +426,59 @@ public class NavigableSVGPanel extends JPanel {
 		g.drawRect(x, y, width, height);
 		g.setStroke(backupStroke);
 
+	}
+
+	private void drawHelperControls(Graphics g) {
+		Color backupColour = g.getColor();
+		Font backupFont = g.getFont();
+
+		FontMetrics fm = getFontMetrics(helperControlsButtonFont);
+		int width = fm.stringWidth(helperControlsButtonString);
+
+		//draw the background arc
+		if (mouseIsInHelperControls) {
+			g.setColor(new Color(0, 0, 0, 180));
+		} else {
+			g.setColor(new Color(0, 0, 0, 20));
+		}
+		helperControlsArc = new Arc2D.Float(Arc2D.PIE);
+		helperControlsArc.setFrame(getWidth() - 25, getHeight() - 25, 50, 50);
+		helperControlsArc.setAngleStart(90);
+		helperControlsArc.setAngleExtent(90);
+		g.fillArc(getWidth() - 25, getHeight() - 25, 50, 50, 90, 90);
+
+		//draw the helper panel
+		if (mouseIsInHelperControls) {
+			int x = getWidth() - (25 + helperControlsWidth);
+			int y = getHeight() - (helperControlsShortcuts.size() * 20 - 10);
+
+			//background
+			g.setColor(new Color(0, 0, 0, 180));
+			g.fillRoundRect(x - 15, y - 20, helperControlsWidth, helperControlsShortcuts.size() * 20 + 20, 10, 10);
+
+			//text
+			g.setColor(new Color(255, 255, 255, 220));
+			g.setFont(helperControlsFont);
+			for (int i = 0; i < helperControlsShortcuts.size(); i++) {
+				g.drawString(
+						String.format("%-12s", helperControlsShortcuts.get(i)) + " "
+								+ helperControlsExplanations.get(i), x, y);
+				y += 20;
+			}
+		}
+
+		//draw the question mark
+		if (mouseIsInHelperControls) {
+			g.setColor(new Color(255, 255, 255, 128));
+		} else {
+			g.setColor(new Color(0, 0, 0, 128));
+		}
+		g.setFont(helperControlsButtonFont);
+		g.drawString(helperControlsButtonString, getWidth() - width - 3, getHeight() - 3);
+
+		//revert colour and font
+		g.setColor(backupColour);
+		g.setFont(backupFont);
 	}
 
 	private double getNavigationWidth() {
