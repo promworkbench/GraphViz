@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class DotCluster extends DotNode {
 
@@ -55,6 +56,13 @@ public class DotCluster extends DotNode {
 		return addEdge(source, target, label, "");
 	}
 
+	public DotEdge addEdge(DotNode source, DotNode target, String label, Map<String, String> optionsMap) {
+		DotEdge result = new DotEdge(source, target, label, optionsMap);
+		edges.add(result);
+		return result;
+	}
+	
+	@Deprecated
 	public DotEdge addEdge(DotNode source, DotNode target, String label, String options) {
 		DotEdge result = new DotEdge(source, target, label, options);
 		edges.add(result);

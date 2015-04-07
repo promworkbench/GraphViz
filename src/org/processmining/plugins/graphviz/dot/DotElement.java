@@ -3,6 +3,7 @@ package org.processmining.plugins.graphviz.dot;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.util.Collection;
+import java.util.Map;
 
 
 public interface DotElement extends MouseListener {
@@ -11,6 +12,7 @@ public interface DotElement extends MouseListener {
 	public void setLabel(String label);
 	
 	public String getOptions();
+	public Map<String, String> getOptionsMap();
 	public void setOptions(String options);
 	public void appendOption(String option);
 	

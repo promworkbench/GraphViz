@@ -5,13 +5,16 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public abstract class AbstractDotElement implements DotElement {
 	private final String id;
 	private String options;
+	private Map<String, String> optionsMap;
 	private String label;
 	
 	private boolean selectable = false;
@@ -25,6 +28,7 @@ public abstract class AbstractDotElement implements DotElement {
 		mouseListeners = new LinkedList<MouseListener>();
 		label = "";
 		options = "";
+		optionsMap = new HashMap<>();
 	}
 
 	public String getId() {
@@ -48,20 +52,31 @@ public abstract class AbstractDotElement implements DotElement {
 		}
 	}
 
+	@Deprecated
 	public String getOptions() {
 		return options;
 	}
+	
+	public Map<String, String> getOptionsMap() {
+		return optionsMap;
+	}
 
+	@Deprecated
 	public void setOptions(String options) {
 		this.options = options;
 	}
 
+	@Deprecated
 	public void appendOption(String option) {
 		if (options.equals("")) {
 			options += option;
 		} else {
 			options += ", " + option;
 		}
+	}
+	
+	public void addOption(String key, String value) {
+		optionsMap.put(key, value);
 	}
 
 	public void addMouseListener(MouseListener l) {
