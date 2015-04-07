@@ -5,27 +5,26 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class DotCluster extends DotNode {
-
-	private static final long serialVersionUID = -365012750106649848L;
 
 	private final List<DotNode> nodes;
 	private final List<DotEdge> edges;
 	private final List<DotCluster> clusters;
 
 	protected DotCluster() {
-		super("", "");
+		super("", null);
 		nodes = new LinkedList<DotNode>();
 		edges = new LinkedList<DotEdge>();
 		clusters = new LinkedList<DotCluster>();
 	}
 	
 	public DotNode addNode(String label) {
-		return addNode(label, "");
+		return addNode(label, null);
 	}
 
-	public DotNode addNode(String label, String options) {
+	public DotNode addNode(String label, Map<String, String> options) {
 		DotNode result = new DotNode(label, options);
 		addNode(result);
 		return result;
@@ -49,22 +48,15 @@ public class DotCluster extends DotNode {
 	}
 	
 	public DotEdge addEdge(DotNode source, DotNode target) {
-		return addEdge(source, target, "");
+		return addEdge(source, target, null);
 	}
 	
 	public DotEdge addEdge(DotNode source, DotNode target, String label) {
-		return addEdge(source, target, label, "");
+		return addEdge(source, target, label, null);
 	}
 
 	public DotEdge addEdge(DotNode source, DotNode target, String label, Map<String, String> optionsMap) {
 		DotEdge result = new DotEdge(source, target, label, optionsMap);
-		edges.add(result);
-		return result;
-	}
-	
-	@Deprecated
-	public DotEdge addEdge(DotNode source, DotNode target, String label, String options) {
-		DotEdge result = new DotEdge(source, target, label, options);
 		edges.add(result);
 		return result;
 	}
@@ -131,7 +123,9 @@ public class DotCluster extends DotNode {
 		StringBuilder result = new StringBuilder();
 		result.append("subgraph \"cluster_" + getId() + "\"{\n");
 		
-		result.append(getOptions() + "\n");
+		for (Entry<String, String> p : getOptionsMap().entrySet()) {
+			result.append(p.getKey() + "=\"" + p.getValue() + "\";\n");
+		}
 
 		result.append(result);
 

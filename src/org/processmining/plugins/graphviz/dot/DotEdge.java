@@ -5,8 +5,6 @@ import java.util.Map.Entry;
 
 public class DotEdge extends AbstractDotElement {
 
-	private static final long serialVersionUID = 8744582777462666393L;
-
 	private DotNode source;
 	private DotNode target;
 
@@ -24,14 +22,6 @@ public class DotEdge extends AbstractDotElement {
 				setOption(e.getKey(), e.getValue());
 			}
 		}
-	}
-
-	@Deprecated
-	public DotEdge(DotNode source, DotNode target, String label, String options) {
-		this.setSource(source);
-		this.setTarget(target);
-		this.setLabel(label);
-		this.setOptions(options);
 	}
 
 	public DotNode getTarget() {
@@ -53,9 +43,6 @@ public class DotEdge extends AbstractDotElement {
 	public String toString() {
 		String result = "\"" + source.getId() + "\" -> \"" + target.getId() + "\" [label=" + labelToString() + " id=\""
 				+ getId() + "\"";
-		if (!getOptions().equals("")) {
-			result += ", " + getOptions();
-		}
 
 		for (Entry<String, String> p : getOptionsMap().entrySet()) {
 			result += "," + p.getKey() + "=\"" + p.getValue() + "\"";

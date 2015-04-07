@@ -45,8 +45,6 @@ public class Dot extends DotCluster {
 			result.append("graph [ordering=\"out\"];\n");
 		}
 		
-		result.append(getOptions() + "\n");
-		
 		for (Entry<String, String> p : getOptionsMap().entrySet()) {
 			result.append(p.getKey() + "=\"" + p.getValue() + "\";\n");
 		}

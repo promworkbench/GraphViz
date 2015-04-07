@@ -11,13 +11,6 @@ public interface DotElement extends MouseListener {
 	public String getLabel();
 	public void setLabel(String label);
 	
-	@Deprecated
-	public String getOptions();
-	@Deprecated
-	public void setOptions(String options);
-	@Deprecated
-	public void appendOption(String option);
-	
 	public Map<String, String> getOptionsMap();
 	public void setOption(String key, String value);
 	

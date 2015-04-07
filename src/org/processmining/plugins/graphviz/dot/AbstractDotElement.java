@@ -13,7 +13,6 @@ import java.util.UUID;
 
 public abstract class AbstractDotElement implements DotElement {
 	private final String id;
-	private String options;
 	private Map<String, String> optionsMap;
 	private String label;
 	
@@ -27,7 +26,6 @@ public abstract class AbstractDotElement implements DotElement {
 		id = "e" + UUID.randomUUID().toString();
 		mouseListeners = new LinkedList<MouseListener>();
 		label = "";
-		options = "";
 		optionsMap = new HashMap<>();
 	}
 
@@ -51,28 +49,9 @@ public abstract class AbstractDotElement implements DotElement {
 			return "\"" + label2 + "\"";
 		}
 	}
-
-	@Deprecated
-	public String getOptions() {
-		return options;
-	}
 	
 	public Map<String, String> getOptionsMap() {
 		return optionsMap;
-	}
-
-	@Deprecated
-	public void setOptions(String options) {
-		this.options = options;
-	}
-
-	@Deprecated
-	public void appendOption(String option) {
-		if (options.equals("")) {
-			options += option;
-		} else {
-			options += ", " + option;
-		}
 	}
 	
 	public void setOption(String key, String value) {
