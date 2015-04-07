@@ -75,7 +75,7 @@ public abstract class AbstractDotElement implements DotElement {
 		}
 	}
 	
-	public void addOption(String key, String value) {
+	public void setOption(String key, String value) {
 		optionsMap.put(key, value);
 	}
 

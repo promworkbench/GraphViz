@@ -19,7 +19,7 @@ public interface DotElement extends MouseListener {
 	public void appendOption(String option);
 	
 	public Map<String, String> getOptionsMap();
-	public void addOption(String key, String value);
+	public void setOption(String key, String value);
 	
 	public String getId();
 	

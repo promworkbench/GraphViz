@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Map.Entry;
 
 public class Dot extends DotCluster {
 
@@ -45,6 +46,10 @@ public class Dot extends DotCluster {
 		}
 		
 		result.append(getOptions() + "\n");
+		
+		for (Entry<String, String> p : getOptionsMap().entrySet()) {
+			result.append(p.getKey() + "=\"" + p.getValue() + "\";\n");
+		}
 		
 		contentToString(result);
 		

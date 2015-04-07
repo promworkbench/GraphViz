@@ -15,7 +15,7 @@ public class DotNode extends AbstractDotElement {
 		this.setLabel(label);
 		if (optionsMap != null) {
 			for (Entry<String, String> e : optionsMap.entrySet()) {
-				addOption(e.getKey(), e.getValue());
+				setOption(e.getKey(), e.getValue());
 			}
 		}
 	}
@@ -31,6 +31,9 @@ public class DotNode extends AbstractDotElement {
 		String result = "\"" + getId() + "\" [label=" + labelToString() + ", id=\"" + getId() + "\"";
 		if (!getOptions().equals("")) {
 			result += ", " + getOptions();
+		}
+		for (Entry<String, String> p : getOptionsMap().entrySet()) {
+			result += "," + p.getKey() + "=\"" + p.getValue() + "\"";
 		}
 		return result + "];";
 	}
