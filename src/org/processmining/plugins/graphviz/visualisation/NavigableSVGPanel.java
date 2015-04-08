@@ -539,4 +539,22 @@ public class NavigableSVGPanel extends JPanel {
 	public boolean isInNavigation(Point p) {
 		return (state.isNavigationImageEnabled() && p.x < getNavigationWidth() && p.y < getNavigationHeight());
 	}
+	
+	public List<String> getHelperControlsShortcuts() {
+		return helperControlsShortcuts;
+	}
+
+	public void setHelperControlsShortcuts(List<String> helperControlsShortcuts) {
+		this.helperControlsShortcuts = helperControlsShortcuts;
+	}
+
+	public List<String> getHelperControlsExplanations() {
+		return helperControlsExplanations;
+	}
+
+	public void setHelperControlsExplanations(List<String> helperControlsExplanations) {
+		this.helperControlsExplanations = helperControlsExplanations;
+	}
+
+
 }
