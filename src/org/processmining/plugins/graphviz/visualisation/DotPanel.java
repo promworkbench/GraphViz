@@ -34,6 +34,8 @@ import org.processmining.plugins.graphviz.dot.Dot2Image.Type;
 import org.processmining.plugins.graphviz.dot.DotEdge;
 import org.processmining.plugins.graphviz.dot.DotElement;
 import org.processmining.plugins.graphviz.dot.DotNode;
+import org.processmining.plugins.graphviz.visualisation.listeners.GraphDirectionChangedListener;
+import org.processmining.plugins.graphviz.visualisation.listeners.SelectionChangedListener;
 
 import com.kitfox.svg.Group;
 import com.kitfox.svg.RenderableElement;
@@ -164,6 +166,8 @@ public class DotPanel extends AnimatableSVGPanel {
 	private Dot dot;
 	private HashMap<String, DotElement> id2element;
 	private Set<DotElement> selectedElements;
+	private Set<SelectionChangedListener<DotElement>> selectionChangedListeners = new HashSet<>();
+	private Set<GraphDirectionChangedListener> graphDirectionChangedListeners = new HashSet<>();
 
 	public DotPanel(Dot dot) {
 		super(dot2svg(dot));
@@ -576,10 +580,24 @@ public class DotPanel extends AnimatableSVGPanel {
 	 * @return Whether the view should be updated by the DotPanel.
 	 */
 	protected boolean graphDirectionChanged(GraphDirection direction) {
-		return true;
+		boolean result = true;
+		for (GraphDirectionChangedListener listener : graphDirectionChangedListeners) {
+			result &= listener.graphDirectionChanged(direction);
+		}
+		return result;
 	}
 
 	protected void selectionChanged() {
-		
+		for (SelectionChangedListener<DotElement> listener : selectionChangedListeners) {
+			listener.selectionChanged(selectedElements);
+		}
+	}
+	
+	public void addSelectionChangedListener(SelectionChangedListener<DotElement> listener) {
+		selectionChangedListeners.add(listener);
+	}
+	
+	public void addGraphDirectionChangedListener(GraphDirectionChangedListener listener) {
+		graphDirectionChangedListeners.add(listener);
 	}
 }
