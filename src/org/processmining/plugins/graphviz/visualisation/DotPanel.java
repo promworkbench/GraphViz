@@ -214,8 +214,8 @@ public class DotPanel extends AnimatableSVGPanel {
 					selectionChange = selectionChange || processSelection(element, e);
 				}
 
-				if (!selectionChange && !e.isControlDown() && !isInNavigation(e.getPoint()) && controls != null
-						&& !controls.contains(e.getPoint())) {
+				if (!selectionChange && !e.isControlDown() && !isInNavigation(e.getPoint()) && (controls == null
+						|| !controls.contains(e.getPoint()))) {
 					//the user did not click on anything clickable. Remove the selection.
 					selectionChange = removeSelection();
 				}
