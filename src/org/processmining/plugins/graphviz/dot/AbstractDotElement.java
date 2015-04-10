@@ -128,4 +128,8 @@ public abstract class AbstractDotElement implements DotElement {
 		selectable = true;
 		selectionListeners.add(listener);
 	}
+	
+	public List<ElementSelectionListener<DotElement>> getSelectionListeners2() {
+		return Collections.unmodifiableList(selectionListeners);	
+	}
 }
