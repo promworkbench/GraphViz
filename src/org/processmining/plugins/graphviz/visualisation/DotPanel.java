@@ -13,11 +13,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -166,8 +168,8 @@ public class DotPanel extends AnimatableSVGPanel {
 	private Dot dot;
 	private HashMap<String, DotElement> id2element;
 	private Set<DotElement> selectedElements;
-	private Set<SelectionChangedListener<DotElement>> selectionChangedListeners = new HashSet<>();
-	private Set<GraphDirectionChangedListener> graphDirectionChangedListeners = new HashSet<>();
+	private CopyOnWriteArrayList<SelectionChangedListener<DotElement>> selectionChangedListeners = new CopyOnWriteArrayList<>();
+	private CopyOnWriteArrayList<GraphDirectionChangedListener> graphDirectionChangedListeners = new CopyOnWriteArrayList<>();
 
 	public DotPanel(Dot dot) {
 		super(dot2svg(dot));
@@ -555,7 +557,7 @@ public class DotPanel extends AnimatableSVGPanel {
 	}
 
 	public Set<DotElement> getSelectedElements() {
-		return selectedElements;
+		return Collections.unmodifiableSet(selectedElements);
 	}
 
 	public List<DotEdge> getEdges() {
@@ -574,12 +576,9 @@ public class DotPanel extends AnimatableSVGPanel {
 		return dot;
 	}
 	
-	/**
-	 * Called when the graph direction changes.
-	 * @param direction 
-	 * @return Whether the view should be updated by the DotPanel.
-	 */
-	protected boolean graphDirectionChanged(GraphDirection direction) {
+	//listeners
+	
+	private boolean graphDirectionChanged(GraphDirection direction) {
 		boolean result = true;
 		for (GraphDirectionChangedListener listener : graphDirectionChangedListeners) {
 			result &= listener.graphDirectionChanged(direction);
@@ -587,9 +586,9 @@ public class DotPanel extends AnimatableSVGPanel {
 		return result;
 	}
 
-	protected void selectionChanged() {
+	private void selectionChanged() {
 		for (SelectionChangedListener<DotElement> listener : selectionChangedListeners) {
-			listener.selectionChanged(selectedElements);
+			listener.selectionChanged(Collections.unmodifiableSet(selectedElements));
 		}
 	}
 	
