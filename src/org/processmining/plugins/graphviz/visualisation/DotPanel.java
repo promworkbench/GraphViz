@@ -35,7 +35,7 @@ import org.processmining.plugins.graphviz.dot.Dot2Image.Type;
 import org.processmining.plugins.graphviz.dot.DotEdge;
 import org.processmining.plugins.graphviz.dot.DotElement;
 import org.processmining.plugins.graphviz.dot.DotNode;
-import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener1;
+import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.GraphDirectionChangedListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.SelectionChangedListener;
 
@@ -241,8 +241,8 @@ public class DotPanel extends AnimatableSVGPanel {
 	 */
 	private boolean removeSelection() {
 		for (DotElement element : selectedElements) {
-			for (ElementSelectionListener1 a : element.getSelectionListeners()) {
-				a.deselected();
+			for (ElementSelectionListener<DotElement> listener : element.getSelectionListeners()) {
+				listener.deselected(element);
 			}
 		}
 		boolean result = !selectedElements.isEmpty();
@@ -255,14 +255,16 @@ public class DotPanel extends AnimatableSVGPanel {
 			if (e.isControlDown()) {
 				//only change this element
 				if (selectedElements.contains(element)) {
+					//deselect element
 					selectedElements.remove(element);
-					for (ElementSelectionListener1 a : element.getSelectionListeners()) {
-						a.deselected();
+					for (ElementSelectionListener<DotElement> listener : element.getSelectionListeners()) {
+						listener.deselected(element);
 					}
 				} else {
+					//select element
 					selectedElements.add(element);
-					for (ElementSelectionListener1 a : element.getSelectionListeners()) {
-						a.selected();
+					for (ElementSelectionListener<DotElement> listener : element.getSelectionListeners()) {
+						listener.selected(element);
 					}
 				}
 			} else {
@@ -274,8 +276,8 @@ public class DotPanel extends AnimatableSVGPanel {
 						while (it.hasNext()) {
 							DotElement selectedElement = it.next();
 							if (selectedElement != element) {
-								for (ElementSelectionListener1 a : selectedElement.getSelectionListeners()) {
-									a.selected();
+								for (ElementSelectionListener<DotElement> listener : selectedElement.getSelectionListeners()) {
+									listener.selected(selectedElement);
 								}
 								it.remove();
 							}
@@ -283,8 +285,8 @@ public class DotPanel extends AnimatableSVGPanel {
 					} else {
 						//only this element was selected, deselect it
 						selectedElements.remove(element);
-						for (ElementSelectionListener1 a : element.getSelectionListeners()) {
-							a.deselected();
+						for (ElementSelectionListener<DotElement> a : element.getSelectionListeners()) {
+							a.deselected(element);
 						}
 					}
 				} else {
@@ -294,16 +296,16 @@ public class DotPanel extends AnimatableSVGPanel {
 					while (it.hasNext()) {
 						DotElement selectedElement = it.next();
 						if (selectedElement != element) {
-							for (ElementSelectionListener1 listener : selectedElement.getSelectionListeners()) {
-								listener.deselected();
+							for (ElementSelectionListener<DotElement> listener : selectedElement.getSelectionListeners()) {
+								listener.deselected(selectedElement);
 							}
 							it.remove();
 						}
 					}
 					//select this element
 					selectedElements.add(element);
-					for (ElementSelectionListener1 listener : element.getSelectionListeners()) {
-						listener.selected();
+					for (ElementSelectionListener<DotElement> listener : element.getSelectionListeners()) {
+						listener.selected(element);
 					}
 				}
 			}
@@ -426,8 +428,8 @@ public class DotPanel extends AnimatableSVGPanel {
 	 */
 	public void select(DotElement element) {
 		selectedElements.add(element);
-		for (ElementSelectionListener1 listener : element.getSelectionListeners()) {
-			listener.selected();
+		for (ElementSelectionListener<DotElement> listener : element.getSelectionListeners()) {
+			listener.selected(element);
 		}
 		selectionChanged();
 	}

@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener;
-import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener1;
 
 public abstract class AbstractDotElement implements DotElement {
 	private final String id;
@@ -19,7 +18,7 @@ public abstract class AbstractDotElement implements DotElement {
 	private String label;
 
 	private boolean selectable = false;
-	private CopyOnWriteArrayList<ElementSelectionListener1> selectionListeners = new CopyOnWriteArrayList<>();
+	private CopyOnWriteArrayList<ElementSelectionListener<DotElement>> selectionListeners = new CopyOnWriteArrayList<>();
 
 	private final List<MouseListener> mouseListeners;
 
@@ -104,14 +103,11 @@ public abstract class AbstractDotElement implements DotElement {
 	}
 
 	public void addSelectionListener(ElementSelectionListener<DotElement> listener) {
-	}
-	
-	public void addSelectionListener(ElementSelectionListener1 listener) {
 		setSelectable(true);
 		selectionListeners.add(listener);
 	}
 	
-	public List<ElementSelectionListener1> getSelectionListeners() {
+	public List<ElementSelectionListener<DotElement>> getSelectionListeners() {
 		return Collections.unmodifiableList(selectionListeners);	
 	}
 }

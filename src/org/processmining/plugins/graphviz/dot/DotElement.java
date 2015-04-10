@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener;
-import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener1;
 
 
 public interface DotElement extends MouseListener {
@@ -42,7 +41,5 @@ public interface DotElement extends MouseListener {
 	 */
 	public void addSelectionListener(ElementSelectionListener<DotElement> listener);
 	
-	public void addSelectionListener(ElementSelectionListener1 listener);
-	
-	public List<ElementSelectionListener1> getSelectionListeners();
+	public List<ElementSelectionListener<DotElement>> getSelectionListeners();
 }
