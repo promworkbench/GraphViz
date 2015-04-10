@@ -1,9 +1,7 @@
 package org.processmining.plugins.graphviz.dot;
 
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,6 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener;
+import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener1;
 
 public abstract class AbstractDotElement implements DotElement {
 	private final String id;
@@ -20,9 +19,7 @@ public abstract class AbstractDotElement implements DotElement {
 	private String label;
 
 	private boolean selectable = false;
-	private List<ActionListener> selectionListeners2 = new LinkedList<ActionListener>();
-	private List<ActionListener> deselectionListeners2 = new LinkedList<ActionListener>();
-	private CopyOnWriteArrayList<ElementSelectionListener<DotElement>> selectionListeners = new CopyOnWriteArrayList<>();
+	private CopyOnWriteArrayList<ElementSelectionListener1> selectionListeners = new CopyOnWriteArrayList<>();
 
 	private final List<MouseListener> mouseListeners;
 
@@ -106,30 +103,15 @@ public abstract class AbstractDotElement implements DotElement {
 		return selectable;
 	}
 
-	public Collection<ActionListener> getSelectionListeners() {
-		return Collections.unmodifiableCollection(selectionListeners2);
-	}
-
-	public void addSelectionListener(ActionListener listener) {
-		selectable = true;
-		selectionListeners2.add(listener);
-	}
-
-	public Collection<ActionListener> getDeselectionListeners() {
-		return Collections.unmodifiableCollection(deselectionListeners2);
-	}
-
-	public void addDeselectionListener(ActionListener listener) {
-		selectable = true;
-		deselectionListeners2.add(listener);
-	}
-
 	public void addSelectionListener(ElementSelectionListener<DotElement> listener) {
-		selectable = true;
+	}
+	
+	public void addSelectionListener(ElementSelectionListener1 listener) {
+		setSelectable(true);
 		selectionListeners.add(listener);
 	}
 	
-	public List<ElementSelectionListener<DotElement>> getSelectionListeners2() {
+	public List<ElementSelectionListener1> getSelectionListeners() {
 		return Collections.unmodifiableList(selectionListeners);	
 	}
 }

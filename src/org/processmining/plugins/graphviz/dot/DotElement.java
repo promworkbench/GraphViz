@@ -1,12 +1,11 @@
 package org.processmining.plugins.graphviz.dot;
 
-import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener;
+import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener1;
 
 
 public interface DotElement extends MouseListener {
@@ -36,15 +35,6 @@ public interface DotElement extends MouseListener {
 	 */
 	public boolean isSelectable();
 	
-	@Deprecated
-	public Collection<ActionListener> getSelectionListeners();
-	@Deprecated
-	public void addSelectionListener(ActionListener listener);
-	@Deprecated
-	public Collection<ActionListener> getDeselectionListeners();
-	@Deprecated
-	public void addDeselectionListener(ActionListener listener);
-	
 	/**
 	 * Add a selection/deselection listener. Side-effect: enables selection of the element.
 	 * Thread-safe.
@@ -52,5 +42,7 @@ public interface DotElement extends MouseListener {
 	 */
 	public void addSelectionListener(ElementSelectionListener<DotElement> listener);
 	
-	public List<ElementSelectionListener<DotElement>> getSelectionListeners2();
+	public void addSelectionListener(ElementSelectionListener1 listener);
+	
+	public List<ElementSelectionListener1> getSelectionListeners();
 }
