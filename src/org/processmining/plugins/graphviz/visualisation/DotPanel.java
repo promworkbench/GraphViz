@@ -25,6 +25,7 @@ import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import org.processmining.plugins.graphviz.colourMaps.ColourMap;
@@ -84,7 +85,7 @@ public class DotPanel extends AnimatableSVGPanel {
 			}
 		}
 	};
-	
+
 	private Action saveAs = new AbstractAction() {
 		private static final long serialVersionUID = 3863042569537144601L;
 
@@ -185,9 +186,10 @@ public class DotPanel extends AnimatableSVGPanel {
 		//listen to ctrl+d for a change in graph layouting direction
 		helperControlsShortcuts.add("ctrl d");
 		helperControlsExplanations.add("change graph direction");
-		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_MASK), "changeGraphDirection");
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_MASK),
+				"changeGraphDirection");
 		getActionMap().put("changeGraphDirection", changeGraphDirection);
-		
+
 		//listen to ctrl+s to save a file
 		helperControlsShortcuts.add("ctrl s");
 		helperControlsExplanations.add("export image");
@@ -211,11 +213,13 @@ public class DotPanel extends AnimatableSVGPanel {
 				for (DotElement element : getClicked(e)) {
 					element.mouseClicked(e);
 
-					selectionChange = selectionChange || processSelection(element, e);
+					if (SwingUtilities.isLeftMouseButton(e)) {
+						selectionChange = selectionChange || processSelection(element, e);
+					}
 				}
 
-				if (!selectionChange && !e.isControlDown() && !isInNavigation(e.getPoint()) && (controls == null
-						|| !controls.contains(e.getPoint()))) {
+				if (!SwingUtilities.isLeftMouseButton(e) && !selectionChange && !e.isControlDown() && !isInNavigation(e.getPoint())
+						&& (controls == null || !controls.contains(e.getPoint()))) {
 					//the user did not click on anything clickable. Remove the selection.
 					selectionChange = removeSelection();
 				}
@@ -276,7 +280,8 @@ public class DotPanel extends AnimatableSVGPanel {
 						while (it.hasNext()) {
 							DotElement selectedElement = it.next();
 							if (selectedElement != element) {
-								for (ElementSelectionListener<DotElement> listener : selectedElement.getSelectionListeners()) {
+								for (ElementSelectionListener<DotElement> listener : selectedElement
+										.getSelectionListeners()) {
 									listener.selected(selectedElement);
 								}
 								it.remove();
@@ -296,7 +301,8 @@ public class DotPanel extends AnimatableSVGPanel {
 					while (it.hasNext()) {
 						DotElement selectedElement = it.next();
 						if (selectedElement != element) {
-							for (ElementSelectionListener<DotElement> listener : selectedElement.getSelectionListeners()) {
+							for (ElementSelectionListener<DotElement> listener : selectedElement
+									.getSelectionListeners()) {
 								listener.deselected(selectedElement);
 							}
 							it.remove();
@@ -577,9 +583,9 @@ public class DotPanel extends AnimatableSVGPanel {
 	public Dot getDot() {
 		return dot;
 	}
-	
+
 	//listeners
-	
+
 	private boolean graphDirectionChanged(GraphDirection direction) {
 		boolean result = true;
 		for (GraphDirectionChangedListener listener : graphDirectionChangedListeners) {
@@ -593,11 +599,11 @@ public class DotPanel extends AnimatableSVGPanel {
 			listener.selectionChanged(Collections.unmodifiableSet(selectedElements));
 		}
 	}
-	
+
 	public void addSelectionChangedListener(SelectionChangedListener<DotElement> listener) {
 		selectionChangedListeners.add(listener);
 	}
-	
+
 	public void addGraphDirectionChangedListener(GraphDirectionChangedListener listener) {
 		graphDirectionChangedListeners.add(listener);
 	}
