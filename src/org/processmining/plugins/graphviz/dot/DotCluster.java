@@ -48,7 +48,7 @@ public class DotCluster extends DotNode {
 	}
 	
 	public DotEdge addEdge(DotNode source, DotNode target) {
-		return addEdge(source, target, null);
+		return addEdge(source, target, "");
 	}
 	
 	public DotEdge addEdge(DotNode source, DotNode target, String label) {
