@@ -166,7 +166,7 @@
 		</target>
 
 		<target name="resolve">
-	        <delete includeEmptyDirs="true" quiet="false">
+	        <delete includeEmptyDirs="true" quiet="true">
 	            <fileset dir="${ivy.cache.dir}/prom" includes="**/*" />
 	        </delete>
 	        <ivy:retrieve />
