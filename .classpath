@@ -57,6 +57,36 @@
 	<classpathentry kind="lib" path="stdlib/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="stdlib/openide-lookup-1.9-patched-1.0.jar"/>
 	<classpathentry kind="lib" path="stdlib/guava-16.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-anim.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-awt-util.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-bridge.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-codec.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-css.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-dom.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-ext.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-extension.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-gui-util.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-gvt.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-parser.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-rasterizer.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-script.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-slideshow.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-squiggle.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-svg-dom.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-svggen.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-svgpp.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-swing.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-transcoder.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-ttf2svg.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-util.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik-xml.jar"/>
+	<classpathentry kind="lib" path="lib/batik/batik.jar"/>
+	<classpathentry kind="lib" path="lib/batik/js.jar"/>
+	<classpathentry kind="lib" path="lib/batik/pdf-transcoder.jar"/>
+	<classpathentry kind="lib" path="lib/batik/xalan-2.6.0.jar"/>
+	<classpathentry kind="lib" path="lib/batik/xerces_2_5_0.jar"/>
+	<classpathentry kind="lib" path="lib/batik/xml-apis-ext.jar"/>
+	<classpathentry kind="lib" path="lib/batik/xml-apis.jar"/>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=GraphViz&amp;ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=ivysettings.xml&amp;loadSettingsOnDemand=false&amp;ivyUserDir=&amp;propertyFiles="/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
