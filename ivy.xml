@@ -2,5 +2,8 @@
     <info organisation="prom" module="GraphViz" revision="latest"/>
     <dependencies>
         <dependency org="prom" name="ApacheUtils" rev="latest" changing="true" transitive="true" />
+        <dependency org="batik" name="batik-transcoder" rev="1.6-1" transitive="true" />
+        <dependency org="batik" name="batik-bridge" rev="1.6-1" transitive="true" />
+        <dependency org="batik" name="batik-svggen" rev="1.6-1" transitive="true" />
      </dependencies>
 </ivy-module>

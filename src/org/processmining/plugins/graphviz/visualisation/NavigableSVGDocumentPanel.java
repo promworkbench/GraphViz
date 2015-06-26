@@ -43,9 +43,6 @@ import org.processmining.plugins.graphviz.visualisation.ZoomPan.BB;
 import org.processmining.plugins.graphviz.visualisation.export.ExportDialog;
 import org.w3c.dom.svg.SVGDocument;
 
-import com.kitfox.svg.SVGDiagram;
-import com.kitfox.svg.SVGException;
-
 /*
  * Obtained and adapted from
  * https://today.java.net/pub/a/today/2007/03/27/navigable
@@ -408,25 +405,6 @@ public class NavigableSVGDocumentPanel extends JPanel {
 			g.drawRect(0, 0, width, height);
 			drawNavigationOutline(g, t);
 		}
-	}
-
-	@Deprecated
-	public static void drawSVG(Graphics2D g, SVGDiagram image, int x, int y, int width, int height) {
-
-		double scaleX = width / image.getWidth();
-		double scaleY = height / image.getHeight();
-
-		g.translate(x, y);
-		g.scale(scaleX, scaleY);
-
-		try {
-			image.render(g);
-		} catch (SVGException e) {
-			e.printStackTrace();
-		}
-
-		g.scale(1 / scaleX, 1 / scaleY);
-		g.translate(-x, -y);
 	}
 
 	public static void drawSVG(Graphics2D g, SVGDocument document, GraphicsNode rootGN, int x, int y, int width,

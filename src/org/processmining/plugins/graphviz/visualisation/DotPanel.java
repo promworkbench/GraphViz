@@ -1,12 +1,14 @@
 package org.processmining.plugins.graphviz.visualisation;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
@@ -169,6 +171,7 @@ public class DotPanel extends AnimatableSVGPanel {
 	private Dot dot;
 	private HashMap<String, DotElement> id2element;
 	private Set<DotElement> selectedElements;
+	private Set<DotElement> mouseInElements;
 	private CopyOnWriteArrayList<SelectionChangedListener<DotElement>> selectionChangedListeners = new CopyOnWriteArrayList<>();
 	private CopyOnWriteArrayList<GraphDirectionChangedListener> graphDirectionChangedListeners = new CopyOnWriteArrayList<>();
 
@@ -176,6 +179,7 @@ public class DotPanel extends AnimatableSVGPanel {
 		super(dot2svg(dot));
 		this.dot = dot;
 		prepareNodeSelection(dot);
+		mouseInElements = new HashSet<>();
 
 		//set up save as
 		fc.setAcceptAllFileFilterUsed(false);
@@ -201,7 +205,7 @@ public class DotPanel extends AnimatableSVGPanel {
 		addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				e.setSource(this2);
-				for (DotElement element : getClicked(e)) {
+				for (DotElement element : getElementsAtPoint(e.getPoint())) {
 					element.mousePressed(e);
 				}
 			}
@@ -210,7 +214,7 @@ public class DotPanel extends AnimatableSVGPanel {
 				e.setSource(this2);
 
 				boolean selectionChange = false;
-				for (DotElement element : getClicked(e)) {
+				for (DotElement element : getElementsAtPoint(e.getPoint())) {
 					element.mouseClicked(e);
 
 					if (SwingUtilities.isLeftMouseButton(e)) {
@@ -231,11 +235,48 @@ public class DotPanel extends AnimatableSVGPanel {
 
 			public void mouseReleased(MouseEvent e) {
 				e.setSource(this2);
-				for (DotElement element : getClicked(e)) {
+				for (DotElement element : getElementsAtPoint(e.getPoint())) {
 					element.mouseReleased(e);
 				}
 			}
 		});
+		
+		//add mouse motion listener
+		addMouseMotionListener(new MouseMotionListener() {
+			
+			public void mouseMoved(MouseEvent e) {
+				Set<DotElement> newIn = getElementsAtPoint(e.getPoint());
+				for (DotElement element : newIn) {
+					if (!mouseInElements.contains(element)) {
+						element.mouseEntered(e);
+					}
+				}
+				for (DotElement element : mouseInElements) {
+					if (!newIn.contains(element)) {
+						element.mouseExited(e);
+					}
+				}
+				mouseInElements = newIn;
+			}
+			
+			public void mouseDragged(MouseEvent e) {
+				
+			}
+		});
+	}
+	
+	//make sure the mouseIn is properly accounted for when the mouse exits the window
+	@Override
+	protected void setMouseExit(Container c) {
+		c.addMouseListener(new MouseAdapter() {
+			public void mouseExited(MouseEvent e) {
+				for (DotElement element : mouseInElements) {
+						element.mouseExited(e);
+				}
+				mouseInElements.clear();;
+			}
+		});
+		super.setMouseExit(c);
 	}
 
 	/**
@@ -321,9 +362,8 @@ public class DotPanel extends AnimatableSVGPanel {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Set<DotElement> getClicked(MouseEvent e) {
+	private Set<DotElement> getElementsAtPoint(Point pointPanelCoordinates) {
 		HashSet<DotElement> result = new HashSet<DotElement>();
-		Point pointPanelCoordinates = e.getPoint();
 		if (isInImage(pointPanelCoordinates)) {
 			Point2D pointImageCoordinates = ZoomPan.getImage2PanelTransformation(getSVG(), panel).transformToImage(
 					pointPanelCoordinates, state.getZoomPanState());

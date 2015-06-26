@@ -253,7 +253,7 @@ public class NavigableSVGPanel extends JPanel {
 		}
 	};
 
-	private void setMouseExit(Container c) {
+	protected void setMouseExit(Container c) {
 		c.addMouseListener(exitListener);
 		if (c.getParent() != null) {
 			setMouseExit(c);

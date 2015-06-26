@@ -4,7 +4,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -18,13 +17,11 @@ public abstract class AbstractDotElement implements DotElement {
 	private String label;
 
 	private boolean selectable = false;
-	private CopyOnWriteArrayList<ElementSelectionListener<DotElement>> selectionListeners = new CopyOnWriteArrayList<>();
-
-	private final List<MouseListener> mouseListeners;
+	private final List<ElementSelectionListener<DotElement>> selectionListeners = new CopyOnWriteArrayList<>();
+	private final List<MouseListener> mouseListeners = new CopyOnWriteArrayList<MouseListener>();
 
 	public AbstractDotElement() {
 		id = "e" + UUID.randomUUID().toString();
-		mouseListeners = new LinkedList<MouseListener>();
 		label = "";
 		optionsMap = new HashMap<>();
 	}

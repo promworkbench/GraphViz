@@ -31,7 +31,8 @@ public class ExportDialog extends JFileChooser {
 
 	@Override
 	public void approveSelection() {
-		File f = getSelectedFile();
+		Exporter fileFilter = (Exporter) getFileFilter();
+		File f = fileFilter.addExtension(getSelectedFile());
 		if (f.exists() && getDialogType() == SAVE_DIALOG) {
 			int result = JOptionPane.showConfirmDialog(this, "The file already exists, do you want to overwrite it?",
 					"Existing file", JOptionPane.YES_NO_OPTION);
