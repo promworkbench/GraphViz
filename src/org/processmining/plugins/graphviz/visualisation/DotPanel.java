@@ -40,6 +40,7 @@ import org.processmining.plugins.graphviz.dot.DotElement;
 import org.processmining.plugins.graphviz.dot.DotNode;
 import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.GraphDirectionChangedListener;
+import org.processmining.plugins.graphviz.visualisation.listeners.MouseInElementsChangedListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.SelectionChangedListener;
 
 import com.kitfox.svg.Group;
@@ -172,8 +173,9 @@ public class DotPanel extends AnimatableSVGPanel {
 	private HashMap<String, DotElement> id2element;
 	private Set<DotElement> selectedElements;
 	private Set<DotElement> mouseInElements;
-	private CopyOnWriteArrayList<SelectionChangedListener<DotElement>> selectionChangedListeners = new CopyOnWriteArrayList<>();
-	private CopyOnWriteArrayList<GraphDirectionChangedListener> graphDirectionChangedListeners = new CopyOnWriteArrayList<>();
+	private final CopyOnWriteArrayList<SelectionChangedListener<DotElement>> selectionChangedListeners = new CopyOnWriteArrayList<>();
+	private final CopyOnWriteArrayList<GraphDirectionChangedListener> graphDirectionChangedListeners = new CopyOnWriteArrayList<>();
+	private final CopyOnWriteArrayList<MouseInElementsChangedListener<DotElement>> mouseInElementsChangedListeners = new CopyOnWriteArrayList<>();
 
 	public DotPanel(Dot dot) {
 		super(dot2svg(dot));
@@ -222,8 +224,8 @@ public class DotPanel extends AnimatableSVGPanel {
 					}
 				}
 
-				if (SwingUtilities.isLeftMouseButton(e) && !selectionChange && !e.isControlDown() && !isInNavigation(e.getPoint())
-						&& (controls == null || !controls.contains(e.getPoint()))) {
+				if (SwingUtilities.isLeftMouseButton(e) && !selectionChange && !e.isControlDown()
+						&& !isInNavigation(e.getPoint()) && (controls == null || !controls.contains(e.getPoint()))) {
 					//the user did not click on anything clickable. Remove the selection.
 					selectionChange = removeSelection();
 				}
@@ -240,40 +242,50 @@ public class DotPanel extends AnimatableSVGPanel {
 				}
 			}
 		});
-		
+
 		//add mouse motion listener
 		addMouseMotionListener(new MouseMotionListener() {
-			
+
 			public void mouseMoved(MouseEvent e) {
 				Set<DotElement> newIn = getElementsAtPoint(e.getPoint());
+				boolean changed = false;
 				for (DotElement element : newIn) {
 					if (!mouseInElements.contains(element)) {
 						element.mouseEntered(e);
+						changed = true;
 					}
 				}
 				for (DotElement element : mouseInElements) {
 					if (!newIn.contains(element)) {
 						element.mouseExited(e);
+						changed = true;
 					}
 				}
 				mouseInElements = newIn;
+				if (changed) {
+					mouseInElementsChanged();
+				}
 			}
-			
+
 			public void mouseDragged(MouseEvent e) {
-				
+
 			}
 		});
 	}
-	
+
 	//make sure the mouseIn is properly accounted for when the mouse exits the window
 	@Override
 	protected void setMouseExit(Container c) {
 		c.addMouseListener(new MouseAdapter() {
 			public void mouseExited(MouseEvent e) {
 				for (DotElement element : mouseInElements) {
-						element.mouseExited(e);
+					element.mouseExited(e);
 				}
-				mouseInElements.clear();;
+				boolean changed = !mouseInElements.isEmpty();
+				mouseInElements.clear();
+				if (changed) {
+					mouseInElementsChanged();
+				}
 			}
 		});
 		super.setMouseExit(c);
@@ -640,11 +652,21 @@ public class DotPanel extends AnimatableSVGPanel {
 		}
 	}
 
+	private void mouseInElementsChanged() {
+		for (MouseInElementsChangedListener<DotElement> listener : mouseInElementsChangedListeners) {
+			listener.mouseInElementsChanged(Collections.unmodifiableSet(mouseInElements));
+		}
+	}
+
 	public void addSelectionChangedListener(SelectionChangedListener<DotElement> listener) {
 		selectionChangedListeners.add(listener);
 	}
 
 	public void addGraphDirectionChangedListener(GraphDirectionChangedListener listener) {
 		graphDirectionChangedListeners.add(listener);
+	}
+
+	public void addMouseInElementsChangedListener(MouseInElementsChangedListener<DotElement> listener) {
+		mouseInElementsChangedListeners.add(listener);
 	}
 }
