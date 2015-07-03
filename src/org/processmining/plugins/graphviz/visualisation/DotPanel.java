@@ -10,7 +10,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -24,11 +23,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileFilter;
 
 import org.processmining.plugins.graphviz.colourMaps.ColourMap;
 import org.processmining.plugins.graphviz.dot.Dot;
@@ -89,86 +85,6 @@ public class DotPanel extends AnimatableSVGPanel {
 		}
 	};
 
-	private Action saveAs = new AbstractAction() {
-		private static final long serialVersionUID = 3863042569537144601L;
-
-		public void actionPerformed(ActionEvent e) {
-			saveViewAs();
-		}
-	};
-
-	private JFileChooser fc = new JFileChooser() {
-		private static final long serialVersionUID = 3208601153887279605L;
-
-		@Override
-		public void approveSelection() {
-			File f = getSelectedFile();
-			if (f.exists() && getDialogType() == SAVE_DIALOG) {
-				int result = JOptionPane.showConfirmDialog(this,
-						"The file already exists, do you want to overwrite it?", "Existing file",
-						JOptionPane.YES_NO_CANCEL_OPTION);
-				switch (result) {
-					case JOptionPane.YES_OPTION :
-						super.approveSelection();
-						return;
-					case JOptionPane.NO_OPTION :
-						return;
-					case JOptionPane.CLOSED_OPTION :
-						return;
-					case JOptionPane.CANCEL_OPTION :
-						cancelSelection();
-						return;
-				}
-			}
-			super.approveSelection();
-		}
-	};
-
-	public class PNGFilter extends FileFilter {
-		public boolean accept(File file) {
-			String extension = "";
-			int i = file.getName().lastIndexOf('.');
-			if (i >= 0) {
-				extension = file.getName().substring(i + 1);
-			}
-			return file.isDirectory() || extension.toLowerCase().equals("png");
-		}
-
-		public String getDescription() {
-			return "png";
-		}
-	}
-
-	public class PDFFilter extends FileFilter {
-		public boolean accept(File file) {
-			String extension = "";
-			int i = file.getName().lastIndexOf('.');
-			if (i >= 0) {
-				extension = file.getName().substring(i + 1);
-			}
-			return file.isDirectory() || extension.toLowerCase().equals("pdf");
-		}
-
-		public String getDescription() {
-			return "pdf";
-		}
-	}
-
-	public class SVGFilter extends FileFilter {
-		public boolean accept(File file) {
-			String extension = "";
-			int i = file.getName().lastIndexOf('.');
-			if (i >= 0) {
-				extension = file.getName().substring(i + 1);
-			}
-			return file.isDirectory() || extension.toLowerCase().equals("svg");
-		}
-
-		public String getDescription() {
-			return "svg";
-		}
-	}
-
 	private Dot dot;
 	private HashMap<String, DotElement> id2element;
 	private Set<DotElement> selectedElements;
@@ -183,24 +99,12 @@ public class DotPanel extends AnimatableSVGPanel {
 		prepareNodeSelection(dot);
 		mouseInElements = new HashSet<>();
 
-		//set up save as
-		fc.setAcceptAllFileFilterUsed(false);
-		fc.addChoosableFileFilter(new PNGFilter());
-		fc.addChoosableFileFilter(new PDFFilter());
-		fc.addChoosableFileFilter(new SVGFilter());
-
 		//listen to ctrl+d for a change in graph layouting direction
 		helperControlsShortcuts.add("ctrl d");
 		helperControlsExplanations.add("change graph direction");
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_MASK),
 				"changeGraphDirection");
 		getActionMap().put("changeGraphDirection", changeGraphDirection);
-
-		//listen to ctrl+s to save a file
-		helperControlsShortcuts.add("ctrl s");
-		helperControlsExplanations.add("export image");
-		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK), "saveAs");
-		getActionMap().put("saveAs", saveAs);
 
 		//add mouse listeners
 		final DotPanel this2 = this;
@@ -576,44 +480,6 @@ public class DotPanel extends AnimatableSVGPanel {
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-	public void saveViewAs() {
-		int returnVal = fc.showSaveDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-
-			//get type and add file extension
-			Type type;
-			FileFilter fileFilter = fc.getFileFilter();
-			if (fileFilter instanceof PNGFilter) {
-				if (!file.getName().endsWith(".png")) {
-					file = new File(file + ".png");
-				}
-				type = Type.png;
-			} else if (fileFilter instanceof PDFFilter) {
-				if (!file.getName().endsWith(".pdf")) {
-					file = new File(file + ".pdf");
-				}
-				type = Type.pdf;
-			} else {
-				if (!file.getName().endsWith(".svg")) {
-					file = new File(file + ".svg");
-				}
-				type = Type.svg;
-			}
-
-			final File file2 = file;
-			final Type type2 = type;
-
-			//save the file asynchronously
-			new Thread(new Runnable() {
-				public void run() {
-					Dot2Image.dot2image(dot, file2, type2);
-				}
-			}).start();
-
-		}
 	}
 
 	public Set<DotElement> getSelectedElements() {

@@ -33,6 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import org.processmining.plugins.graphviz.visualisation.export.ExportDialog;
+
 import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGException;
 
@@ -127,9 +129,9 @@ public class NavigableSVGPanel extends JPanel {
 	private static int helperControlsWidth = 300;
 	private static Font helperControlsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 	protected List<String> helperControlsShortcuts = new ArrayList<>(Arrays.asList("up/down", "left/right", "ctrl +",
-			"ctrl -", "ctrl 0"));
+			"ctrl -", "ctrl 0", "ctrl s"));
 	protected List<String> helperControlsExplanations = new ArrayList<>(Arrays.asList("pan up/down", "pan left/right",
-			"zoom in", "zoom out", "reset view"));
+			"zoom in", "zoom out", "reset view", "save image"));
 
 	public NavigableSVGPanel(final SVGDiagram setImage) {
 		setOpaque(false);
@@ -229,6 +231,20 @@ public class NavigableSVGPanel extends JPanel {
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_0, InputEvent.CTRL_MASK),
 				"viewReset"); // - key
 		getActionMap().put("viewReset", viewResetAction);
+
+		//listen to ctrl s to save image
+		{
+			getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK),
+					"saveAs"); // - key
+			final NavigableSVGPanel panel = this;
+			getActionMap().put("saveAs", new AbstractAction() {
+				private static final long serialVersionUID = -4780600363000017631L;
+
+				public void actionPerformed(ActionEvent arg0) {
+					new ExportDialog(panel);
+				}
+			});
+		}
 
 		//add mouse motion listener for helper controls
 		addMouseMotionListener(helperControlsMouseMovesAdapter);
@@ -539,7 +555,7 @@ public class NavigableSVGPanel extends JPanel {
 	public boolean isInNavigation(Point p) {
 		return (state.isNavigationImageEnabled() && p.x < getNavigationWidth() && p.y < getNavigationHeight());
 	}
-	
+
 	public List<String> getHelperControlsShortcuts() {
 		return helperControlsShortcuts;
 	}
@@ -555,10 +571,9 @@ public class NavigableSVGPanel extends JPanel {
 	public void setHelperControlsExplanations(List<String> helperControlsExplanations) {
 		this.helperControlsExplanations = helperControlsExplanations;
 	}
-	
+
 	public SVGDiagram getImage() {
 		return image;
 	}
-
 
 }

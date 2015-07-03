@@ -12,6 +12,7 @@ public class ExportDialog extends JFileChooser {
 
 	public ExportDialog(NavigableSVGPanel parent) {
 		setAcceptAllFileFilterUsed(false);
+		addChoosableFileFilter(new ExporterPDF());
 		addChoosableFileFilter(new ExporterPNG());
 
 		try {
