@@ -5,15 +5,13 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import org.processmining.plugins.graphviz.visualisation.NavigableSVGDocumentPanel;
+import org.processmining.plugins.graphviz.visualisation.NavigableSVGPanel;
 
 public class ExportDialog extends JFileChooser {
 	private static final long serialVersionUID = -6928894765212379860L;
 
-	public ExportDialog(NavigableSVGDocumentPanel parent) {
+	public ExportDialog(NavigableSVGPanel parent) {
 		setAcceptAllFileFilterUsed(false);
-		addChoosableFileFilter(new ExporterPDF());
-		addChoosableFileFilter(new ExporterSVG());
 		addChoosableFileFilter(new ExporterPNG());
 
 		try {
@@ -22,7 +20,7 @@ public class ExportDialog extends JFileChooser {
 				Exporter fileFilter = (Exporter) getFileFilter();
 				File file = fileFilter.addExtension(getSelectedFile());
 
-				fileFilter.export(parent.getSVGDocument(), file);
+				fileFilter.export(parent.getImage(), file);
 			}
 		} catch (Exception e) {
 			JOptionPane.showConfirmDialog(this, e.getMessage(), "Error while saving image", JOptionPane.OK_OPTION);

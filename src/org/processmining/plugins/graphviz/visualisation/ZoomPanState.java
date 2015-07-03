@@ -2,8 +2,6 @@ package org.processmining.plugins.graphviz.visualisation;
 
 import javax.swing.JComponent;
 
-import org.w3c.dom.svg.SVGDocument;
-
 import com.kitfox.svg.SVGDiagram;
 
 public class ZoomPanState {
@@ -63,27 +61,14 @@ public class ZoomPanState {
 		this.deltaNavScale = deltaNavScale;
 	}
 
-	@Deprecated
 	public Transformation getTransformation(SVGDiagram diagram, JComponent panel) {
 		if (transformation == null) {
 			updateTransformation(diagram, panel);
 		}
 		return transformation;
 	}
-	
-	public Transformation getTransformation(SVGDocument diagram, JComponent panel) {
-		if (transformation == null) {
-			updateTransformation(diagram, panel);
-		}
-		return transformation;
-	}
 
-	@Deprecated
 	public void updateTransformation(SVGDiagram diagram, JComponent panel) {
-		transformation = ZoomPan.getImage2PanelTransformation(diagram, panel);
-	}
-	
-	public void updateTransformation(SVGDocument diagram, JComponent panel) {
 		transformation = ZoomPan.getImage2PanelTransformation(diagram, panel);
 	}
 	

@@ -15,6 +15,6 @@ public class DotVisualisation {
 	@PluginVariant(requiredParameterLabels = { 0 })
 	public JComponent visualize(PluginContext context, Dot dot) {
 
-		return new DotPanel2(dot);
+		return new DotPanel(dot);
 	}
 }

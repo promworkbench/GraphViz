@@ -555,6 +555,10 @@ public class NavigableSVGPanel extends JPanel {
 	public void setHelperControlsExplanations(List<String> helperControlsExplanations) {
 		this.helperControlsExplanations = helperControlsExplanations;
 	}
+	
+	public SVGDiagram getImage() {
+		return image;
+	}
 
 
 }

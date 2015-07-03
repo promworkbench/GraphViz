@@ -4,13 +4,13 @@ import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
 
-import org.w3c.dom.svg.SVGDocument;
+import com.kitfox.svg.SVGDiagram;
 
 
 public abstract class Exporter extends FileFilter {
 	protected abstract String getExtension();
 
-	public abstract void export(SVGDocument svgDocument, File file) throws Exception;
+	public abstract void export(SVGDiagram image, File file) throws Exception;
 
 	public String getDescription() {
 		return getExtension();
