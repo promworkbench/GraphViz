@@ -286,7 +286,9 @@ public class DotPanel extends AnimatableSVGPanel {
 			try {
 				//get the elements at the clicked position
 				List<List<RenderableElement>> elements = image.pick(pointImageCoordinates, false, null);
-
+				
+//				System.out.println(elements);
+				
 				StyleAttribute classAttribute = new StyleAttribute("class");
 				StyleAttribute idAttribute = new StyleAttribute("id");
 				for (List<RenderableElement> path : elements) {
