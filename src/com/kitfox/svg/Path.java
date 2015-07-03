@@ -36,7 +36,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.kitfox.svg.xml.StyleAttribute;
 
@@ -87,7 +93,6 @@ public class Path extends ShapeElement {
 			super.pick(point, true, retVec);
 			return;
 		} else {
-
 			//check whether we are on the stroke
 			Shape strokeShape = getStrokeShape(new StyleAttribute(), getShape(), null);
 			if (strokeShape.contains(point)) {
@@ -96,10 +101,15 @@ public class Path extends ShapeElement {
 				return;
 			}
 
-			//delegate to super function 
-			super.pick(point, false, retVec);
-			return;
+			//check whether we are in the path
+			GeneralPath closedPath = buildPath(closePath(d), fillRule);
+			if (closedPath.contains(point)) {
+				//delegate to super function to add stuff
+				super.pick(point, true, retVec);
+				return;
+			}
 		}
+		return;
 	}
 
 	//inserted by Sander Leemans
@@ -178,6 +188,52 @@ public class Path extends ShapeElement {
 		}
 
 		return strokeShape;
+	}
+
+	private static final Pattern pattern = Pattern.compile("-?(\\d*\\.)?\\d+,-?(\\d*\\.)?\\d+");
+
+	public static String closePath(String path) {
+
+		//get the points from the path
+		Matcher matcher = pattern.matcher(path);
+
+		List<String> points = new ArrayList<String>();
+		while (matcher.find()) {
+			points.add(matcher.group());
+		}
+
+		if (path.toLowerCase().endsWith("z")) {
+			//the path is already closed; return the original path
+			return path;
+		} else if (points.get(0).equals(points.get(points.size() - 1))) {
+			//the path begins and ends at the same points; it is already closed; return the original path
+			return path;
+		}
+
+		//reverse the list of points
+		Collections.reverse(points);
+
+		//output as a new path
+		StringBuilder result = new StringBuilder();
+		Iterator<String> it = points.iterator();
+
+		result.append("L");
+		result.append(it.next());
+
+		try {
+			while (it.hasNext()) {
+				result.append("C");
+				result.append(it.next());
+				result.append(" ");
+				result.append(it.next());
+				result.append(" ");
+				result.append(it.next());
+			}
+		} catch (NoSuchElementException e) {
+			return path;
+		}
+
+		return path + result.toString();
 	}
 
 	public void render(Graphics2D g) throws SVGException {
