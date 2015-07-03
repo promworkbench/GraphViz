@@ -2,8 +2,14 @@
     <info organisation="prom" module="GraphViz" revision="latest"/>
     <dependencies>
         <dependency org="prom" name="ApacheUtils" rev="latest" changing="true" transitive="true" />
-        <dependency org="batik" name="batik-transcoder" rev="1.6-1" transitive="true" />
-        <dependency org="batik" name="batik-bridge" rev="1.6-1" transitive="true" />
-        <dependency org="batik" name="batik-svggen" rev="1.6-1" transitive="true" />
+        
+        <dependency org="org.apache.xmlgraphics" name="fop" rev="2.0" transitive="true" />
+        <dependency org="org.apache.xmlgraphics" name="batik-transcoder" rev="1.8" transitive="true" />
+        <dependency org="org.apache.xmlgraphics" name="batik-bridge" rev="1.8" transitive="true" />
+        <dependency org="org.apache.xmlgraphics" name="batik-svggen" rev="1.8" transitive="true" />
+        <!--
+        <dependency org="batik" name="batik-transcoder" rev="1.5" transitive="true" />
+        <dependency org="batik" name="batik-bridge" rev="1.5" transitive="true" />
+        <dependency org="batik" name="batik-svggen" rev="1.5" transitive="true" />-->
      </dependencies>
 </ivy-module>

@@ -23,7 +23,7 @@ import javax.swing.Action;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
+import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.processmining.plugins.graphviz.colourMaps.ColourMap;
 import org.processmining.plugins.graphviz.dot.Dot;
@@ -39,6 +39,7 @@ import org.processmining.plugins.graphviz.visualisation.listeners.SelectionChang
 import org.w3c.dom.svg.SVGDocument;
 
 import com.kitfox.svg.Group;
+import com.kitfox.svg.RenderableElement;
 import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGElementException;
@@ -232,40 +233,40 @@ public class DotPanel2 extends AnimatableSVGDocumentPanel {
 		if (isInImage(pointPanelCoordinates)) {
 			Point2D pointImageCoordinates = ZoomPan.getImage2PanelTransformation(getSVGDocument(), panel).transformToImage(
 					pointPanelCoordinates, state.getZoomPanState());
-//			try {
-//				//get the elements at the clicked position
-//				List<List<RenderableElement>> elements = image.pick(pointImageCoordinates, false, null);
-//
-//				StyleAttribute classAttribute = new StyleAttribute("class");
-//				StyleAttribute idAttribute = new StyleAttribute("id");
-//				for (List<RenderableElement> path : elements) {
-//					for (RenderableElement element : path) {
-//						//RenderableElement element = path.iterator().next();
-//						if (element instanceof Group) {
-//							Group group = (Group) element;
-//
-//							//get the class
-//							group.getPres(classAttribute);
-//
-//							//get the id
-//							group.getPres(idAttribute);
-//							String id = idAttribute.getStringValue();
-//
-//							if (classAttribute.getStringValue().equals("node")
-//									|| classAttribute.getStringValue().equals("edge")) {
-//								//we have found a node or edge
-//								DotElement dotElement = id2element.get(id);
-//								if (dotElement != null) {
-//									result.add(dotElement);
-//								}
-//							}
-//						}
-//					}
-//				}
+			try {
+				//get the elements at the clicked position
+				List<List<RenderableElement>> elements = pick(pointImageCoordinates);
 
-//			} catch (SVGException e1) {
-//				e1.printStackTrace();
-//			}
+				StyleAttribute classAttribute = new StyleAttribute("class");
+				StyleAttribute idAttribute = new StyleAttribute("id");
+				for (List<RenderableElement> path : elements) {
+					for (RenderableElement element : path) {
+						//RenderableElement element = path.iterator().next();
+						if (element instanceof Group) {
+							Group group = (Group) element;
+
+							//get the class
+							group.getPres(classAttribute);
+
+							//get the id
+							group.getPres(idAttribute);
+							String id = idAttribute.getStringValue();
+
+							if (classAttribute.getStringValue().equals("node")
+									|| classAttribute.getStringValue().equals("edge")) {
+								//we have found a node or edge
+								DotElement dotElement = id2element.get(id);
+								if (dotElement != null) {
+									result.add(dotElement);
+								}
+							}
+						}
+					}
+				}
+
+			} catch (SVGException e1) {
+				e1.printStackTrace();
+			}
 		}
 		return result;
 	}
@@ -464,5 +465,11 @@ public class DotPanel2 extends AnimatableSVGDocumentPanel {
 
 	public void addGraphDirectionChangedListener(GraphDirectionChangedListener listener) {
 		graphDirectionChangedListeners.add(listener);
+	}
+	
+	public List<List<RenderableElement>> pick(Point2D point) {
+		
+		svgDocument.getRootElement();
+		return null;
 	}
 }
