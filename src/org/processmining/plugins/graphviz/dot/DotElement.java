@@ -43,8 +43,10 @@ public interface DotElement extends MouseListener {
 	 * 
 	 * @param listener
 	 */
-	public void addSelectionListener(ElementSelectionListener<DotElement> listener);
 	public void addSelectionListener(DotElementSelectionListener listener);
+	
+	@Deprecated
+	public void addSelectionListener(ElementSelectionListener<DotElement> listener);
 
 	public List<DotElementSelectionListener> getSelectionListeners();
 }
