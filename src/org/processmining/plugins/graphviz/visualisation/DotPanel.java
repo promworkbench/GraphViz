@@ -34,7 +34,7 @@ import org.processmining.plugins.graphviz.dot.Dot2Image.Type;
 import org.processmining.plugins.graphviz.dot.DotEdge;
 import org.processmining.plugins.graphviz.dot.DotElement;
 import org.processmining.plugins.graphviz.dot.DotNode;
-import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener;
+import org.processmining.plugins.graphviz.visualisation.listeners.DotElementSelectionListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.GraphDirectionChangedListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.MouseInElementsChangedListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.SelectionChangedListener;
@@ -202,8 +202,8 @@ public class DotPanel extends AnimatableSVGPanel {
 	 */
 	private boolean removeSelection() {
 		for (DotElement element : selectedElements) {
-			for (ElementSelectionListener<DotElement> listener : element.getSelectionListeners()) {
-				listener.deselected(element);
+			for (DotElementSelectionListener listener : element.getSelectionListeners()) {
+				listener.deselected(element, image);
 			}
 		}
 		boolean result = !selectedElements.isEmpty();
@@ -218,14 +218,14 @@ public class DotPanel extends AnimatableSVGPanel {
 				if (selectedElements.contains(element)) {
 					//deselect element
 					selectedElements.remove(element);
-					for (ElementSelectionListener<DotElement> listener : element.getSelectionListeners()) {
-						listener.deselected(element);
+					for (DotElementSelectionListener listener : element.getSelectionListeners()) {
+						listener.deselected(element, image);
 					}
 				} else {
 					//select element
 					selectedElements.add(element);
-					for (ElementSelectionListener<DotElement> listener : element.getSelectionListeners()) {
-						listener.selected(element);
+					for (DotElementSelectionListener listener : element.getSelectionListeners()) {
+						listener.selected(element, image);
 					}
 				}
 			} else {
@@ -237,9 +237,9 @@ public class DotPanel extends AnimatableSVGPanel {
 						while (it.hasNext()) {
 							DotElement selectedElement = it.next();
 							if (selectedElement != element) {
-								for (ElementSelectionListener<DotElement> listener : selectedElement
+								for (DotElementSelectionListener listener : selectedElement
 										.getSelectionListeners()) {
-									listener.selected(selectedElement);
+									listener.selected(selectedElement, image);
 								}
 								it.remove();
 							}
@@ -247,8 +247,8 @@ public class DotPanel extends AnimatableSVGPanel {
 					} else {
 						//only this element was selected, deselect it
 						selectedElements.remove(element);
-						for (ElementSelectionListener<DotElement> a : element.getSelectionListeners()) {
-							a.deselected(element);
+						for (DotElementSelectionListener a : element.getSelectionListeners()) {
+							a.deselected(element, image);
 						}
 					}
 				} else {
@@ -258,17 +258,17 @@ public class DotPanel extends AnimatableSVGPanel {
 					while (it.hasNext()) {
 						DotElement selectedElement = it.next();
 						if (selectedElement != element) {
-							for (ElementSelectionListener<DotElement> listener : selectedElement
+							for (DotElementSelectionListener listener : selectedElement
 									.getSelectionListeners()) {
-								listener.deselected(selectedElement);
+								listener.deselected(selectedElement, image);
 							}
 							it.remove();
 						}
 					}
 					//select this element
 					selectedElements.add(element);
-					for (ElementSelectionListener<DotElement> listener : element.getSelectionListeners()) {
-						listener.selected(element);
+					for (DotElementSelectionListener listener : element.getSelectionListeners()) {
+						listener.selected(element, image);
 					}
 				}
 			}
@@ -390,8 +390,8 @@ public class DotPanel extends AnimatableSVGPanel {
 	 */
 	public void select(DotElement element) {
 		selectedElements.add(element);
-		for (ElementSelectionListener<DotElement> listener : element.getSelectionListeners()) {
-			listener.selected(element);
+		for (DotElementSelectionListener listener : element.getSelectionListeners()) {
+			listener.selected(element, image);
 		}
 		selectionChanged();
 	}

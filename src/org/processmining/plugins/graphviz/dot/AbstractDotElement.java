@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.processmining.plugins.graphviz.visualisation.listeners.DotElementSelectionListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener;
 
 public abstract class AbstractDotElement implements DotElement {
@@ -17,7 +18,7 @@ public abstract class AbstractDotElement implements DotElement {
 	private String label;
 
 	private boolean selectable = false;
-	private final List<ElementSelectionListener<DotElement>> selectionListeners = new CopyOnWriteArrayList<>();
+	private final List<DotElementSelectionListener> selectionListeners = new CopyOnWriteArrayList<>();
 	private final List<MouseListener> mouseListeners = new CopyOnWriteArrayList<MouseListener>();
 
 	public AbstractDotElement() {
@@ -99,12 +100,17 @@ public abstract class AbstractDotElement implements DotElement {
 		return selectable;
 	}
 
+	@Deprecated
 	public void addSelectionListener(ElementSelectionListener<DotElement> listener) {
+		
+	}
+	
+	public void addSelectionListener(DotElementSelectionListener listener) {
 		setSelectable(true);
 		selectionListeners.add(listener);
 	}
 	
-	public List<ElementSelectionListener<DotElement>> getSelectionListeners() {
+	public List<DotElementSelectionListener> getSelectionListeners() {
 		return Collections.unmodifiableList(selectionListeners);	
 	}
 }
