@@ -1,5 +1,9 @@
 <ivy-module version="2.0">
-    <info organisation="prom" module="GraphViz" revision="latest"/>
+    <info organisation="prom" module="GraphViz" revision="latest">
+    	<description>
+    		Version VERSION
+    	</description>
+    </info>
     <dependencies>
         <dependency org="prom" name="ApacheUtils" rev="latest" changing="true" transitive="true" />
      </dependencies>
