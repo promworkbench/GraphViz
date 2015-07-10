@@ -171,11 +171,11 @@
 			<fileset dir="${ivy.cache.dir}/prom" includes="**/*" />
 		</delete>
 		<ivy:retrieve />
-		<copy todir="lib" overwrite="true">
+		<!--copy todir="lib" overwrite="true">
 			<fileset dir="ivy">
 
 			</fileset>
-		</copy>
+		</copy-->
 	</target>
 
 </project>
