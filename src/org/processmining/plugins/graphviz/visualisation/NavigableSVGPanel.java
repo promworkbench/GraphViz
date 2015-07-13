@@ -127,7 +127,7 @@ public class NavigableSVGPanel extends JPanel {
 	private Arc2D helperControlsArc = null;
 	private boolean mouseIsInHelperControls = false;
 	private static int helperControlsWidth = 300;
-	private static Font helperControlsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+	protected static Font helperControlsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 	protected List<String> helperControlsShortcuts = new ArrayList<>(Arrays.asList("up/down", "left/right", "ctrl +",
 			"ctrl -", "ctrl 0", "ctrl s"));
 	protected List<String> helperControlsExplanations = new ArrayList<>(Arrays.asList("pan up/down", "pan left/right",
