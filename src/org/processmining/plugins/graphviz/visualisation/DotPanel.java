@@ -485,6 +485,10 @@ public class DotPanel extends AnimatableSVGPanel {
 	public Set<DotElement> getSelectedElements() {
 		return Collections.unmodifiableSet(selectedElements);
 	}
+	
+	public Set<DotElement> getMouseInElements() {
+		return Collections.unmodifiableSet(mouseInElements);
+	}
 
 	public List<DotEdge> getEdges() {
 		return dot.getEdgesRecursive();
