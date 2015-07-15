@@ -35,6 +35,24 @@
  */
 package com.kitfox.svg;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+
 import com.kitfox.svg.animation.AnimationElement;
 import com.kitfox.svg.animation.TrackBase;
 import com.kitfox.svg.animation.TrackManager;
@@ -53,22 +71,6 @@ import com.kitfox.svg.pathcmd.Vertical;
 import com.kitfox.svg.xml.StyleAttribute;
 import com.kitfox.svg.xml.StyleSheet;
 import com.kitfox.svg.xml.XMLParseUtil;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.GeneralPath;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 
 
 /**
@@ -824,7 +826,7 @@ abstract public class SVGElement implements Serializable
         return Float.parseFloat(s);
     }
 
-    static protected PathCommand[] parsePathList(String list)
+    static public PathCommand[] parsePathList(String list)
     {
         final Matcher matchPathCmd = Pattern.compile("([MmLlHhVvAaQqTtCcSsZz])|([-+]?((\\d*\\.\\d+)|(\\d+))([eE][-+]?\\d+)?)").matcher(list);
 
@@ -942,7 +944,7 @@ abstract public class SVGElement implements Serializable
         return retArr;
     }
 
-    static protected GeneralPath buildPath(String text, int windingRule)
+    static public GeneralPath buildPath(String text, int windingRule)
     {
         PathCommand[] commands = parsePathList(text);
 
