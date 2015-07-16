@@ -423,4 +423,8 @@ public class SVGRoot extends Group
         this.styleSheet = styleSheet;
     }
 
+    public AffineTransform getViewXform()
+    {
+    	return new AffineTransform(viewXform);
+    }
 }
