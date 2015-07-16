@@ -7,6 +7,7 @@ import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGException;
 import com.kitfox.svg.SVGUniverse;
 
+@Deprecated
 public class AnimatedSVGExporter {
 
 	private final SVGUniverse universe;
@@ -14,7 +15,7 @@ public class AnimatedSVGExporter {
 	private int width;
 	private int height;
 
-	public AnimatedSVGExporter(SVGUniverse universe, SVGDiagram image, int width, int height) {
+	private AnimatedSVGExporter(SVGUniverse universe, SVGDiagram image, int width, int height) {
 		this.universe = universe;
 		this.image = image;
 		this.width = width;

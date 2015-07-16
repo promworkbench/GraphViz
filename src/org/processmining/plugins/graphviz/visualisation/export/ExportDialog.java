@@ -17,6 +17,7 @@ public class ExportDialog extends JFileChooser {
 		setAcceptAllFileFilterUsed(false);
 		addChoosableFileFilter(new ExporterPDF());
 		addChoosableFileFilter(new ExporterPNG());
+		addChoosableFileFilter(new ExporterSVG());
 
 		try {
 			int returnVal = showSaveDialog(parent);
@@ -24,7 +25,7 @@ public class ExportDialog extends JFileChooser {
 				Exporter fileFilter = (Exporter) getFileFilter();
 				File file = fileFilter.addExtension(getSelectedFile());
 
-				fileFilter.export(parent.getImage(), file);
+				fileFilter.export(parent, file);
 
 				//save the path for later use
 				preferences.put("lastUsedFolder", file.getParent());

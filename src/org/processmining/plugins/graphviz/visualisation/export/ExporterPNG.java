@@ -7,7 +7,7 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import com.kitfox.svg.SVGDiagram;
+import org.processmining.plugins.graphviz.visualisation.NavigableSVGPanel;
 
 public class ExporterPNG extends Exporter {
 
@@ -15,12 +15,12 @@ public class ExporterPNG extends Exporter {
 		return "png";
 	}
 
-	public void export(SVGDiagram image, File file) throws Exception {
-		BufferedImage bi = new BufferedImage(Math.round(image.getWidth()), Math.round(image.getHeight()),
+	public void export(NavigableSVGPanel panel, File file) throws Exception {
+		BufferedImage bi = new BufferedImage(Math.round(panel.getImage().getWidth()), Math.round(panel.getImage().getHeight()),
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = bi.createGraphics();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		image.render(g);
+		panel.print(g);
 		ImageIO.write(bi, "PNG", file);
 	}
 

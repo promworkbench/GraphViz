@@ -4,13 +4,13 @@ import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
 
-import com.kitfox.svg.SVGDiagram;
+import org.processmining.plugins.graphviz.visualisation.NavigableSVGPanel;
 
 
 public abstract class Exporter extends FileFilter {
 	protected abstract String getExtension();
 
-	public abstract void export(SVGDiagram image, File file) throws Exception;
+	public abstract void export(NavigableSVGPanel panel, File file) throws Exception;
 
 	public String getDescription() {
 		return getExtension();

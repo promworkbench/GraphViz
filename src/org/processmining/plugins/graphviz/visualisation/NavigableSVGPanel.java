@@ -351,7 +351,9 @@ public class NavigableSVGPanel extends JPanel {
 	 *            the <code>Graphics</code> context for painting
 	 */
 	protected void paintComponent(Graphics g) {
-		super.paintComponent(g); // Paints the background
+		if (isPaintingForPrint2()) {
+			super.paintComponent(g); // Paints the background
+		}
 
 		Graphics2D g2 = (Graphics2D) g;
 
@@ -364,16 +366,22 @@ public class NavigableSVGPanel extends JPanel {
 				: RenderingHints.VALUE_ANTIALIAS_OFF);
 
 		//set clipping mask to save a few cpu/gpu cycles
-		g2.setClip(0, 0, getWidth(), getHeight());
+		if (!isPaintingForPrint2()) {
+			g2.setClip(0, 0, getWidth(), getHeight());
+		}
 
 		//draw image
 		Transformation t = state.getZoomPanState().getTransformation(image, panel);
-		t.transform(g2, state.getZoomPanState());
+		if (!isPaintingForPrint2()) {
+			t.transform(g2, state.getZoomPanState());
+		}
 		paintImage(g2);
-		t.inverseTransform(g2, state.getZoomPanState());
+		if (!isPaintingForPrint2()) {
+			t.inverseTransform(g2, state.getZoomPanState());
+		}
 
 		//Draw navigation image
-		if (state.isNavigationImageEnabled()
+		if (!isPaintingForPrint2() && state.isNavigationImageEnabled()
 				&& !ZoomPan.isImageCompletelyInPanel(state.getZoomPanState(), image, panel)) {
 			int width = (int) Math.round(getNavigationWidth());
 			int height = (int) Math.round(getNavigationHeight());
@@ -383,9 +391,11 @@ public class NavigableSVGPanel extends JPanel {
 		}
 
 		//draw helper controls
-		drawHelperControls(g2);
+		if (!isPaintingForPrint2()) {
+			drawHelperControls(g2);
+		}
 	}
-	
+
 	protected void paintImage(Graphics2D g) {
 		try {
 			image.render(g);
@@ -578,6 +588,27 @@ public class NavigableSVGPanel extends JPanel {
 
 	public SVGDiagram getImage() {
 		return image;
+	}
+
+	/*
+	 * Print functions: Java/Acrobat messes up colours (something with RGB to
+	 * CMYK conversion). Therefore, this hack that uses the regular paining
+	 * methods. (non-Javadoc)
+	 * 
+	 * @see javax.swing.JComponent#isPaintingForPrint()
+	 */
+
+	private boolean paintingForPrint2;
+
+	public boolean isPaintingForPrint2() {
+		return paintingForPrint2;
+	}
+
+	@Override
+	public void print(Graphics g) {
+		paintingForPrint2 = true;
+		paintComponent(g);
+		paintingForPrint2 = false;
 	}
 
 }
