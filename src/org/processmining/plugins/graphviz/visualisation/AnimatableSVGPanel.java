@@ -293,6 +293,10 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 			timeStepCallback.call(animationCurrentTime);
 		}
 	}
+	
+	public double getAnimationCurrentTime() {
+		return animationCurrentTime;
+	}
 
 	public double getAnimationMaxTime() {
 		return animationMaxTime;

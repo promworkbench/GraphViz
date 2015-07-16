@@ -369,11 +369,7 @@ public class NavigableSVGPanel extends JPanel {
 		//draw image
 		Transformation t = state.getZoomPanState().getTransformation(image, panel);
 		t.transform(g2, state.getZoomPanState());
-		try {
-			image.render(g2);
-		} catch (SVGException e) {
-			e.printStackTrace();
-		}
+		paintImage(g2);
 		t.inverseTransform(g2, state.getZoomPanState());
 
 		//Draw navigation image
@@ -388,6 +384,14 @@ public class NavigableSVGPanel extends JPanel {
 
 		//draw helper controls
 		drawHelperControls(g2);
+	}
+	
+	protected void paintImage(Graphics2D g) {
+		try {
+			image.render(g);
+		} catch (SVGException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void drawSVG(Graphics2D g, SVGDiagram image, int x, int y, int width, int height) {
