@@ -2,6 +2,7 @@ package org.processmining.plugins.graphviz.visualisation;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -37,6 +38,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	private double animationMaxTime = 20.0;
 	private boolean repeat = true;
 	private boolean animationEnabled = false;
+	private boolean animationSVGEnabled = false;
 	private Callback<Double, Object> timeStepCallback = null;
 
 	private long animationLastTimeUpdated;
@@ -160,29 +162,30 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	}
 
 	protected void paintComponent(Graphics g) {
-
-		if (animationEnabled) {
-			//animation is enabled, use current animation time
-			image.getUniverse().setCurTime(animationCurrentTime);
-		} else {
-			//if animation is disabled, use the begin time
-			image.getUniverse().setCurTime(animationMinTime);
-		}
-		try {
-			image.getUniverse().updateTime();
-		} catch (SVGException e) {
-			e.printStackTrace();
+		if (animationSVGEnabled) {
+			if (animationEnabled) {
+				//animation is enabled, use current animation time
+				image.getUniverse().setCurTime(animationCurrentTime);
+			} else {
+				//if animation is disabled, use the begin time
+				image.getUniverse().setCurTime(animationMinTime);
+			}
+			try {
+				image.getUniverse().updateTime();
+			} catch (SVGException e) {
+				e.printStackTrace();
+			}
 		}
 
 		super.paintComponent(g);
 
 		//draw the overlay controls
 		if (animationEnabled) {
-			drawOverlayControls(g);
+			drawOverlayControls((Graphics2D) g);
 		}
 	}
 
-	private void drawOverlayControls(Graphics g) {
+	private void drawOverlayControls(Graphics2D g) {
 		Color backupColour = g.getColor();
 
 		int alpha = 20;
@@ -221,8 +224,14 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		g.drawLine(startLineX, lineY, endLineX, lineY);
 		double progress = (animationCurrentTime - animationMinTime) / (animationMaxTime - animationMinTime);
 		controlsProgressLine.setBounds(startLineX, y, endLineX - startLineX, height);
+		
+		//draw the little oval that denotes where we are
 		if (mouseIsInControls) {
-			g.fillOval((int) (startLineX + (endLineX - startLineX) * progress) - 5, lineY - 5, 10, 10);
+			double xOval = (startLineX + (endLineX - startLineX) * progress) - 5;
+			double yOval = lineY - 5;
+			g.translate(xOval, yOval);
+			g.fillOval(0, 0, 10, 10);
+			g.translate(-xOval, -yOval);
 		}
 
 		g.setColor(backupColour);
@@ -293,7 +302,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 			timeStepCallback.call(animationCurrentTime);
 		}
 	}
-	
+
 	public double getAnimationCurrentTime() {
 		return animationCurrentTime;
 	}
@@ -352,16 +361,25 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	public boolean isEnableAnimation() {
 		return animationEnabled;
 	}
+	
+	public boolean isEnableSVGAnimation() {
+		return animationSVGEnabled;
+	}
+	
+	public void setEnableSVGAnimation(boolean enabled) {
+		animationSVGEnabled = enabled;
+	}
 
 	/**
-	 * Sets whether the animation is enabled. Does not call start/stop/rewind. If not enabled, seek bar will be hidden.
+	 * Sets whether the animation is enabled. Does not call start/stop/rewind.
+	 * If not enabled, seek bar will be hidden.
 	 * 
 	 * @param enableAnimation
 	 */
 	public void setEnableAnimation(boolean enableAnimation) {
 		this.animationEnabled = enableAnimation;
 	}
-	
+
 	public Callback<Double, Object> getTimeStepCallback() {
 		return timeStepCallback;
 	}

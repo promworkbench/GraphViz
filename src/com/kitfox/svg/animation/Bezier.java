@@ -36,7 +36,8 @@
 
 package com.kitfox.svg.animation;
 
-import java.awt.geom.*;
+import java.awt.geom.Point2D;
+import java.util.Arrays;
 
 /**
  * http://mathworld.wolfram.com/BezierCurve.html
@@ -44,7 +45,34 @@ import java.awt.geom.*;
  */
 public class Bezier
 {
-    double length;
+    public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(coord);
+		long temp;
+		temp = Double.doubleToLongBits(length);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Bezier other = (Bezier) obj;
+		if (!Arrays.equals(coord, other.coord))
+			return false;
+		if (Double.doubleToLongBits(length) != Double.doubleToLongBits(other.length))
+			return false;
+		return true;
+	}
+
+
+
+	double length;
     double[] coord;
 
     public Bezier(double sx, double sy, double[] coords, int numCoords)
