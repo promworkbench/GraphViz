@@ -227,11 +227,11 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		
 		//draw the little oval that denotes where we are
 		if (mouseIsInControls) {
-			double xOval = (startLineX + (endLineX - startLineX) * progress) - 5;
-			double yOval = lineY - 5;
-			g.translate(xOval, yOval);
+			double ovalX = (startLineX + (endLineX - startLineX) * progress) - 5;
+			double ovalY = lineY - 5;
+			g.translate(ovalX, ovalY);
 			g.fillOval(0, 0, 10, 10);
-			g.translate(-xOval, -yOval);
+			g.translate(-ovalX, -ovalY);
 		}
 
 		g.setColor(backupColour);
