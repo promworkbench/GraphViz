@@ -147,7 +147,9 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		controlsProgressLine = new Rectangle();
 		controlsPlayPause = new Rectangle();
 
-		//set up keyboard shortcuts
+		//keyboard shortcut: play/pause animation
+		helperControlsShortcuts.add("ctrl p");
+		helperControlsExplanations.add("pause/play animation");
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK),
 				"startStopAnimation");
 		getActionMap().put("startStopAnimation", startStopAction);
