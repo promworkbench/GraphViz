@@ -59,7 +59,7 @@ public class ZoomPan {
 	 * 
 	 * @param zoomTrueInFalseOut
 	 */
-	public static void onZoom(boolean zoomTrueInFalseOut, Point mousePoint, ZoomPanState panState, SVGDiagram diagram,
+	public static void performZoom(boolean zoomTrueInFalseOut, Point mousePoint, ZoomPanState panState, SVGDiagram diagram,
 			JComponent panel) {
 
 		//get the mouse position on the image
@@ -76,7 +76,7 @@ public class ZoomPan {
 		}
 
 		//get the clicked point on the image in new after-scaling panel coordinates
-		Point2D mousePointScaled = t.transformToPanel(mousePointImage, panState);
+		Point2D mousePointScaled = t.transformToUser(mousePointImage, panState);
 
 		//correct the origin
 		panState.setDeltaOriginX(panState.getDeltaOriginX() + (mousePoint.x - mousePointScaled.getX()));
@@ -95,12 +95,12 @@ public class ZoomPan {
 		//get the mouse position on the image
 		Transformation t = panState.getTransformation(diagram, panel);
 
-		Point2D nw = t.transformToPanel(new Point(0, 0), panState);
+		Point2D nw = t.transformToUser(new Point(0, 0), panState);
 		if (nw.getX() < 0 || nw.getY() < 0) {
 			return false;
 		}
 
-		Point2D se = t.transformToPanel(new Point2D.Double(diagram.getWidth(), diagram.getHeight()), panState);
+		Point2D se = t.transformToUser(new Point2D.Double(diagram.getWidth(), diagram.getHeight()), panState);
 		if (se.getX() > panel.getWidth() || se.getY() > panel.getHeight()) {
 			return false;
 		}

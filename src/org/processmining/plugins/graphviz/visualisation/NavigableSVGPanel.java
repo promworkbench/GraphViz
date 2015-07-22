@@ -7,6 +7,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
@@ -34,6 +35,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import org.processmining.plugins.graphviz.visualisation.export.ExportDialog;
+import org.processmining.plugins.graphviz.visualisation.listeners.ZoomPanChangedListener;
 
 import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGException;
@@ -53,6 +55,7 @@ public class NavigableSVGPanel extends JPanel {
 	protected final JPanel panel;
 	private Point mousePosition;
 	protected boolean preventDragImage = false;
+	private ZoomPanChangedListener zoomPanChangedListener = null;
 
 	private MouseMotionListener helperControlsMouseMovesAdapter = new MouseMotionListener() {
 
@@ -77,7 +80,10 @@ public class NavigableSVGPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			//zoom in on the center of the panel
 			Point p = new Point(panel.getWidth() / 2, panel.getHeight() / 2);
-			ZoomPan.onZoom(true, p, state.getZoomPanState(), image, panel);
+			ZoomPan.performZoom(true, p, state.getZoomPanState(), image, panel);
+			if (zoomPanChangedListener != null) {
+				zoomPanChangedListener.zoomPanChanged(state.getZoomPanState());
+			}
 			repaint();
 		}
 	};
@@ -88,7 +94,10 @@ public class NavigableSVGPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			//zoom in of the center of the panel
 			Point p = new Point(panel.getWidth() / 2, panel.getHeight() / 2);
-			ZoomPan.onZoom(false, p, state.getZoomPanState(), image, panel);
+			ZoomPan.performZoom(false, p, state.getZoomPanState(), image, panel);
+			if (zoomPanChangedListener != null) {
+				zoomPanChangedListener.zoomPanChanged(state.getZoomPanState());
+			}
 			repaint();
 		}
 	};
@@ -99,6 +108,9 @@ public class NavigableSVGPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			//reset the view
 			state.getZoomPanState().reset();
+			if (zoomPanChangedListener != null) {
+				zoomPanChangedListener.zoomPanChanged(state.getZoomPanState());
+			}
 			repaint();
 		}
 	};
@@ -145,6 +157,9 @@ public class NavigableSVGPanel extends JPanel {
 			public void componentResized(ComponentEvent e) {
 				if (state.getPreviousPanelSize() != null) {
 					ZoomPan.onResize(state.getZoomPanState(), image, panel, state.getPreviousPanelSize());
+					if (zoomPanChangedListener != null) {
+						zoomPanChangedListener.zoomPanChanged(state.getZoomPanState());
+					}
 				}
 				state.setPreviousPanelSize(getSize());
 
@@ -159,7 +174,10 @@ public class NavigableSVGPanel extends JPanel {
 				mousePosition = point;
 				if (SwingUtilities.isLeftMouseButton(e) && isInNavigation(point)) {
 					//clicked in navigation
-					displayImageAt(point);
+					centerImageAround(point);
+					if (zoomPanChangedListener != null) {
+						zoomPanChangedListener.zoomPanChanged(state.getZoomPanState());
+					}
 					repaint();
 				}
 			}
@@ -174,7 +192,9 @@ public class NavigableSVGPanel extends JPanel {
 						ZoomPan.onPan(state.getZoomPanState(), mousePosition, point);
 					}
 					mousePosition = point;
-
+					if (zoomPanChangedListener != null) {
+						zoomPanChangedListener.zoomPanChanged(state.getZoomPanState());
+					}
 					repaint();
 				}
 			}
@@ -199,7 +219,10 @@ public class NavigableSVGPanel extends JPanel {
 					}
 				} else if (isInImage(p)) {
 					//scroll image
-					ZoomPan.onZoom(zoomIn, p, state.getZoomPanState(), image, panel);
+					ZoomPan.performZoom(zoomIn, p, state.getZoomPanState(), image, panel);
+					if (zoomPanChangedListener != null) {
+						zoomPanChangedListener.zoomPanChanged(state.getZoomPanState());
+					}
 				}
 				repaint();
 			}
@@ -300,16 +323,20 @@ public class NavigableSVGPanel extends JPanel {
 		repaint();
 	}
 
-	//The user clicked within the navigation image and this part of the image
-	//is displayed in the panel.
-	//The clicked point of the image is centered in the panel.
-	private void displayImageAt(Point navPoint) {
+	/**
+	 * The user clicked within the navigation image and this part of the image
+	 * is displayed in the panel. The clicked point of the image is centered in
+	 * the panel.
+	 * 
+	 * @param pointInNavigationCoordinates
+	 */
+	public void centerImageAround(Point pointInNavigationCoordinates) {
 		//transform to image coordinates
-		Point2D pImage = transformNavigationToImage(navPoint);
+		Point2D pImage = transformNavigationToImage(pointInNavigationCoordinates);
 
 		//transform to panel coordinates
 		Transformation t = ZoomPan.getImage2PanelTransformation(image, panel);
-		Point2D p = t.transformToPanel(pImage, state.getZoomPanState());
+		Point2D p = t.transformToUser(pImage, state.getZoomPanState());
 
 		Point2D center = new Point(getWidth() / 2, getHeight() / 2);
 
@@ -404,6 +431,16 @@ public class NavigableSVGPanel extends JPanel {
 		}
 	}
 
+	/**
+	 * Draw an svg image at the given coordinates and of the given size.
+	 * 
+	 * @param g
+	 * @param image
+	 * @param x
+	 * @param y
+	 * @param width
+	 * @param height
+	 */
 	public static void drawSVG(Graphics2D g, SVGDiagram image, int x, int y, int width, int height) {
 
 		double scaleX = width / image.getWidth();
@@ -458,6 +495,12 @@ public class NavigableSVGPanel extends JPanel {
 
 	}
 
+	/**
+	 * Draws the little help-question-mark in the right bottom corner and the
+	 * help text that appears when hovering over it.
+	 * 
+	 * @param g
+	 */
 	private void drawHelperControls(Graphics g) {
 		Color backupColour = g.getColor();
 		Font backupFont = g.getFont();
@@ -511,10 +554,18 @@ public class NavigableSVGPanel extends JPanel {
 		g.setFont(backupFont);
 	}
 
+	/**
+	 * 
+	 * @return The width of the navigation part in user coordinates.
+	 */
 	private double getNavigationWidth() {
 		return getWidth() * state.getNavigationImageWidthInPartOfPanel() * state.getNavigationScale();
 	}
 
+	/**
+	 * 
+	 * @return The height of the navigation part in user coordinates.
+	 */
 	private double getNavigationHeight() {
 		return (getNavigationWidth() / image.getWidth()) * image.getHeight();
 	}
@@ -546,48 +597,121 @@ public class NavigableSVGPanel extends JPanel {
 	}
 
 	/**
-	 * Returns whether a point (in panel coordinates) is in the image and not in
+	 * Returns whether a point (in user coordinates) is in the image and not in
 	 * the navigation image.
 	 * 
-	 * @param p
+	 * @param pointInUserCoordinates
 	 * @return
 	 */
-	public boolean isInImage(Point p) {
-		if (isInNavigation(p)) {
+	public boolean isInImage(Point pointInUserCoordinates) {
+		if (isInNavigation(pointInUserCoordinates)) {
 			return false;
 		}
-		return ZoomPan.isInImage(p, state.getZoomPanState(), image, panel);
+		return ZoomPan.isInImage(pointInUserCoordinates, state.getZoomPanState(), image, panel);
 	}
 
 	/**
-	 * Returns whether a point (in panel coordinates) is in the navigation
-	 * image.
+	 * Returns whether a point (in user coordinates) is in the navigation image.
 	 * 
-	 * @param p
+	 * @param pointInUserCoordinates
 	 * @return
 	 */
-	public boolean isInNavigation(Point p) {
-		return (state.isNavigationImageEnabled() && p.x < getNavigationWidth() && p.y < getNavigationHeight());
+	public boolean isInNavigation(Point pointInUserCoordinates) {
+		return (state.isNavigationImageEnabled() && pointInUserCoordinates.x < getNavigationWidth() && pointInUserCoordinates.y < getNavigationHeight());
 	}
 
+	/**
+	 * 
+	 * @return The currently registered shortcuts, which are displayed when
+	 *         hovering over the question mark in the lower right corner.
+	 */
 	public List<String> getHelperControlsShortcuts() {
 		return helperControlsShortcuts;
 	}
 
+	/**
+	 * Sets the shortcuts, displayed when hovering over the question mark in the
+	 * lower right corner.
+	 * 
+	 * @param helperControlsShortcuts
+	 */
 	public void setHelperControlsShortcuts(List<String> helperControlsShortcuts) {
 		this.helperControlsShortcuts = helperControlsShortcuts;
 	}
 
+	/**
+	 * @return The currently registered shortcut explanations, which are
+	 *         displayed when hovering over the question mark in the lower right
+	 *         corner.
+	 */
 	public List<String> getHelperControlsExplanations() {
 		return helperControlsExplanations;
 	}
 
+	/**
+	 * Sets the shortcut explanations, displayed when hovering over the question
+	 * mark in the lower right corner.
+	 * 
+	 * @param helperControlsExplanations
+	 */
 	public void setHelperControlsExplanations(List<String> helperControlsExplanations) {
 		this.helperControlsExplanations = helperControlsExplanations;
 	}
 
+	/**
+	 * 
+	 * @return The currently displaying svg image.
+	 */
 	public SVGDiagram getImage() {
 		return image;
+	}
+
+	/**
+	 * 
+	 * @return The bounding box of the visible image.
+	 */
+	public Rectangle getVisibleImageBoundingBoxInUserCoordinates() {
+		Transformation t = state.getZoomPanState().getTransformation(image, panel);
+
+		//transform point (0,0) to user coordinates
+		Point2D nw = t.transformToUser(new Point(0, 0), state.getZoomPanState());
+		double x1 = Math.min(Math.max(0, nw.getX()), getWidth());
+		double y1 = Math.min(Math.max(0, nw.getY()), getHeight());
+
+		//transform the other corner to user coordinates
+		Point2D nw2 = t
+				.transformToUser(new Point2D.Float(image.getWidth(), image.getHeight()), state.getZoomPanState());
+		double x2 = Math.min((Math.max(0, nw2.getX())), getWidth());
+		double y2 = Math.min((Math.max(0, nw2.getY())), getHeight());
+
+		return new Rectangle((int) Math.min(x1, x2), (int) Math.min(y1, y2), (int) Math.abs(x2 - x1), (int) Math.abs(y2
+				- y1));
+	}
+	
+	public Rectangle getImageBoundingBoxInUserCoordinates() {
+		Transformation t = state.getZoomPanState().getTransformation(image, panel);
+
+		//transform point (0,0) to user coordinates
+		Point2D nw = t.transformToUser(new Point(0, 0), state.getZoomPanState());
+		double x1 = nw.getX();
+		double y1 = nw.getY();
+
+		//transform the other corner to user coordinates
+		Point2D nw2 = t
+				.transformToUser(new Point2D.Float(image.getWidth(), image.getHeight()), state.getZoomPanState());
+		double x2 = nw2.getX();
+		double y2 = nw2.getY();
+
+		return new Rectangle((int) Math.min(x1, x2), (int) Math.min(y1, y2), (int) Math.abs(x2 - x1), (int) Math.abs(y2
+				- y1));
+	}
+	
+	public ZoomPanChangedListener getZoomPanChangedListener() {
+		return zoomPanChangedListener;
+	}
+	
+	public void setZoomPanChangedListener(ZoomPanChangedListener listener) {
+		zoomPanChangedListener = listener;
 	}
 
 }

@@ -69,7 +69,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 			if (timeStepCallback != null) {
 				timeStepCallback.call(animationCurrentTime);
 			}
-			repaint();
+//			repaint();
 		}
 	};
 
@@ -110,7 +110,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 			//dragging moves the animation circle, if in progress line area
 			Point point = e.getPoint();
 			if (animationEnabled && controls.contains(point) && controlsProgressLine.contains(point)) {
-				startOnMouseRelease = startOnMouseRelease || isPlaying();
+				startOnMouseRelease = startOnMouseRelease || isAnimationPlaying();
 				double progress = (e.getX() - controlsProgressLine.x) / (controlsProgressLine.width * 1.0);
 				seek(animationMinTime + progress * (animationMaxTime - animationMinTime));
 				stop();
@@ -206,7 +206,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		//play button
 		g.setColor(new Color(255, 255, 255, alpha));
 		controlsPlayPause.setBounds(x + 10, y + 10, 30, height);
-		if (!animationPlaying()) {
+		if (!isAnimationPlaying()) {
 			//play button
 			Polygon triangle = new Polygon();
 			triangle.addPoint(x + 10, y + 10);
@@ -240,25 +240,31 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 	}
 
 	protected void makeUpdate() {
-		if (!animationPlaying()) {
+		if (!isAnimationPlaying()) {
 			repaint();
 		}
 	}
 
+	@Deprecated
 	public boolean animationPlaying() {
+		return animationTimer.isRunning();
+	}
+	
+	@Deprecated
+	public boolean isPlaying() {
+		return animationTimer.isRunning();
+	}
+	
+	public boolean isAnimationPlaying() {
 		return animationTimer.isRunning();
 	}
 
 	public void startStop() {
-		if (animationPlaying()) {
+		if (isAnimationPlaying()) {
 			stop();
 		} else {
 			start();
 		}
-	}
-
-	public boolean isPlaying() {
-		return animationTimer.isRunning();
 	}
 
 	/**
@@ -356,19 +362,24 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		return new double[] { min, max };
 	}
 
-	/**
-	 * 
-	 * @return whether the animation is enabled.
-	 */
+	@Deprecated
 	public boolean isEnableAnimation() {
 		return animationEnabled;
 	}
 	
-	public boolean isEnableSVGAnimation() {
+	/**
+	 * 
+	 * @return whether the animation is enabled.
+	 */
+	public boolean isAnimationEnabled() {
+		return animationEnabled;
+	}
+	
+	public boolean isSVGAnimationEnabled() {
 		return animationSVGEnabled;
 	}
 	
-	public void setEnableSVGAnimation(boolean enabled) {
+	public void setSVGAnimationEnabled(boolean enabled) {
 		animationSVGEnabled = enabled;
 	}
 

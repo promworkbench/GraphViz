@@ -37,7 +37,7 @@ public class Transformation {
 		g.translate(-dx(panState), -dy(panState));
 	}
 
-	public Point2D transformToPanel(Point2D p, ZoomPanState panState) {
+	public Point2D transformToUser(Point2D p, ZoomPanState panState) {
 		return new Point2D.Double(p.getX() * dscale(panState) + dx(panState), p.getY() * dscale(panState) + dy(panState));
 	}
 
