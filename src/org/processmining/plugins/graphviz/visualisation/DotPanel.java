@@ -278,11 +278,10 @@ public class DotPanel extends AnimatableSVGPanel {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Set<DotElement> getElementsAtPoint(Point pointPanelCoordinates) {
+	private Set<DotElement> getElementsAtPoint(Point pointUserCoordinates) {
 		HashSet<DotElement> result = new HashSet<DotElement>();
-		if (isInImage(pointPanelCoordinates)) {
-			Point2D pointImageCoordinates = ZoomPan.getImage2PanelTransformation(getSVG(), panel).transformToImage(
-					pointPanelCoordinates, state.getZoomPanState());
+		if (isInImage(pointUserCoordinates)) {
+			Point2D pointImageCoordinates = transformUser2Image(pointUserCoordinates);
 			try {
 				//get the elements at the clicked position
 				List<List<RenderableElement>> elements = image.pick(pointImageCoordinates, false, null);
