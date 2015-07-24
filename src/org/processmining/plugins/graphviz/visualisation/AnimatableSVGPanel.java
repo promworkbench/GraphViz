@@ -124,9 +124,8 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 					makeUpdate();
 				}
 				mouseIsInControls = newb;
-				preventDragImage = newb;
 			} else {
-				preventDragImage = false;
+				
 			}
 		}
 	};

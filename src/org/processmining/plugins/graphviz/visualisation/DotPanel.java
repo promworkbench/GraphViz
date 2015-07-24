@@ -1,14 +1,12 @@
 package org.processmining.plugins.graphviz.visualisation;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +47,7 @@ import com.kitfox.svg.SVGUniverse;
 import com.kitfox.svg.animation.AnimationElement;
 import com.kitfox.svg.xml.StyleAttribute;
 
-public class DotPanel extends AnimatableSVGPanel {
+public class DotPanel extends NavigableSVGPanel {
 
 	/**
 	 * 
@@ -115,84 +113,122 @@ public class DotPanel extends AnimatableSVGPanel {
 					element.mousePressed(e);
 				}
 			}
-
-			public void mouseClicked(MouseEvent e) {
-				e.setSource(this2);
-
-				boolean selectionChange = false;
-				for (DotElement element : getElementsAtPoint(e.getPoint())) {
-					element.mouseClicked(e);
-
-					if (SwingUtilities.isLeftMouseButton(e)) {
-						selectionChange = selectionChange || processSelection(element, e);
-					}
-				}
-
-				if (SwingUtilities.isLeftMouseButton(e) && !selectionChange && !e.isControlDown()
-						&& !isInNavigation(e.getPoint()) && (controls == null || !controls.contains(e.getPoint()))) {
-					//the user did not click on anything clickable. Remove the selection.
-					selectionChange = removeSelection();
-				}
-
-				if (selectionChange) {
-					selectionChanged();
-				}
-			}
-
-			public void mouseReleased(MouseEvent e) {
-				e.setSource(this2);
-				for (DotElement element : getElementsAtPoint(e.getPoint())) {
-					element.mouseReleased(e);
-				}
-			}
-		});
-
-		//add mouse motion listener
-		addMouseMotionListener(new MouseMotionListener() {
-
-			public void mouseMoved(MouseEvent e) {
-				Set<DotElement> newIn = getElementsAtPoint(e.getPoint());
-				boolean changed = false;
-				for (DotElement element : newIn) {
-					if (!mouseInElements.contains(element)) {
-						element.mouseEntered(e);
-						changed = true;
-					}
-				}
-				for (DotElement element : mouseInElements) {
-					if (!newIn.contains(element)) {
-						element.mouseExited(e);
-						changed = true;
-					}
-				}
-				mouseInElements = newIn;
-				if (changed) {
-					mouseInElementsChanged();
-				}
-			}
-
-			public void mouseDragged(MouseEvent e) {
-
-			}
 		});
 	}
 
-	//make sure the mouseIn is properly accounted for when the mouse exits the window
 	@Override
-	protected void setMouseExit(Container c) {
-		c.addMouseListener(new MouseAdapter() {
-			public void mouseExited(MouseEvent e) {
-				for (DotElement element : mouseInElements) {
-					element.mouseExited(e);
-				}
-				boolean changed = !mouseInElements.isEmpty();
-				mouseInElements.clear();
-				if (changed) {
-					mouseInElementsChanged();
+	protected boolean processMouseClick(MouseEvent e) {
+		boolean superChanged = super.processMouseClick(e);
+
+		//pass clicks to elements and process selection changes, but not if the click was already catched.
+		boolean selectionChange = false;
+		Point point = e.getPoint();
+		if (!superChanged) {
+			e.setSource(this);
+			for (DotElement element : getElementsAtPoint(point)) {
+				element.mouseClicked(e);
+
+				if (SwingUtilities.isLeftMouseButton(e)) {
+					selectionChange = selectionChange || processSelection(element, e);
 				}
 			}
-		});
-		super.setMouseExit(c);
+
+			if (SwingUtilities.isLeftMouseButton(e) && !selectionChange && !e.isControlDown()) {
+				//the user did not click on anything clickable. Remove the selection.
+				selectionChange = removeSelection();
+			}
+
+			if (selectionChange) {
+				selectionChanged();
+			}
+		}
+
+		return superChanged || selectionChange;
+	};
+
+	@Override
+	protected boolean processMouseRelease(MouseEvent e) {
+		boolean superChanged = super.processMouseRelease(e);
+		Point point = e.getPoint();
+
+		//enter the elements under the mouse
+		boolean changedIn = false;
+		if (!isInHelperControls(point) && !isInNavigation(point)) {
+			Set<DotElement> newIn = getElementsAtPoint(e.getPoint());
+			for (DotElement element : newIn) {
+				if (!mouseInElements.contains(element)) {
+					element.mouseEntered(e);
+					changedIn = true;
+				}
+			}
+			mouseInElements = newIn;
+			if (changedIn) {
+				mouseInElementsChanged();
+			}
+		}
+
+		//call mouseReleased on all elements under the mouse
+		for (DotElement element : getElementsAtPoint(e.getPoint())) {
+			element.mouseReleased(e);
+		}
+
+		return superChanged || changedIn;
+	}
+
+	@Override
+	protected boolean processMouseDrag(MouseEvent e) {
+		boolean changed = super.processMouseDrag(e);
+
+		//if we start dragging, we exit all elements
+		changed |= exitAllElements(e);
+
+		return changed;
+	}
+
+	@Override
+	protected boolean processMouseMove(MouseEvent e) {
+		boolean superChanged = super.processMouseMove(e);
+
+		Point point = e.getPoint();
+		boolean changed;
+
+		//if we enter navigation or controls, we exit everything
+		if (isInHelperControls(point) || isInNavigation(point)) {
+			//exit the dot elements, as we are leaving the screen
+			changed = exitAllElements(e);
+		} else {
+			//process the mouseEnter and Exit of the dot elements
+			Set<DotElement> newIn = getElementsAtPoint(e.getPoint());
+			changed = false;
+			for (DotElement element : newIn) {
+				if (!mouseInElements.contains(element)) {
+					element.mouseEntered(e);
+					changed = true;
+				}
+			}
+			for (DotElement element : mouseInElements) {
+				if (!newIn.contains(element)) {
+					element.mouseExited(e);
+					changed = true;
+				}
+			}
+			mouseInElements = newIn;
+			if (changed) {
+				mouseInElementsChanged();
+			}
+		}
+
+		return changed || superChanged;
+	}
+
+	@Override
+	protected boolean processMouseExit(MouseEvent e) {
+		boolean changed = super.processMouseExit(e);
+
+		//exit the dot elements, as we are leaving the screen
+		changed |= exitAllElements(e);
+
+		return changed;
 	}
 
 	/**
@@ -237,8 +273,7 @@ public class DotPanel extends AnimatableSVGPanel {
 						while (it.hasNext()) {
 							DotElement selectedElement = it.next();
 							if (selectedElement != element) {
-								for (DotElementSelectionListener listener : selectedElement
-										.getSelectionListeners()) {
+								for (DotElementSelectionListener listener : selectedElement.getSelectionListeners()) {
 									listener.selected(selectedElement, image);
 								}
 								it.remove();
@@ -258,8 +293,7 @@ public class DotPanel extends AnimatableSVGPanel {
 					while (it.hasNext()) {
 						DotElement selectedElement = it.next();
 						if (selectedElement != element) {
-							for (DotElementSelectionListener listener : selectedElement
-									.getSelectionListeners()) {
+							for (DotElementSelectionListener listener : selectedElement.getSelectionListeners()) {
 								listener.deselected(selectedElement, image);
 							}
 							it.remove();
@@ -318,6 +352,18 @@ public class DotPanel extends AnimatableSVGPanel {
 			}
 		}
 		return result;
+	}
+
+	private boolean exitAllElements(MouseEvent e) {
+		for (DotElement element : mouseInElements) {
+			element.mouseExited(e);
+		}
+		boolean changed = !mouseInElements.isEmpty();
+		mouseInElements.clear();
+		if (changed) {
+			mouseInElementsChanged();
+		}
+		return changed;
 	}
 
 	/**
@@ -484,7 +530,7 @@ public class DotPanel extends AnimatableSVGPanel {
 	public Set<DotElement> getSelectedElements() {
 		return Collections.unmodifiableSet(selectedElements);
 	}
-	
+
 	public Set<DotElement> getMouseInElements() {
 		return Collections.unmodifiableSet(mouseInElements);
 	}

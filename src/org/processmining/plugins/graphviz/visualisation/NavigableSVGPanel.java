@@ -2,7 +2,6 @@ package org.processmining.plugins.graphviz.visualisation;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -17,7 +16,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -49,19 +47,15 @@ public class NavigableSVGPanel extends JPanel {
 
 	private static final long serialVersionUID = -3285916948952045282L;
 
-	protected final JPanel panel;
-
 	//state variables and constants
 	protected SVGDiagram image;
 	protected AffineTransform image2user = new AffineTransform();
 	private AffineTransform user2image = new AffineTransform();
 	private Point lastMousePosition;
 	private Dimension lastPanelDimension = null;
-	protected boolean preventDragImage = false;
-	private final static double zoomIncrement = 1.8;
 
-	private Point2D highLightUserCoordinates;
-	private Point2D highLightImageCoordinates;
+	private boolean isDragging = false;
+	private final static double zoomIncrement = 1.8;
 
 	//navigation variables and constants
 	private double navigationScale = 1.0;
@@ -76,7 +70,7 @@ public class NavigableSVGPanel extends JPanel {
 
 	//helper controls variables and constants
 	private Arc2D helperControlsArc = null;
-	private boolean mouseIsInHelperControls = false;
+	private boolean helperControlsShowing = false;
 	public static final int helperControlsWidth = 300;
 	public static final Font helperControlsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 	private static final Font helperControlsButtonFont = new Font("TimesRoman", Font.PLAIN, 20);
@@ -87,30 +81,13 @@ public class NavigableSVGPanel extends JPanel {
 	protected List<String> helperControlsExplanations = new ArrayList<>(Arrays.asList("pan up/down", "pan left/right",
 			"zoom in", "zoom out", "reset view", "save image"));
 
-	private MouseMotionListener helperControlsMouseMovesAdapter = new MouseMotionListener() {
-
-		public void mouseMoved(MouseEvent e) {
-			if (helperControlsArc != null && e != null && e.getPoint() != null) {
-				boolean n = helperControlsArc.contains(e.getPoint());
-				if (n != mouseIsInHelperControls) {
-					repaint();
-				}
-				mouseIsInHelperControls = n;
-			}
-		}
-
-		public void mouseDragged(MouseEvent arg0) {
-
-		}
-	};
-
 	private Action zoomInAction = new AbstractAction() {
 		private static final long serialVersionUID = 3863042569537144601L;
 
 		public void actionPerformed(ActionEvent e) {
 			//zoom in on the center of the panel
 			try {
-				zoomIn(new Point(panel.getWidth() / 2, panel.getHeight() / 2));
+				zoomIn(new Point(getWidth() / 2, getHeight() / 2));
 			} catch (NoninvertibleTransformException e1) {
 				e1.printStackTrace();
 			}
@@ -125,7 +102,7 @@ public class NavigableSVGPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			//zoom in of the center of the panel
 			try {
-				zoomOut(new Point(panel.getWidth() / 2, panel.getHeight() / 2));
+				zoomOut(new Point(getWidth() / 2, getHeight() / 2));
 			} catch (NoninvertibleTransformException e1) {
 				e1.printStackTrace();
 			}
@@ -134,7 +111,7 @@ public class NavigableSVGPanel extends JPanel {
 		}
 	};
 
-	private Action viewResetAction = new AbstractAction() {
+	private Action resetViewAction = new AbstractAction() {
 		private static final long serialVersionUID = 1114226211978622533L;
 
 		public void actionPerformed(ActionEvent e) {
@@ -174,7 +151,6 @@ public class NavigableSVGPanel extends JPanel {
 	};
 
 	public NavigableSVGPanel(final SVGDiagram newImage) {
-		panel = this;
 		setOpaque(false);
 		setDoubleBuffered(true);
 		setFocusable(true);
@@ -196,7 +172,8 @@ public class NavigableSVGPanel extends JPanel {
 						user2image.translate(lastPanelDimension.getWidth() / 2.0, lastPanelDimension.getHeight() / 2.0);
 						user2image.scale(zoom, zoom);
 						lastPanelDimension = new Dimension(getWidth(), getHeight());
-						user2image.translate(-lastPanelDimension.getWidth() / 2.0, -lastPanelDimension.getHeight() / 2.0);
+						user2image.translate(-lastPanelDimension.getWidth() / 2.0,
+								-lastPanelDimension.getHeight() / 2.0);
 						image2user = user2image.createInverse();
 					}
 				} catch (NoninvertibleTransformException e1) {
@@ -207,49 +184,40 @@ public class NavigableSVGPanel extends JPanel {
 			}
 		});
 
-		//set up mouse click listener
-		addMouseListener(new MouseAdapter() {
+		//set up mouse listener
+		addMouseListener(new MouseListener() {
+			public void mouseReleased(MouseEvent e) {
+				processMouseRelease(e);
+			}
+
 			public void mousePressed(MouseEvent e) {
-				Point point = e.getPoint();
-				lastMousePosition = point;
-				if (SwingUtilities.isLeftMouseButton(e) && isInNavigation(point)) {
-					//clicked in navigation
-					try {
-						centerImageAround(point);
-					} catch (NoninvertibleTransformException e1) {
-						e1.printStackTrace();
-					}
-					updateTransformation();
-					repaint();
-				}
+				processMousePress(e);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				processMouseExit(e);
+			}
+
+			public void mouseEntered(MouseEvent e) {
+				System.out.println("NavigableSVGPanel mouse enter");
+			}
+
+			public void mouseClicked(MouseEvent e) {
+				processMouseClick(e);
 			}
 		});
 
 		//set up drag listener
 		addMouseMotionListener(new MouseMotionListener() {
 			public void mouseDragged(MouseEvent e) {
-				Point point = e.getPoint();
-				if (SwingUtilities.isLeftMouseButton(e) && !isInNavigation(point) && !preventDragImage) {
-					if (lastMousePosition != null) {
-						double dx = (point.x - lastMousePosition.x) / image2user.getScaleX();
-						double dy = (point.y - lastMousePosition.y) / image2user.getScaleY();
-
-						//pan with the difference in user coordinates between the last known mouse position and this one
-						image2user.translate(dx, dy);
-						try {
-							user2image = image2user.createInverse();
-						} catch (NoninvertibleTransformException e1) {
-							e1.printStackTrace();
-						}
-					}
-					lastMousePosition = point;
-					updateTransformation();
-					repaint();
-				}
+				processMouseDrag(e);
 			}
 
 			public void mouseMoved(MouseEvent e) {
-
+				processMouseMove(e);
+				if (!isDragging) {
+					processMouseMoveIntoSomething(e);
+				}
 			}
 		});
 
@@ -308,7 +276,7 @@ public class NavigableSVGPanel extends JPanel {
 		//listen to ctrl 0 to reset view
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_0, InputEvent.CTRL_MASK),
 				"viewReset"); // - key
-		getActionMap().put("viewReset", viewResetAction);
+		getActionMap().put("viewReset", resetViewAction);
 
 		//listen to ctrl s to save image
 		{
@@ -323,118 +291,6 @@ public class NavigableSVGPanel extends JPanel {
 				}
 			});
 		}
-
-		//add mouse motion listener for helper controls
-		addMouseMotionListener(helperControlsMouseMovesAdapter);
-		setMouseExit(this);
-	}
-
-	private MouseListener exitListener = new MouseListener() {
-		public void mouseReleased(MouseEvent e) {
-		}
-
-		public void mousePressed(MouseEvent e) {
-		}
-
-		public void mouseExited(MouseEvent e) {
-			mouseIsInHelperControls = false;
-		}
-
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		public void mouseClicked(MouseEvent e) {
-		}
-	};
-
-	protected void setMouseExit(Container c) {
-		c.addMouseListener(exitListener);
-		if (c.getParent() != null) {
-			setMouseExit(c);
-		}
-	}
-
-	/**
-	 * <p>
-	 * Sets an image for display in the panel.
-	 * </p>
-	 * 
-	 * @param image
-	 *            an image to be set in the panel
-	 */
-	public void setImage(SVGDiagram image, boolean resetView) {
-		if (image == null) {
-			System.out.println("invalid dot given");
-			throw new NullPointerException("invalid dot given");
-		}
-		this.image = image;
-		image.setDeviceViewport(new java.awt.Rectangle(0, 0, (int) image.getWidth(), (int) image.getHeight()));
-
-		if (resetView) {
-			try {
-				resetView();
-			} catch (NoninvertibleTransformException e) {
-				e.printStackTrace();
-			}
-			updateTransformation();
-		}
-
-		repaint();
-	}
-
-	/**
-	 * Scale and center the image just in the viewport.
-	 * 
-	 * @throws NoninvertibleTransformException
-	 */
-	public void resetView() throws NoninvertibleTransformException {
-		double scaleX = getWidth() / (double) image.getWidth();
-		double scaleY = getHeight() / (double) image.getHeight();
-		double scale = Math.min(scaleX, scaleY);
-
-		double width = scale * image.getWidth();
-		double height = scale * image.getHeight();
-
-		double x = (getWidth() - width) / 2.0;
-		double y = (getHeight() - height) / 2.0;
-
-		image2user.setToIdentity();
-		image2user.translate(x, y);
-		image2user.scale(scale, scale);
-		user2image = image2user.createInverse();
-	}
-
-	/**
-	 * The user clicked within the navigation image and this part of the image
-	 * is displayed in the panel. The clicked point of the image is centered in
-	 * the panel.
-	 * 
-	 * @param pointInNavigationCoordinates
-	 * @throws NoninvertibleTransformException
-	 */
-	public void centerImageAround(Point pointInNavigationCoordinates) throws NoninvertibleTransformException {
-		//transform to image coordinates
-		Point2D pImage = transformNavigationToImage(pointInNavigationCoordinates);
-
-		//transform to user coordinates
-		image2user.transform(pImage, pImage);
-
-		//compute difference
-		double dx = (getWidth() / 2.0 - pImage.getX()) / image2user.getScaleX();
-		double dy = (getHeight() / 2.0 - pImage.getY()) / image2user.getScaleY();
-
-		//and translate
-		image2user.translate(dx, dy);
-		user2image = image2user.createInverse();
-	}
-
-	/**
-	 * Zoom the navigation
-	 * 
-	 * @param zoomFactor
-	 */
-	private void zoomNavigation(double zoomFactor) {
-		navigationScale *= zoomFactor;
 	}
 
 	/**
@@ -472,11 +328,6 @@ public class NavigableSVGPanel extends JPanel {
 			g2.transform(user2image);
 		}
 
-		g2.setColor(Color.red);
-		if (highLightUserCoordinates != null) {
-			g2.fillRect((int) highLightUserCoordinates.getX(), (int) highLightUserCoordinates.getY(), 100, 100);
-		}
-
 		//Draw navigation image
 		if (!isPaintingForPrint() && !isImageCompletelyInPanel()) {
 			int width = (int) Math.round(getNavigationWidth());
@@ -498,37 +349,6 @@ public class NavigableSVGPanel extends JPanel {
 		} catch (SVGException e) {
 			e.printStackTrace();
 		}
-
-		g.setColor(Color.green);
-		if (highLightImageCoordinates != null) {
-			g.fillRect((int) highLightImageCoordinates.getX(), (int) highLightImageCoordinates.getY(), 100, 100);
-		}
-	}
-
-	/**
-	 * Zoom in keeping the given point at its place
-	 * 
-	 * @param aroundInUserCoordinates
-	 * @throws NoninvertibleTransformException
-	 */
-	private void zoomIn(Point2D aroundInUserCoordinates) throws NoninvertibleTransformException {
-		user2image.translate(aroundInUserCoordinates.getX(), aroundInUserCoordinates.getY());
-		user2image.scale(1 / zoomIncrement, 1 / zoomIncrement);
-		user2image.translate(-aroundInUserCoordinates.getX(), -aroundInUserCoordinates.getY());
-		image2user = user2image.createInverse();
-	}
-
-	/**
-	 * Zoom out keeping the given point at its place
-	 * 
-	 * @param aroundInUserCoordinates
-	 * @throws NoninvertibleTransformException
-	 */
-	private void zoomOut(Point2D aroundInUserCoordinates) throws NoninvertibleTransformException {
-		user2image.translate(aroundInUserCoordinates.getX(), aroundInUserCoordinates.getY());
-		user2image.scale(zoomIncrement, zoomIncrement);
-		user2image.translate(-aroundInUserCoordinates.getX(), -aroundInUserCoordinates.getY());
-		image2user = user2image.createInverse();
 	}
 
 	/**
@@ -569,11 +389,10 @@ public class NavigableSVGPanel extends JPanel {
 	private void drawNavigationOutline(Graphics2D g) {
 
 		//get edges of panel in image coordinates
-
 		Point2D.Double nw = new Point.Double(0, 0);
-		image2user.transform(nw, nw);
-		Point2D.Double se = new Point.Double(panel.getWidth(), panel.getHeight());
-		image2user.transform(se, se);
+		user2image.transform(nw, nw);
+		Point2D.Double se = new Point.Double(getWidth(), getHeight());
+		user2image.transform(se, se);
 
 		//transform to navigation coordinates
 		Point2D nwNav = transformImageToNavigation(nw);
@@ -612,7 +431,7 @@ public class NavigableSVGPanel extends JPanel {
 		int width = fm.stringWidth(helperControlsButtonString);
 
 		//draw the background arc
-		if (mouseIsInHelperControls) {
+		if (helperControlsShowing) {
 			g.setColor(new Color(0, 0, 0, 180));
 		} else {
 			g.setColor(new Color(0, 0, 0, 20));
@@ -624,7 +443,7 @@ public class NavigableSVGPanel extends JPanel {
 		g.fillArc(getWidth() - 25, getHeight() - 25, 50, 50, 90, 90);
 
 		//draw the helper panel
-		if (mouseIsInHelperControls) {
+		if (helperControlsShowing) {
 			int x = getWidth() - (25 + helperControlsWidth);
 			int y = getHeight() - (helperControlsShortcuts.size() * 20 - 10);
 
@@ -644,7 +463,7 @@ public class NavigableSVGPanel extends JPanel {
 		}
 
 		//draw the question mark
-		if (mouseIsInHelperControls) {
+		if (helperControlsShowing) {
 			g.setColor(new Color(255, 255, 255, 128));
 		} else {
 			g.setColor(new Color(0, 0, 0, 128));
@@ -721,6 +540,10 @@ public class NavigableSVGPanel extends JPanel {
 	 */
 	public boolean isInNavigation(Point pointInUserCoordinates) {
 		return (pointInUserCoordinates.x < getNavigationWidth() && pointInUserCoordinates.y < getNavigationHeight());
+	}
+
+	public boolean isInHelperControls(Point pointInUserCoordinates) {
+		return helperControlsArc != null && helperControlsArc.contains(pointInUserCoordinates);
 	}
 
 	/**
@@ -831,11 +654,257 @@ public class NavigableSVGPanel extends JPanel {
 		//check the southeast corner
 		Point2D.Double se = new Point2D.Double(image.getWidth(), image.getHeight());
 		image2user.transform(se, se);
-		if (se.getX() > panel.getWidth() || se.getY() > panel.getHeight()) {
+		if (se.getX() > getWidth() || se.getY() > getHeight()) {
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * <p>
+	 * Sets an image for display in the panel.
+	 * </p>
+	 * 
+	 * @param image
+	 *            an image to be set in the panel
+	 */
+	public void setImage(SVGDiagram image, boolean resetView) {
+		if (image == null) {
+			System.out.println("invalid dot given");
+			throw new NullPointerException("invalid dot given");
+		}
+		this.image = image;
+		image.setDeviceViewport(new java.awt.Rectangle(0, 0, (int) image.getWidth(), (int) image.getHeight()));
+
+		if (resetView) {
+			try {
+				resetView();
+			} catch (NoninvertibleTransformException e) {
+				e.printStackTrace();
+			}
+			updateTransformation();
+		}
+
+		repaint();
+	}
+
+	/**
+	 * Scale and center the image just in the viewport.
+	 * 
+	 * @throws NoninvertibleTransformException
+	 */
+	public void resetView() throws NoninvertibleTransformException {
+		double scaleX = getWidth() / (double) image.getWidth();
+		double scaleY = getHeight() / (double) image.getHeight();
+		double scale = Math.min(scaleX, scaleY);
+
+		double width = scale * image.getWidth();
+		double height = scale * image.getHeight();
+
+		double x = (getWidth() - width) / 2.0;
+		double y = (getHeight() - height) / 2.0;
+
+		image2user.setToIdentity();
+		image2user.translate(x, y);
+		image2user.scale(scale, scale);
+		user2image = image2user.createInverse();
+	}
+
+	/**
+	 * The user clicked within the navigation image and this part of the image
+	 * is displayed in the panel. The clicked point of the image is centered in
+	 * the panel.
+	 * 
+	 * @param pointInNavigationCoordinates
+	 * @throws NoninvertibleTransformException
+	 */
+	public void centerImageAround(Point pointInNavigationCoordinates) throws NoninvertibleTransformException {
+		//transform to image coordinates
+		Point2D pImage = transformNavigationToImage(pointInNavigationCoordinates);
+
+		//transform to user coordinates
+		image2user.transform(pImage, pImage);
+
+		//compute difference
+		double dx = (getWidth() / 2.0 - pImage.getX()) / image2user.getScaleX();
+		double dy = (getHeight() / 2.0 - pImage.getY()) / image2user.getScaleY();
+
+		//and translate
+		image2user.translate(dx, dy);
+		user2image = image2user.createInverse();
+	}
+
+	/**
+	 * Zoom in keeping the given point at its place
+	 * 
+	 * @param aroundInUserCoordinates
+	 * @throws NoninvertibleTransformException
+	 */
+	private void zoomIn(Point2D aroundInUserCoordinates) throws NoninvertibleTransformException {
+		user2image.translate(aroundInUserCoordinates.getX(), aroundInUserCoordinates.getY());
+		user2image.scale(1 / zoomIncrement, 1 / zoomIncrement);
+		user2image.translate(-aroundInUserCoordinates.getX(), -aroundInUserCoordinates.getY());
+		image2user = user2image.createInverse();
+	}
+
+	/**
+	 * Zoom out keeping the given point at its place
+	 * 
+	 * @param aroundInUserCoordinates
+	 * @throws NoninvertibleTransformException
+	 */
+	private void zoomOut(Point2D aroundInUserCoordinates) throws NoninvertibleTransformException {
+		user2image.translate(aroundInUserCoordinates.getX(), aroundInUserCoordinates.getY());
+		user2image.scale(zoomIncrement, zoomIncrement);
+		user2image.translate(-aroundInUserCoordinates.getX(), -aroundInUserCoordinates.getY());
+		image2user = user2image.createInverse();
+	}
+
+	/**
+	 * Process a mouse press.
+	 * 
+	 * @param e
+	 * @return whether the press was handled and did something.
+	 */
+	protected boolean processMousePress(MouseEvent e) {
+		System.out.println("NavigableSVGPanel mouse press");
+		Point point = e.getPoint();
+		lastMousePosition = point;
+
+		//process press in helper text
+		if (isInHelperControls(point)) {
+			return true;
+		}
+
+		//process press in navigation
+		if (SwingUtilities.isLeftMouseButton(e) && isInNavigation(point)) {
+			//pressed in navigation
+			try {
+				centerImageAround(point);
+			} catch (NoninvertibleTransformException e1) {
+				e1.printStackTrace();
+			}
+			updateTransformation();
+			repaint();
+			return true;
+		}
+
+		//process press anywhere else
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			isDragging = true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Process a mouse release
+	 * 
+	 * @param e
+	 * @return whether the release was handled and did something.
+	 */
+	protected boolean processMouseRelease(MouseEvent e) {
+		System.out.println("NavigableSVGPanel mouse release");
+		isDragging = false;
+		return true;
+	}
+
+	/**
+	 * Process a mouse drag;
+	 * 
+	 * @param e
+	 * @return whether the drag was handled and did something.
+	 */
+	protected boolean processMouseDrag(MouseEvent e) {
+		if (isDragging) {
+			Point point = e.getPoint();
+			if (lastMousePosition != null) {
+				double dx = (point.x - lastMousePosition.x) / image2user.getScaleX();
+				double dy = (point.y - lastMousePosition.y) / image2user.getScaleY();
+
+				//pan with the difference in user coordinates between the last known mouse position and this one
+				image2user.translate(dx, dy);
+				try {
+					user2image = image2user.createInverse();
+				} catch (NoninvertibleTransformException e1) {
+					e1.printStackTrace();
+				}
+			}
+			lastMousePosition = point;
+			updateTransformation();
+			repaint();
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Process a mouse move
+	 * 
+	 * @param e
+	 * @return whether the move was handled and did something.
+	 */
+	protected boolean processMouseMove(MouseEvent e) {
+		if (helperControlsShowing && !isInHelperControls(e.getPoint())) {
+			helperControlsShowing = false;
+			repaint();
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Move the mouse into something. Separated from mouse move to handle popups
+	 * properly.
+	 * 
+	 * @param e
+	 * @return
+	 */
+	protected boolean processMouseMoveIntoSomething(MouseEvent e) {
+		if (!helperControlsShowing && isInHelperControls(e.getPoint())) {
+			helperControlsShowing = true;
+			repaint();
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Process a mouse click
+	 * 
+	 * @param e
+	 * @return whether the click was handled and did something.
+	 */
+	protected boolean processMouseClick(MouseEvent e) {
+		System.out.println("NavigableSVGPanel mouse click");
+
+		return isInHelperControls(e.getPoint());
+	}
+
+	/**
+	 * Process a mouse exit
+	 * 
+	 * @param e
+	 * @return whether the exit was handled and did something.
+	 */
+	protected boolean processMouseExit(MouseEvent e) {
+		System.out.println("NavigableSVGPanel mouse exit");
+		if (helperControlsShowing) {
+			helperControlsShowing = false;
+			repaint();
+		}
+		return false;
+	}
+
+	/**
+	 * Zoom the navigation
+	 * 
+	 * @param zoomFactor
+	 */
+	private void zoomNavigation(double zoomFactor) {
+		navigationScale *= zoomFactor;
 	}
 
 	@Deprecated
@@ -852,13 +921,12 @@ public class NavigableSVGPanel extends JPanel {
 			imageTransformationChangedListener.imageTransformationChanged(image2user, user2image);
 		}
 	}
-	
+
 	public Point2D transformUser2Image(Point2D p) {
 		return user2image.transform(p, null);
 	}
-	
+
 	public Point2D transformImage2User(Point2D p) {
 		return image2user.transform(p, null);
 	}
-
 }
