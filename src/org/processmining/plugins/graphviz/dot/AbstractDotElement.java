@@ -10,7 +10,6 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.processmining.plugins.graphviz.visualisation.listeners.DotElementSelectionListener;
-import org.processmining.plugins.graphviz.visualisation.listeners.ElementSelectionListener;
 
 public abstract class AbstractDotElement implements DotElement {
 	private final String id;
@@ -98,11 +97,6 @@ public abstract class AbstractDotElement implements DotElement {
 
 	public boolean isSelectable() {
 		return selectable;
-	}
-
-	@Deprecated
-	public void addSelectionListener(ElementSelectionListener<DotElement> listener) {
-		
 	}
 	
 	public void addSelectionListener(DotElementSelectionListener listener) {

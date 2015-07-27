@@ -84,11 +84,6 @@ public class Dot2Image {
 
 		InputStream outputOfDot = new BufferedInputStream(dotProcess.getInputStream());
 
-		/*
-		 * //Wait until Graphviz finishes try { dotProcess.waitFor(); } catch
-		 * (InterruptedException e) { Thread.interrupted(); }
-		 */
-
 		return outputOfDot;
 	}
 

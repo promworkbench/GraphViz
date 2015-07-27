@@ -1,5 +1,6 @@
 package org.processmining.plugins.graphviz.dot;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,9 +16,9 @@ public class DotCluster extends DotNode {
 
 	protected DotCluster() {
 		super("", null);
-		nodes = new LinkedList<DotNode>();
-		edges = new LinkedList<DotEdge>();
-		clusters = new LinkedList<DotCluster>();
+		nodes = new ArrayList<DotNode>();
+		edges = new ArrayList<DotEdge>();
+		clusters = new ArrayList<DotCluster>();
 	}
 	
 	public DotNode addNode(String label) {
