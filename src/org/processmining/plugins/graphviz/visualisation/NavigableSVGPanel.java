@@ -8,6 +8,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
@@ -38,11 +39,18 @@ import javax.swing.SwingUtilities;
 
 import org.processmining.plugins.graphviz.visualisation.export.ExportDialog;
 import org.processmining.plugins.graphviz.visualisation.listeners.ImageTransformationChangedListener;
-import org.processmining.plugins.graphviz.visualisation.listeners.ZoomPanChangedListener;
 
 import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGException;
 
+/**
+ * A JPanel that displays an SVG image. Animation support is present, but not
+ * complete, i.e. you'll need a subclass to perform animation. Controls are
+ * included to ease implementation of subclasses.
+ * 
+ * @author sleemans
+ *
+ */
 public class NavigableSVGPanel extends JPanel {
 
 	private static final long serialVersionUID = -3285916948952045282L;
@@ -56,6 +64,12 @@ public class NavigableSVGPanel extends JPanel {
 
 	private boolean isDragging = false;
 	private final static double zoomIncrement = 1.8;
+
+	//animation controls
+	protected Rectangle animationControls;
+	protected Rectangle controlsPlayPause = new Rectangle();
+	protected Rectangle controlsProgressLine = new Rectangle();
+	private boolean animationControlsShowing = false;
 
 	//navigation variables and constants
 	private double navigationScale = 1.0;
@@ -199,7 +213,7 @@ public class NavigableSVGPanel extends JPanel {
 			}
 
 			public void mouseEntered(MouseEvent e) {
-				System.out.println("NavigableSVGPanel mouse enter");
+
 			}
 
 			public void mouseClicked(MouseEvent e) {
@@ -215,9 +229,6 @@ public class NavigableSVGPanel extends JPanel {
 
 			public void mouseMoved(MouseEvent e) {
 				processMouseMove(e);
-				if (!isDragging) {
-					processMouseMoveIntoSomething(e);
-				}
 			}
 		});
 
@@ -328,6 +339,9 @@ public class NavigableSVGPanel extends JPanel {
 			g2.transform(user2image);
 		}
 
+		//draw animation
+		drawAnimation(g2);
+
 		//Draw navigation image
 		if (!isPaintingForPrint() && !isImageCompletelyInPanel()) {
 			int width = (int) Math.round(getNavigationWidth());
@@ -340,6 +354,11 @@ public class NavigableSVGPanel extends JPanel {
 		//draw helper controls
 		if (!isPaintingForPrint()) {
 			drawHelperControls(g2);
+		}
+
+		//draw navigation controls
+		if (isAnimationEnabled()) {
+			drawAnimationControls((Graphics2D) g);
 		}
 	}
 
@@ -377,6 +396,15 @@ public class NavigableSVGPanel extends JPanel {
 
 		g.scale(1 / scaleX, 1 / scaleY);
 		g.translate(-x, -y);
+	}
+
+	/**
+	 * Draw the animation.
+	 * 
+	 * @param g
+	 */
+	protected void drawAnimation(Graphics2D g) {
+
 	}
 
 	/**
@@ -474,6 +502,59 @@ public class NavigableSVGPanel extends JPanel {
 		//revert colour and font
 		g.setColor(backupColour);
 		g.setFont(backupFont);
+	}
+
+	private void drawAnimationControls(Graphics2D g) {
+		Color backupColour = g.getColor();
+
+		int alpha = 20;
+		if (animationControlsShowing) {
+			alpha = 180;
+		}
+
+		g.setColor(new Color(0, 0, 0, alpha));
+		int width = getWidth() - 100;
+		int height = 50;
+		int x = (getWidth() - width) / 2;
+		int y = getHeight() - 2 * height;
+		g.fillRoundRect(x, y, width, height, 10, 10);
+		animationControls = new Rectangle(x, y, width, height);
+
+		//play button
+		g.setColor(new Color(255, 255, 255, alpha));
+		controlsPlayPause.setBounds(x + 10, y + 10, 30, height);
+		if (!isAnimationPlaying()) {
+			//play button
+			Polygon triangle = new Polygon();
+			triangle.addPoint(x + 10, y + 10);
+			triangle.addPoint(x + 10, y + height - 10);
+			triangle.addPoint(x + 10 + 25, y + (height / 2));
+			g.fillPolygon(triangle);
+		} else {
+			//pause button
+			g.fillRoundRect(x + 10, y + 10, 10, height - 20, 5, 5);
+			g.fillRoundRect(x + 25, y + 10, 10, height - 20, 5, 5);
+		}
+
+		//progress line
+		int startLineX = x + 50;
+		int endLineX = x + width - 20;
+		int lineY = y + height / 2;
+		g.drawLine(startLineX, lineY, endLineX, lineY);
+		double progress = (getAnimationTime() - getAnimationMinimumTime())
+				/ (getAnimationMaximumTime() - getAnimationMinimumTime());
+		controlsProgressLine.setBounds(startLineX, y, endLineX - startLineX, height);
+
+		//draw the little oval that denotes where we are
+		if (animationControlsShowing) {
+			double ovalX = (startLineX + (endLineX - startLineX) * progress) - 5;
+			double ovalY = lineY - 5;
+			g.translate(ovalX, ovalY);
+			g.fillOval(0, 0, 10, 10);
+			g.translate(-ovalX, -ovalY);
+		}
+
+		g.setColor(backupColour);
 	}
 
 	/**
@@ -709,6 +790,9 @@ public class NavigableSVGPanel extends JPanel {
 		image2user.translate(x, y);
 		image2user.scale(scale, scale);
 		user2image = image2user.createInverse();
+
+		//reset navigation image
+		navigationScale = 1.0;
 	}
 
 	/**
@@ -768,12 +852,29 @@ public class NavigableSVGPanel extends JPanel {
 	 * @return whether the press was handled and did something.
 	 */
 	protected boolean processMousePress(MouseEvent e) {
-		System.out.println("NavigableSVGPanel mouse press");
 		Point point = e.getPoint();
 		lastMousePosition = point;
 
 		//process press in helper text
-		if (isInHelperControls(point)) {
+		if (SwingUtilities.isLeftMouseButton(e) && isInHelperControls(point)) {
+			return true;
+		}
+
+		//process press in animation controls
+		if (SwingUtilities.isLeftMouseButton(e) && isAnimationEnabled() && animationControls != null
+				&& animationControls.contains(point)) {
+			if (controlsProgressLine.contains(point)) {
+				//clicked in progress line area
+				double progress = (e.getX() - controlsProgressLine.x) / (controlsProgressLine.width * 1.0);
+				seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
+				startOneFrame();
+			} else if (controlsPlayPause.contains(point)) {
+				//clicked on play/pause button
+				pauseResume();
+
+				//repaint to make sure the button is changed
+				repaint();
+			}
 			return true;
 		}
 
@@ -793,6 +894,7 @@ public class NavigableSVGPanel extends JPanel {
 		//process press anywhere else
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			isDragging = true;
+			return true;
 		}
 
 		return false;
@@ -802,12 +904,12 @@ public class NavigableSVGPanel extends JPanel {
 	 * Process a mouse release
 	 * 
 	 * @param e
-	 * @return whether the release was handled and did something.
+	 * @return whether the hover was handled and did something.
 	 */
 	protected boolean processMouseRelease(MouseEvent e) {
-		System.out.println("NavigableSVGPanel mouse release");
 		isDragging = false;
-		return true;
+
+		return processMouseMove(e);
 	}
 
 	/**
@@ -841,34 +943,38 @@ public class NavigableSVGPanel extends JPanel {
 	}
 
 	/**
-	 * Process a mouse move
+	 * Process a mouse move. Captured = true implies that the hover was already
+	 * processed (and we should hide everything related to hovering).
 	 * 
 	 * @param e
-	 * @return whether the move was handled and did something.
+	 * @return whether the move is hovering something.
 	 */
 	protected boolean processMouseMove(MouseEvent e) {
-		if (helperControlsShowing && !isInHelperControls(e.getPoint())) {
+		if (!isDragging && helperControlsArc != null && !helperControlsShowing && isInHelperControls(e.getPoint())) {
+			//we have to show the helper controls
+			helperControlsShowing = true;
+			animationControlsShowing = false;
+			repaint();
+			return true;
+		} else if (!isDragging && animationControls != null && !animationControlsShowing
+				&& isInAnimationControls(e.getPoint())) {
+			//we have to show the animation controls
+			animationControlsShowing = true;
 			helperControlsShowing = false;
 			repaint();
 			return true;
+		} else {
+			//hide things
+			if (animationControlsShowing && !isInAnimationControls(e.getPoint())) {
+				animationControlsShowing = false;
+				repaint();
+			}
+			if (helperControlsShowing && !isInHelperControls(e.getPoint())) {
+				helperControlsShowing = false;
+				repaint();
+			}
+			return helperControlsShowing || animationControlsShowing || isInNavigation(e.getPoint());
 		}
-		return false;
-	}
-
-	/**
-	 * Move the mouse into something. Separated from mouse move to handle popups
-	 * properly.
-	 * 
-	 * @param e
-	 * @return
-	 */
-	protected boolean processMouseMoveIntoSomething(MouseEvent e) {
-		if (!helperControlsShowing && isInHelperControls(e.getPoint())) {
-			helperControlsShowing = true;
-			repaint();
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -878,9 +984,7 @@ public class NavigableSVGPanel extends JPanel {
 	 * @return whether the click was handled and did something.
 	 */
 	protected boolean processMouseClick(MouseEvent e) {
-		System.out.println("NavigableSVGPanel mouse click");
-
-		return isInHelperControls(e.getPoint());
+		return isInHelperControls(e.getPoint()) || isInAnimationControls(e.getPoint()) || isInNavigation(e.getPoint());
 	}
 
 	/**
@@ -890,9 +994,12 @@ public class NavigableSVGPanel extends JPanel {
 	 * @return whether the exit was handled and did something.
 	 */
 	protected boolean processMouseExit(MouseEvent e) {
-		System.out.println("NavigableSVGPanel mouse exit");
 		if (helperControlsShowing) {
 			helperControlsShowing = false;
+			repaint();
+		}
+		if (animationControlsShowing) {
+			animationControlsShowing = false;
 			repaint();
 		}
 		return false;
@@ -905,11 +1012,6 @@ public class NavigableSVGPanel extends JPanel {
 	 */
 	private void zoomNavigation(double zoomFactor) {
 		navigationScale *= zoomFactor;
-	}
-
-	@Deprecated
-	public void setZoomPanChangedListener(ZoomPanChangedListener listener) {
-
 	}
 
 	public void setImageTransformationChangedListener(ImageTransformationChangedListener listener) {
@@ -928,5 +1030,87 @@ public class NavigableSVGPanel extends JPanel {
 
 	public Point2D transformImage2User(Point2D p) {
 		return image2user.transform(p, null);
+	}
+
+	/**
+	 * Needs to be overridden by a subclass.
+	 * 
+	 * @return whether the animation is rendered and controls are displayed.
+	 */
+	public boolean isAnimationEnabled() {
+		return false;
+	}
+
+	/**
+	 * Needs to be overridden by a subclass.
+	 * 
+	 * @return whether the animation is currently playing (not paused)
+	 */
+	public boolean isAnimationPlaying() {
+		return false;
+	}
+
+	/**
+	 * Needs to be overridden by a subclass.
+	 * 
+	 * @return the current animation time.
+	 */
+	public double getAnimationTime() {
+		return 0;
+	}
+
+	/**
+	 * Needs to be overridden by a subclass.
+	 * 
+	 * @return the minimum animation time.
+	 */
+	public double getAnimationMinimumTime() {
+		return 0;
+	}
+
+	/**
+	 * Needs to be overridden by a subclass.
+	 * 
+	 * @return the maximum animation time.
+	 */
+	public double getAnimationMaximumTime() {
+		return 0;
+	}
+
+	/**
+	 * 
+	 * @param p
+	 * @return whether a point lies in the animation controls.
+	 */
+	protected boolean isInAnimationControls(Point p) {
+		return isAnimationEnabled() && animationControls != null && animationControls.contains(p);
+	}
+
+	/**
+	 * Request the next animation frame to be rendered at the given time. Needs
+	 * to be overridden by a subclass.
+	 * 
+	 * @param time
+	 */
+	public void seek(double time) {
+
+	}
+
+	/**
+	 * Request the animation to pause or resume. Needs to be overridden by a
+	 * subclass.
+	 * 
+	 */
+	public void pauseResume() {
+
+	}
+
+	/**
+	 * Request one frame of the animation to be rendered. Needs to be overridden
+	 * by a subclass.
+	 * 
+	 */
+	public void startOneFrame() {
+
 	}
 }

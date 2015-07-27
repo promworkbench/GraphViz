@@ -119,7 +119,7 @@ public class DotPanel extends NavigableSVGPanel {
 	@Override
 	protected boolean processMouseClick(MouseEvent e) {
 		boolean superChanged = super.processMouseClick(e);
-
+		
 		//pass clicks to elements and process selection changes, but not if the click was already catched.
 		boolean selectionChange = false;
 		Point point = e.getPoint();
@@ -149,30 +149,13 @@ public class DotPanel extends NavigableSVGPanel {
 	@Override
 	protected boolean processMouseRelease(MouseEvent e) {
 		boolean superChanged = super.processMouseRelease(e);
-		Point point = e.getPoint();
-
-		//enter the elements under the mouse
-		boolean changedIn = false;
-		if (!isInHelperControls(point) && !isInNavigation(point)) {
-			Set<DotElement> newIn = getElementsAtPoint(e.getPoint());
-			for (DotElement element : newIn) {
-				if (!mouseInElements.contains(element)) {
-					element.mouseEntered(e);
-					changedIn = true;
-				}
-			}
-			mouseInElements = newIn;
-			if (changedIn) {
-				mouseInElementsChanged();
-			}
-		}
 
 		//call mouseReleased on all elements under the mouse
 		for (DotElement element : getElementsAtPoint(e.getPoint())) {
 			element.mouseReleased(e);
 		}
 
-		return superChanged || changedIn;
+		return superChanged;
 	}
 
 	@Override
@@ -187,38 +170,38 @@ public class DotPanel extends NavigableSVGPanel {
 
 	@Override
 	protected boolean processMouseMove(MouseEvent e) {
-		boolean superChanged = super.processMouseMove(e);
+		boolean captured = super.processMouseMove(e);
 
-		Point point = e.getPoint();
-		boolean changed;
+		boolean changed = false;
 
-		//if we enter navigation or controls, we exit everything
-		if (isInHelperControls(point) || isInNavigation(point)) {
-			//exit the dot elements, as we are leaving the screen
+		if (captured) {
+			//something above us captured the mouse hover, so exit all dot elements
 			changed = exitAllElements(e);
 		} else {
 			//process the mouseEnter and Exit of the dot elements
-			Set<DotElement> newIn = getElementsAtPoint(e.getPoint());
-			changed = false;
-			for (DotElement element : newIn) {
+			Set<DotElement> newElements = getElementsAtPoint(e.getPoint());
+			//exit
+			for (DotElement element : mouseInElements) {
+				if (!newElements.contains(element)) {
+					element.mouseExited(e);
+					changed = true;
+				}
+			}
+			//enter
+			for (DotElement element : newElements) {
 				if (!mouseInElements.contains(element)) {
 					element.mouseEntered(e);
 					changed = true;
 				}
 			}
-			for (DotElement element : mouseInElements) {
-				if (!newIn.contains(element)) {
-					element.mouseExited(e);
-					changed = true;
-				}
-			}
-			mouseInElements = newIn;
+			mouseInElements = newElements;
+			
 			if (changed) {
 				mouseInElementsChanged();
 			}
 		}
 
-		return changed || superChanged;
+		return changed || captured;
 	}
 
 	@Override

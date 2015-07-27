@@ -77,7 +77,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		private static final long serialVersionUID = 8861192606334538705L;
 
 		public void actionPerformed(ActionEvent arg0) {
-			startStop();
+			pauseResume();
 		}
 	};
 
@@ -91,7 +91,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 					seek(animationMinTime + progress * (animationMaxTime - animationMinTime));
 				} else if (controlsPlayPause.contains(point)) {
 					//clicked on play/pause button
-					startStop();
+					pauseResume();
 				}
 			}
 		}
@@ -258,7 +258,7 @@ public class AnimatableSVGPanel extends NavigableSVGPanel {
 		return animationTimer.isRunning();
 	}
 
-	public void startStop() {
+	public void pauseResume() {
 		if (isAnimationPlaying()) {
 			stop();
 		} else {
