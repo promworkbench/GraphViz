@@ -312,7 +312,7 @@ public class NavigableSVGPanel extends JPanel {
 	 *            the <code>Graphics</code> context for painting
 	 */
 	protected void paintComponent(Graphics g) {
-		if (isPaintingForPrint()) {
+		if (!isPaintingForPrint()) {
 			super.paintComponent(g); // Paints the background
 		}
 
@@ -328,6 +328,8 @@ public class NavigableSVGPanel extends JPanel {
 		//set clipping mask to save a few cpu/gpu cycles
 		if (!isPaintingForPrint()) {
 			g2.setClip(0, 0, getWidth(), getHeight());
+		} else {
+			g2.setClip(0, 0, Math.round(image.getWidth()), Math.round(image.getHeight()));
 		}
 
 		//draw image
