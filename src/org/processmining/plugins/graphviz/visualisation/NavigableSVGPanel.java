@@ -62,10 +62,12 @@ public class NavigableSVGPanel extends JPanel {
 	private Point lastMousePosition;
 	private Dimension lastPanelDimension = null;
 
-	private boolean isDragging = false;
+	private boolean isDraggingImage = false;
 	private final static double zoomIncrement = 1.8;
 
 	//animation controls
+	private boolean isDraggingAnimation = false;
+	private boolean wasPlayingBeforeDragging = false;
 	protected Rectangle animationControls;
 	protected Rectangle controlsPlayPause = new Rectangle();
 	protected Rectangle controlsProgressLine = new Rectangle();
@@ -867,9 +869,8 @@ public class NavigableSVGPanel extends JPanel {
 				&& animationControls.contains(point)) {
 			if (controlsProgressLine.contains(point)) {
 				//clicked in progress line area
-				double progress = (e.getX() - controlsProgressLine.x) / (controlsProgressLine.width * 1.0);
-				seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
-				startOneFrame();
+				wasPlayingBeforeDragging = isAnimationPlaying();
+				isDraggingAnimation = true;
 			} else if (controlsPlayPause.contains(point)) {
 				//clicked on play/pause button
 				pauseResume();
@@ -895,7 +896,7 @@ public class NavigableSVGPanel extends JPanel {
 
 		//process press anywhere else
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			isDragging = true;
+			isDraggingImage = true;
 			return true;
 		}
 
@@ -909,7 +910,18 @@ public class NavigableSVGPanel extends JPanel {
 	 * @return whether the hover was handled and did something.
 	 */
 	protected boolean processMouseRelease(MouseEvent e) {
-		isDragging = false;
+		if (isDraggingAnimation) {
+			double progress = (e.getX() - controlsProgressLine.x) / (controlsProgressLine.width * 1.0);
+			seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
+			if (wasPlayingBeforeDragging) {
+				resume();
+			} else {
+				startOneFrame();
+			}
+		}
+
+		isDraggingImage = false;
+		isDraggingAnimation = false;
 
 		return processMouseMove(e);
 	}
@@ -921,7 +933,7 @@ public class NavigableSVGPanel extends JPanel {
 	 * @return whether the drag was handled and did something.
 	 */
 	protected boolean processMouseDrag(MouseEvent e) {
-		if (isDragging) {
+		if (isDraggingImage) {
 			Point point = e.getPoint();
 			if (lastMousePosition != null) {
 				double dx = (point.x - lastMousePosition.x) / image2user.getScaleX();
@@ -939,6 +951,13 @@ public class NavigableSVGPanel extends JPanel {
 			updateTransformation();
 			repaint();
 			return true;
+		} else if (isDraggingAnimation) {
+			pause();
+			isDraggingAnimation = true;
+			
+			double progress = (e.getX() - controlsProgressLine.x) / (controlsProgressLine.width * 1.0);
+			seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
+			startOneFrame();
 		}
 
 		return false;
@@ -952,13 +971,13 @@ public class NavigableSVGPanel extends JPanel {
 	 * @return whether the move is hovering something.
 	 */
 	protected boolean processMouseMove(MouseEvent e) {
-		if (!isDragging && helperControlsArc != null && !helperControlsShowing && isInHelperControls(e.getPoint())) {
+		if (!isDraggingImage && helperControlsArc != null && !helperControlsShowing && isInHelperControls(e.getPoint())) {
 			//we have to show the helper controls
 			helperControlsShowing = true;
 			animationControlsShowing = false;
 			repaint();
 			return true;
-		} else if (!isDragging && animationControls != null && !animationControlsShowing
+		} else if (!isDraggingImage && animationControls != null && !animationControlsShowing
 				&& isInAnimationControls(e.getPoint())) {
 			//we have to show the animation controls
 			animationControlsShowing = true;
@@ -1095,6 +1114,20 @@ public class NavigableSVGPanel extends JPanel {
 	 * @param time
 	 */
 	public void seek(double time) {
+
+	}
+
+	/**
+	 * Request the animation to pause. Needs to be overridden by a subclass.
+	 */
+	public void pause() {
+
+	}
+
+	/**
+	 * Resume the animation from pausing. Needs to be overridden by a subclass.
+	 */
+	public void resume() {
 
 	}
 
