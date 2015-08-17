@@ -62,11 +62,11 @@ public class NavigableSVGPanel extends JPanel {
 	private Point lastMousePosition;
 	private Dimension lastPanelDimension = null;
 
-	private boolean isDraggingImage = false;
+	protected boolean isDraggingImage = false;
 	private final static double zoomIncrement = 1.8;
 
 	//animation controls
-	private boolean isDraggingAnimation = false;
+	protected boolean isDraggingAnimation = false;
 	private boolean wasPlayingBeforeDragging = false;
 	protected Rectangle animationControls;
 	protected Rectangle controlsPlayPause = new Rectangle();
@@ -916,10 +916,15 @@ public class NavigableSVGPanel extends JPanel {
 			if (wasPlayingBeforeDragging) {
 				resume();
 			} else {
-				startOneFrame();
+				renderOneFrame();
+				repaint();
 			}
 		}
 
+		if (isDraggingImage) {
+			renderOneFrame();
+		}
+		
 		isDraggingImage = false;
 		isDraggingAnimation = false;
 
@@ -954,10 +959,10 @@ public class NavigableSVGPanel extends JPanel {
 		} else if (isDraggingAnimation) {
 			pause();
 			isDraggingAnimation = true;
-			
+
 			double progress = (e.getX() - controlsProgressLine.x) / (controlsProgressLine.width * 1.0);
 			seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
-			startOneFrame();
+			renderOneFrame();
 		}
 
 		return false;
@@ -1145,7 +1150,7 @@ public class NavigableSVGPanel extends JPanel {
 	 * by a subclass.
 	 * 
 	 */
-	public void startOneFrame() {
+	public void renderOneFrame() {
 
 	}
 }
