@@ -870,7 +870,6 @@ public class NavigableSVGPanel extends JPanel {
 			if (controlsProgressLine.contains(point)) {
 				//clicked in progress line area
 				wasPlayingBeforeDragging = isAnimationPlaying();
-				isDraggingAnimation = true;
 			} else if (controlsPlayPause.contains(point)) {
 				//clicked on play/pause button
 				pauseResume();
@@ -894,9 +893,8 @@ public class NavigableSVGPanel extends JPanel {
 			return true;
 		}
 
-		//process press anywhere else
+		//process press anywhere else (=> on the image)
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			isDraggingImage = true;
 			return true;
 		}
 
@@ -924,7 +922,7 @@ public class NavigableSVGPanel extends JPanel {
 		if (isDraggingImage) {
 			renderOneFrame();
 		}
-		
+
 		isDraggingImage = false;
 		isDraggingAnimation = false;
 
@@ -938,6 +936,16 @@ public class NavigableSVGPanel extends JPanel {
 	 * @return whether the drag was handled and did something.
 	 */
 	protected boolean processMouseDrag(MouseEvent e) {
+		if (!isDraggingImage && !isDraggingAnimation) {
+			if (SwingUtilities.isLeftMouseButton(e) && isAnimationEnabled() && animationControls != null
+					&& animationControls.contains(lastMousePosition)
+					&& controlsProgressLine.contains(lastMousePosition)) {
+				isDraggingAnimation = true;
+			} else if (SwingUtilities.isLeftMouseButton(e)) {
+				isDraggingImage = true;
+			}
+		}
+
 		if (isDraggingImage) {
 			Point point = e.getPoint();
 			if (lastMousePosition != null) {
@@ -1010,6 +1018,18 @@ public class NavigableSVGPanel extends JPanel {
 	 * @return whether the click was handled and did something.
 	 */
 	protected boolean processMouseClick(MouseEvent e) {
+		if (SwingUtilities.isLeftMouseButton(e) && isAnimationEnabled() && animationControls != null
+				&& animationControls.contains(lastMousePosition) && controlsProgressLine.contains(lastMousePosition)) {
+			double progress = (e.getX() - controlsProgressLine.x) / (controlsProgressLine.width * 1.0);
+			seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
+			if (wasPlayingBeforeDragging) {
+				resume();
+			} else {
+				renderOneFrame();
+				repaint();
+			}
+		}
+
 		return isInHelperControls(e.getPoint()) || isInAnimationControls(e.getPoint()) || isInNavigation(e.getPoint());
 	}
 
