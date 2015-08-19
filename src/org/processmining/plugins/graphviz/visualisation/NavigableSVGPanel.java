@@ -87,8 +87,8 @@ public class NavigableSVGPanel extends JPanel {
 	//helper controls variables and constants
 	private Arc2D helperControlsArc = null;
 	private boolean helperControlsShowing = false;
-	public static final int helperControlsWidth = 300;
-	public static final Font helperControlsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+	public static final int helperControlsWidth = 350;
+	public static final Font helperControlsFont = new Font(Font.MONOSPACED, Font.BOLD, 12);
 	private static final Font helperControlsButtonFont = new Font("TimesRoman", Font.PLAIN, 20);
 	private static final String helperControlsButtonString = "?";
 
