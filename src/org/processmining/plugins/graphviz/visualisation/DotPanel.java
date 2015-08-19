@@ -257,7 +257,7 @@ public class DotPanel extends NavigableSVGPanel {
 							DotElement selectedElement = it.next();
 							if (selectedElement != element) {
 								for (DotElementSelectionListener listener : selectedElement.getSelectionListeners()) {
-									listener.selected(selectedElement, image);
+									listener.deselected(selectedElement, image);
 								}
 								it.remove();
 							}
