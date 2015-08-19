@@ -12,12 +12,15 @@ public class ExportDialog extends JFileChooser {
 	private static final long serialVersionUID = -6928894765212379860L;
 	private static final Preferences preferences = Preferences.userRoot().node("org.processmining.graphviz");
 
-	public ExportDialog(NavigableSVGPanel parent) {
+	public ExportDialog(NavigableSVGPanel parent, Exporter... exporters) {
 		super(preferences.get("lastUsedFolder", new File(".").getAbsolutePath()));
 		setAcceptAllFileFilterUsed(false);
 		addChoosableFileFilter(new ExporterPDF());
 		addChoosableFileFilter(new ExporterPNG());
 		addChoosableFileFilter(new ExporterSVG());
+		for (Exporter exporter: exporters) {
+			addChoosableFileFilter(exporter);
+		}
 
 		try {
 			int returnVal = showSaveDialog(parent);
