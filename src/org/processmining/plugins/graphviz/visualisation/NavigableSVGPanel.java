@@ -61,6 +61,7 @@ public class NavigableSVGPanel extends JPanel {
 	private AffineTransform user2image = new AffineTransform();
 	private Point lastMousePosition;
 	private Dimension lastPanelDimension = null;
+	private boolean resetViewLater = false;
 
 	protected boolean isDraggingImage = false;
 	private final static double zoomIncrement = 1.8;
@@ -179,10 +180,10 @@ public class NavigableSVGPanel extends JPanel {
 		addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) {
 				try {
-					if (image2user.isIdentity()) {
-						resetView();
+					if (image2user.isIdentity() || resetViewLater) {
 						lastPanelDimension = new Dimension(getWidth(), getHeight());
-					} else {
+						resetView();
+					} else if (lastPanelDimension != null){
 						//on resizing, keep the center in center, and scale proportionally to the width.
 						double zoom = lastPanelDimension.getWidth() / getWidth();
 						user2image.translate(lastPanelDimension.getWidth() / 2.0, lastPanelDimension.getHeight() / 2.0);
@@ -191,6 +192,8 @@ public class NavigableSVGPanel extends JPanel {
 						user2image.translate(-lastPanelDimension.getWidth() / 2.0,
 								-lastPanelDimension.getHeight() / 2.0);
 						image2user = user2image.createInverse();
+					} else {
+						lastPanelDimension = new Dimension(getWidth(), getHeight());
 					}
 				} catch (NoninvertibleTransformException e1) {
 					e1.printStackTrace();
@@ -780,6 +783,12 @@ public class NavigableSVGPanel extends JPanel {
 	 * @throws NoninvertibleTransformException
 	 */
 	public void resetView() throws NoninvertibleTransformException {
+		if (getWidth() <= 0 || getHeight() <= 0) {
+			resetViewLater = true;
+			return;
+		}
+		resetViewLater = false;
+		
 		double scaleX = getWidth() / (double) image.getWidth();
 		double scaleY = getHeight() / (double) image.getHeight();
 		double scale = Math.min(scaleX, scaleY);
