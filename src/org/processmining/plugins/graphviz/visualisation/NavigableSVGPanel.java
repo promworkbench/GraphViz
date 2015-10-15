@@ -183,7 +183,7 @@ public class NavigableSVGPanel extends JPanel {
 					if (image2user.isIdentity() || resetViewLater) {
 						lastPanelDimension = new Dimension(getWidth(), getHeight());
 						resetView();
-					} else if (lastPanelDimension != null){
+					} else if (lastPanelDimension != null) {
 						//on resizing, keep the center in center, and scale proportionally to the width.
 						double zoom = lastPanelDimension.getWidth() / getWidth();
 						user2image.translate(lastPanelDimension.getWidth() / 2.0, lastPanelDimension.getHeight() / 2.0);
@@ -334,7 +334,8 @@ public class NavigableSVGPanel extends JPanel {
 		if (!isPaintingForPrint()) {
 			g2.setClip(0, 0, getWidth(), getHeight());
 		} else {
-			g2.setClip(0, 0, Math.round(image.getWidth()), Math.round(image.getHeight()));
+			g2.setClip((int) Math.round(image.getViewRect().getX()), (int) Math.round(image.getViewRect().getY()),
+					(int) Math.round(image.getViewRect().getWidth()),(int) Math.round(image.getViewRect().getWidth()));
 		}
 
 		//draw image
@@ -788,7 +789,7 @@ public class NavigableSVGPanel extends JPanel {
 			return;
 		}
 		resetViewLater = false;
-		
+
 		double scaleX = getWidth() / (double) image.getWidth();
 		double scaleY = getHeight() / (double) image.getHeight();
 		double scale = Math.min(scaleX, scaleY);
