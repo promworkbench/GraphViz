@@ -335,7 +335,7 @@ public class NavigableSVGPanel extends JPanel {
 			g2.setClip(0, 0, getWidth(), getHeight());
 		} else {
 			g2.setClip((int) Math.round(image.getViewRect().getX()), (int) Math.round(image.getViewRect().getY()),
-					(int) Math.round(image.getViewRect().getWidth()),(int) Math.round(image.getViewRect().getWidth()));
+					(int) Math.round(image.getViewRect().getWidth()),(int) Math.round(image.getViewRect().getHeight()));
 		}
 
 		//draw image
