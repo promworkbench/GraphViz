@@ -14,7 +14,17 @@ public class ExporterPDF extends Exporter {
 	}
 
 	public void export(NavigableSVGPanel panel, File file) throws Exception {
-		PDFGraphics2D g = new PDFGraphics2D(0.0, 0.0, panel.getImage().getWidth(), panel.getImage().getHeight());
+//		Document document = new Document(new com.itextpdf.text.Rectangle(150, 150));
+//		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
+//		document.open();
+//
+//		PdfContentByte canvas = writer.getDirectContent();
+//		Graphics2D g2 = canvas.createGraphics(150, 150);
+//		panel.print(g2);
+//		g2.dispose();
+//		document.close();
+
+		PDFGraphics2D g = new PDFGraphics2D(panel.getImage().getViewRect().getX(), panel.getImage().getViewRect().getY(), panel.getImage().getViewRect().getWidth(), panel.getImage().getViewRect().getHeight());
 		panel.print(g);
 		FileOutputStream s = new FileOutputStream(file);
 		try {
