@@ -132,6 +132,9 @@ public class Dot2Image {
 	private static File getDotDirectory() throws IOException {
 
 		File packageDirectory = OsUtil.getProMPackageDirectory();
+		if (packageDirectory == null) {
+			packageDirectory = new File(System.getProperty("user.home"), ".prom-graphviz");
+		}
 
 		File[] listOfFiles = packageDirectory.listFiles();
 		File graphvizFolder = null;
