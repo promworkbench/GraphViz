@@ -131,11 +131,14 @@ public class Dot2Image {
 
 	private static File getDotDirectory() throws IOException {
 
-		File packageDirectory = OsUtil.getProMPackageDirectory();
-		if (packageDirectory == null) {
+		File packageDirectory;
+		try{
+			packageDirectory = OsUtil.getProMPackageDirectory();
+		} catch (Exception e){
+			//file not found --> this point is reached in RapidProM.
 			packageDirectory = new File(System.getProperty("user.home"), ".prom-graphviz");
 		}
-
+		
 		File[] listOfFiles = packageDirectory.listFiles();
 		File graphvizFolder = null;
 		for (File file : listOfFiles) {
