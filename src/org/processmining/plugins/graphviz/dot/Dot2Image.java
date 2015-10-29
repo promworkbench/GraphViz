@@ -137,6 +137,9 @@ public class Dot2Image {
 		} catch (Exception e){
 			//file not found --> this point is reached in RapidProM.
 			packageDirectory = new File(System.getProperty("user.home"), ".prom-graphviz");
+			if (!packageDirectory.exists()) {
+				packageDirectory.mkdirs();
+			}
 		}
 		
 		File[] listOfFiles = packageDirectory.listFiles();
