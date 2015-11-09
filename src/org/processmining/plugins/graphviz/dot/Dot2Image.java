@@ -132,16 +132,16 @@ public class Dot2Image {
 	private static File getDotDirectory() throws IOException {
 
 		File packageDirectory;
-		try{
+		try {
 			packageDirectory = OsUtil.getProMPackageDirectory();
-		} catch (Exception | ExceptionInInitializerError | NoClassDefFoundError e){
+		} catch (Exception | ExceptionInInitializerError | NoClassDefFoundError e) {
 			//file not found --> this point is reached in RapidProM.
 			packageDirectory = new File(System.getProperty("user.home"), ".prom-graphviz");
 			if (!packageDirectory.exists()) {
 				packageDirectory.mkdirs();
 			}
 		}
-		
+
 		File[] listOfFiles = packageDirectory.listFiles();
 		File graphvizFolder = null;
 		for (File file : listOfFiles) {
@@ -171,12 +171,12 @@ public class Dot2Image {
 			libDirectory = new File(jarDirectory, "lib-GraphViz");
 			new File(jarDirectory, "lib-GraphViz").mkdir();
 		}
-		
+
 		File dotDirectory = new File(libDirectory, "dotBinaries4");
 		//		System.out.println("dot directory " + dotDirectory);
 
 		//if the binaries do not exist yet, copy them from the jar file
-//		System.out.println("use dot directory " + dotDirectory);
+		//		System.out.println("use dot directory " + dotDirectory);
 		if (!dotDirectory.exists()) {
 			System.out.println("dot directory " + dotDirectory + " does not exist; create it and copy binaries to it");
 			dotDirectory.mkdir();
