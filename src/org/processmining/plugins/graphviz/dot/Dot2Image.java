@@ -134,7 +134,7 @@ public class Dot2Image {
 		File packageDirectory;
 		try{
 			packageDirectory = OsUtil.getProMPackageDirectory();
-		} catch (Exception | ExceptionInInitializerError e){
+		} catch (Exception | ExceptionInInitializerError | NoClassDefFoundError e){
 			//file not found --> this point is reached in RapidProM.
 			packageDirectory = new File(System.getProperty("user.home"), ".prom-graphviz");
 			if (!packageDirectory.exists()) {
