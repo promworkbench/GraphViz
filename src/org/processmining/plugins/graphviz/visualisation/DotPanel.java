@@ -33,6 +33,8 @@ import org.processmining.plugins.graphviz.dot.DotEdge;
 import org.processmining.plugins.graphviz.dot.DotElement;
 import org.processmining.plugins.graphviz.dot.DotNode;
 import org.processmining.plugins.graphviz.visualisation.listeners.DotElementSelectionListener;
+import org.processmining.plugins.graphviz.visualisation.listeners.GraphChangedListener;
+import org.processmining.plugins.graphviz.visualisation.listeners.GraphChangedListener.GraphChangedReason;
 import org.processmining.plugins.graphviz.visualisation.listeners.GraphDirectionChangedListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.MouseInElementsChangedListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.SelectionChangedListener;
@@ -76,26 +78,47 @@ public class DotPanel extends NavigableSVGPanel {
 					newDirection = GraphDirection.downTop;
 					break;
 			}
-			if (graphDirectionChanged(newDirection)) {
-				dot.setDirection(newDirection);
-				changeDot(dot, true);
-			}
+			userSettings.setDirection(newDirection);
+			changeDot(dot, true);
+			graphChanged(GraphChangedReason.graphDirectionChanged, newDirection);
+		}
+	};
+
+	private Action increaseAspectRatio = new AbstractAction() {
+		private static final long serialVersionUID = 2323619233153604381L;
+
+		public void actionPerformed(ActionEvent e) {
+			userSettings.nodeSeparation = Math.min(userSettings.nodeSeparation + .2, 4);
+			changeDot(dot, true);
+			graphChanged(GraphChangedReason.nodeSeparationChanged, userSettings.nodeSeparation);
+		}
+	};
+
+	private Action decreaseAspectRatio = new AbstractAction() {
+		private static final long serialVersionUID = 1136135860512175161L;
+
+		public void actionPerformed(ActionEvent e) {
+			userSettings.nodeSeparation = Math.max(userSettings.nodeSeparation - 0.2, 0);
+			changeDot(dot, true);
+			graphChanged(GraphChangedReason.nodeSeparationChanged, userSettings.nodeSeparation);
 		}
 	};
 
 	private Dot dot;
+	private final DotPanelUserSettings userSettings;
 	private HashMap<String, DotElement> id2element;
 	private Set<DotElement> selectedElements;
 	private Set<DotElement> mouseInElements;
 	private final CopyOnWriteArrayList<SelectionChangedListener<DotElement>> selectionChangedListeners = new CopyOnWriteArrayList<>();
-	private final CopyOnWriteArrayList<GraphDirectionChangedListener> graphDirectionChangedListeners = new CopyOnWriteArrayList<>();
 	private final CopyOnWriteArrayList<MouseInElementsChangedListener<DotElement>> mouseInElementsChangedListeners = new CopyOnWriteArrayList<>();
+	private final CopyOnWriteArrayList<GraphChangedListener> graphChangedListeners = new CopyOnWriteArrayList<>();
 
 	public DotPanel(Dot dot) {
 		super(dot2svg(dot));
 		this.dot = dot;
 		prepareNodeSelection(dot);
 		mouseInElements = new HashSet<>();
+		userSettings = new DotPanelUserSettings(dot);
 
 		//listen to ctrl+d for a change in graph layouting direction
 		helperControlsShortcuts.add("ctrl d");
@@ -103,6 +126,20 @@ public class DotPanel extends NavigableSVGPanel {
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_MASK),
 				"changeGraphDirection");
 		getActionMap().put("changeGraphDirection", changeGraphDirection);
+
+		//listen to ctrl+q for increasing aspect ratio
+		helperControlsShortcuts.add("ctrl q");
+		helperControlsExplanations.add("increase graph node distance");
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_MASK),
+				"increaseAspectRatio");
+		getActionMap().put("increaseAspectRatio", increaseAspectRatio);
+
+		//listen to ctrl+w for decreasing aspect ratio
+		helperControlsShortcuts.add("ctrl w");
+		helperControlsExplanations.add("decrease graph node distance");
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK),
+				"decreaseAspectRatio");
+		getActionMap().put("decreaseAspectRatio", decreaseAspectRatio);
 
 		//add mouse listeners
 		final DotPanel this2 = this;
@@ -119,7 +156,7 @@ public class DotPanel extends NavigableSVGPanel {
 	@Override
 	protected boolean processMouseClick(MouseEvent e) {
 		boolean superChanged = super.processMouseClick(e);
-		
+
 		//pass clicks to elements and process selection changes, but not if the click was already catched.
 		boolean selectionChange = false;
 		Point point = e.getPoint();
@@ -195,7 +232,7 @@ public class DotPanel extends NavigableSVGPanel {
 				}
 			}
 			mouseInElements = newElements;
-			
+
 			if (changed) {
 				mouseInElementsChanged();
 			}
@@ -358,6 +395,7 @@ public class DotPanel extends NavigableSVGPanel {
 	 *            ; whether reset the view to centered+fitting
 	 */
 	public void changeDot(Dot dot, boolean resetView) {
+		userSettings.applyToDot(dot);
 		SVGDiagram diagram = dot2svg(dot);
 		changeDot(dot, diagram, resetView);
 	}
@@ -534,14 +572,15 @@ public class DotPanel extends NavigableSVGPanel {
 		return dot;
 	}
 
-	//listeners
+	public DotPanelUserSettings getUserSettings() {
+		return userSettings;
+	}
 
-	private boolean graphDirectionChanged(GraphDirection direction) {
-		boolean result = true;
-		for (GraphDirectionChangedListener listener : graphDirectionChangedListeners) {
-			result &= listener.graphDirectionChanged(direction);
+	//listeners
+	private void graphChanged(GraphChangedReason reason, Object newState) {
+		for (GraphChangedListener listener : graphChangedListeners) {
+			listener.graphChanged(reason, newState);
 		}
-		return result;
 	}
 
 	private void selectionChanged() {
@@ -560,8 +599,13 @@ public class DotPanel extends NavigableSVGPanel {
 		selectionChangedListeners.add(listener);
 	}
 
+	@Deprecated
 	public void addGraphDirectionChangedListener(GraphDirectionChangedListener listener) {
-		graphDirectionChangedListeners.add(listener);
+	
+	}
+	
+	public void addGraphChangedListener(GraphChangedListener listener) {
+		graphChangedListeners.add(listener);
 	}
 
 	public void addMouseInElementsChangedListener(MouseInElementsChangedListener<DotElement> listener) {

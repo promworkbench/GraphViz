@@ -14,14 +14,14 @@ public class Dot extends DotCluster {
 	public enum GraphDirection {
 		topDown, leftRight, downTop, rightLeft
 	}
-	
+
 	private String stringValue = null;
 
 	private GraphDirection direction = GraphDirection.topDown;
 	private boolean keepOrderingOfChildren = true;
 
 	public Dot() {
-		
+
 	}
 
 	public String toString() {

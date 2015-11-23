@@ -2,6 +2,7 @@ package org.processmining.plugins.graphviz.visualisation.listeners;
 
 import org.processmining.plugins.graphviz.dot.Dot.GraphDirection;
 
+@Deprecated
 public interface GraphDirectionChangedListener {
 	
 	/**

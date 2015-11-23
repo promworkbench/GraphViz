@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.processmining.framework.util.OsUtil;
 
 public class Dot2Image {
@@ -34,7 +35,7 @@ public class Dot2Image {
 			dotDirectory = getDotDirectory();
 		} catch (IOException e1) {
 			e1.printStackTrace();
-			throw new RuntimeException("Graphviz-dot binary not found.");
+			throw new RuntimeException("Graphviz-dot binary not found. \n" + ExceptionUtils.getStackTrace(e1));
 		}
 
 		//detect the operating system and locate dot binary
@@ -60,7 +61,7 @@ public class Dot2Image {
 		//		System.out.println(dotFile);
 
 		if (!dotFile.exists() || !dotFile.canExecute()) {
-			throw new RuntimeException("Graphviz-dot binary not found.");
+			throw new RuntimeException("Graphviz-dot binary not found. " + dotFile.toString());
 		}
 
 		String args[] = new String[2];
