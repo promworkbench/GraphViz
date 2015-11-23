@@ -17,7 +17,7 @@ public class DotPanelUserSettings {
 	public double nodeSeparation;
 	
 	public DotPanelUserSettings(Dot dot) {
-		readFromDot(dot);
+		reset();
 	}
 
 	/**
@@ -29,11 +29,6 @@ public class DotPanelUserSettings {
 		dot.setDirection(direction);
 		dot.setOption("nodesep", "" + String.format(Locale.ENGLISH, "%.2f", nodeSeparation));
 		dot.setOption("ranksep", "" + String.format(Locale.ENGLISH, "%.2f", nodeSeparation * 1.2));
-	}
-	
-	public void readFromDot(Dot dot) {
-		direction = dot.getDirection();
-		nodeSeparation = Double.valueOf(dot.getOptionsMap().getOrDefault("nodesep", "0.4"));
 	}
 	
 	public void reset() {
