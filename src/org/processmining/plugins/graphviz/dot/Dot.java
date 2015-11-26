@@ -7,52 +7,52 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Map.Entry;
 
 public class Dot extends DotCluster {
 
 	public enum GraphDirection {
-		topDown, leftRight, downTop, rightLeft
+		topDown("TD"), leftRight("LR"), bottomTop("BT"), rightLeft("RL");
+
+		private final String name;
+
+		private GraphDirection(String s) {
+			name = s;
+		}
+
+		public String getName() {
+			return name;
+		}
 	}
 
 	private String stringValue = null;
 
-	private GraphDirection direction = GraphDirection.topDown;
 	private boolean keepOrderingOfChildren = true;
 
 	public Dot() {
-
+		setOption("rankdir", "TD");
+		
 	}
 
 	public String toString() {
 		if (stringValue != null) {
 			return stringValue;
 		}
-		
+
 		StringBuilder result = new StringBuilder();
 		result.append("digraph G {\n");
-		if (direction == GraphDirection.leftRight) {
-			result.append("rankdir=LR;\n");
-		} else if (direction == GraphDirection.topDown){
-			result.append("rankdir=TD;\n");
-		} else if (direction == GraphDirection.rightLeft) {
-			result.append("rankdir=RL;\n");
-		} else {
-			result.append("rankdir=BT;\n");
-		}
-			
+
 		if (keepOrderingOfChildren) {
 			result.append("graph [ordering=\"out\"];\n");
 		}
-		
-		for (Entry<String, String> p : getOptionsMap().entrySet()) {
-			result.append(p.getKey() + "=\"" + p.getValue() + "\";\n");
+
+		for (String key : getOptionKeySet()) {
+			result.append(key + "=\"" + getOption(key) + "\";\n");
 		}
-		
+
 		contentToString(result);
-		
+
 		result.append("}");
-		
+
 		return result.toString();
 	}
 
@@ -94,11 +94,17 @@ public class Dot extends DotCluster {
 	}
 
 	public GraphDirection getDirection() {
-		return direction;
+		String value = getOption("rankdir");
+		for (GraphDirection dir : GraphDirection.values()) {
+			if (dir.getName().equals(value)) {
+				return dir;
+			}
+		}
+		return GraphDirection.topDown;
 	}
 
 	public void setDirection(GraphDirection direction) {
-		this.direction = direction;
+		setOption("rankdir", direction.getName());
 	}
 
 	public void setStringValue(String stringValue) {

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -48,12 +49,22 @@ public abstract class AbstractDotElement implements DotElement {
 		}
 	}
 
-	public Map<String, String> getOptionsMap() {
-		return optionsMap;
-	}
-
+	@Override
 	public void setOption(String key, String value) {
 		optionsMap.put(key, value);
+	}
+	
+	@Override
+	public String getOption(String key) {
+		if (optionsMap.containsKey(key)) {
+			return optionsMap.get(key);
+		}
+		return null;
+	}
+	
+	@Override
+	public Set<String> getOptionKeySet() {
+		return Collections.unmodifiableSet(optionsMap.keySet());
 	}
 
 	public void addMouseListener(MouseListener l) {

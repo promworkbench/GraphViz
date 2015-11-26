@@ -62,7 +62,7 @@ public class DotPanel extends NavigableSVGPanel {
 		public void actionPerformed(ActionEvent e) {
 			GraphDirection newDirection;
 			switch (dot.getDirection()) {
-				case downTop :
+				case bottomTop :
 					newDirection = GraphDirection.leftRight;
 					break;
 				case leftRight :
@@ -72,10 +72,10 @@ public class DotPanel extends NavigableSVGPanel {
 					newDirection = GraphDirection.topDown;
 					break;
 				case topDown :
-					newDirection = GraphDirection.downTop;
+					newDirection = GraphDirection.bottomTop;
 					break;
 				default :
-					newDirection = GraphDirection.downTop;
+					newDirection = GraphDirection.bottomTop;
 					break;
 			}
 			userSettings.setDirection(newDirection);
@@ -98,7 +98,7 @@ public class DotPanel extends NavigableSVGPanel {
 		private static final long serialVersionUID = 1136135860512175161L;
 
 		public void actionPerformed(ActionEvent e) {
-			userSettings.nodeSeparation = Math.max(userSettings.nodeSeparation - 0.2, 0);
+			userSettings.nodeSeparation = Math.max(userSettings.nodeSeparation - 0.2, 0.02);
 			changeDot(dot, true);
 			graphChanged(GraphChangedReason.nodeSeparationChanged, userSettings.nodeSeparation);
 		}

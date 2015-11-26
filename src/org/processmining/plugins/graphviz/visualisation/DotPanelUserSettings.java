@@ -17,7 +17,7 @@ public class DotPanelUserSettings {
 	public double nodeSeparation;
 	
 	public DotPanelUserSettings(Dot dot) {
-		reset();
+		readFromDot(dot);
 	}
 
 	/**
@@ -28,14 +28,24 @@ public class DotPanelUserSettings {
 	public void applyToDot(Dot dot) {
 		dot.setDirection(direction);
 		dot.setOption("nodesep", "" + String.format(Locale.ENGLISH, "%.2f", nodeSeparation));
-		dot.setOption("ranksep", "" + String.format(Locale.ENGLISH, "%.2f", nodeSeparation * 1.2));
+		dot.setOption("ranksep", "" + String.format(Locale.ENGLISH, "%.2f", nodeSeparation * 2));
 	}
 	
-	public void reset() {
-		nodeSeparation = 0.4;
+	public void readFromDot(Dot dot) {
+		direction = dot.getDirection();
+		String nodeSep = dot.getOption("nodesep");
+		if (nodeSep != null) {
+			nodeSeparation = Double.valueOf(nodeSep);
+		} else {
+			nodeSeparation = 0.25;
+		}
 	}
-
+	
 	public void setDirection(GraphDirection direction) {
 		this.direction = direction;
+	}
+	
+	public String toString() {
+		return "d " + direction + ", ns " + nodeSeparation;
 	}
 }

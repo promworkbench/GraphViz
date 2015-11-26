@@ -2,7 +2,7 @@ package org.processmining.plugins.graphviz.dot;
 
 import java.awt.event.MouseListener;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.processmining.plugins.graphviz.visualisation.listeners.DotElementSelectionListener;
 
@@ -12,9 +12,20 @@ public interface DotElement extends MouseListener {
 
 	public void setLabel(String label);
 
-	public Map<String, String> getOptionsMap();
-
 	public void setOption(String key, String value);
+
+	/**
+	 * 
+	 * @param key
+	 * @return the value of the option if it was set, otherwise null.
+	 */
+	public String getOption(String key);
+	
+	/**
+	 * 
+	 * @return the set of options that is set (keys)
+	 */
+	public Set<String> getOptionKeySet();
 
 	public String getId();
 

@@ -44,8 +44,8 @@ public class DotEdge extends AbstractDotElement {
 		String result = "\"" + source.getId() + "\" -> \"" + target.getId() + "\" [label=" + labelToString() + " id=\""
 				+ getId() + "\"";
 
-		for (Entry<String, String> p : getOptionsMap().entrySet()) {
-			result += "," + p.getKey() + "=\"" + p.getValue() + "\"";
+		for (String key : getOptionKeySet()) {
+			result += "," + key + "=\"" + getOption(key) + "\"";
 		}
 
 		return result + "];";

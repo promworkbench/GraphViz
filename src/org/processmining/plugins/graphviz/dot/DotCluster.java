@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class DotCluster extends DotNode {
 
@@ -124,8 +123,8 @@ public class DotCluster extends DotNode {
 		StringBuilder result = new StringBuilder();
 		result.append("subgraph \"cluster_" + getId() + "\"{\n");
 		
-		for (Entry<String, String> p : getOptionsMap().entrySet()) {
-			result.append(p.getKey() + "=\"" + p.getValue() + "\";\n");
+		for (String key : getOptionKeySet()) {
+			result.append(key + "=\"" + getOption(key) + "\";\n");
 		}
 
 		result.append(result);

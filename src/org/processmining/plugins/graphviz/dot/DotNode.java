@@ -23,8 +23,8 @@ public class DotNode extends AbstractDotElement {
 
 	public String toString() {
 		String result = "\"" + getId() + "\" [label=" + labelToString() + ", id=\"" + getId() + "\"";
-		for (Entry<String, String> p : getOptionsMap().entrySet()) {
-			result += "," + p.getKey() + "=\"" + p.getValue() + "\"";
+		for (String key : getOptionKeySet()) {
+			result += "," + key + "=\"" + getOption(key) + "\"";
 		}
 		return result + "];";
 	}

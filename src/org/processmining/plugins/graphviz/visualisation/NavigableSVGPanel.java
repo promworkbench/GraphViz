@@ -365,7 +365,7 @@ public class NavigableSVGPanel extends JPanel {
 		}
 
 		//draw navigation controls
-		if (isAnimationEnabled()) {
+		if (isAnimationEnabled() && !isPaintingForPrint()) {
 			drawAnimationControls((Graphics2D) g);
 		}
 	}
