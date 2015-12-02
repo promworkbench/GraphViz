@@ -921,7 +921,8 @@ public class NavigableSVGPanel extends JPanel {
 	 */
 	protected boolean processMouseRelease(MouseEvent e) {
 		if (isDraggingAnimation) {
-			double progress = (e.getX() - getControlsProgressLine().x) / (getControlsProgressLine().width * 1.0);
+			double progress = Math.max(0,
+					Math.min(1, (e.getX() - getControlsProgressLine().x) / (getControlsProgressLine().width * 1.0)));
 			seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
 			if (wasPlayingBeforeDragging) {
 				resume();
@@ -979,7 +980,8 @@ public class NavigableSVGPanel extends JPanel {
 		} else if (isDraggingAnimation) {
 			pause();
 
-			double progress = Math.min(1, Math.max(0, (e.getX() - getControlsProgressLine().x) / (getControlsProgressLine().width * 1.0)));
+			double progress = Math.min(1,
+					Math.max(0, (e.getX() - getControlsProgressLine().x) / (getControlsProgressLine().width * 1.0)));
 			seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
 			renderOneFrame();
 			lastMousePosition = e.getPoint();
@@ -1034,7 +1036,8 @@ public class NavigableSVGPanel extends JPanel {
 		if (SwingUtilities.isLeftMouseButton(e) && isAnimationEnabled() && animationControls != null
 				&& animationControls.contains(lastMousePosition)
 				&& getControlsProgressLine().contains(lastMousePosition)) {
-			double progress = (e.getX() - getControlsProgressLine().x) / (getControlsProgressLine().width * 1.0);
+			double progress = Math.max(0,
+					Math.min(1, (e.getX() - getControlsProgressLine().x) / (getControlsProgressLine().width * 1.0)));
 			seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
 			if (wasPlayingBeforeDragging) {
 				resume();
