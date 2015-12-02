@@ -953,7 +953,7 @@ public class NavigableSVGPanel extends JPanel {
 					&& animationControls.contains(lastMousePosition)
 					&& getControlsProgressLine().contains(lastMousePosition)) {
 				isDraggingAnimation = true;
-			} else if (SwingUtilities.isLeftMouseButton(e)) {
+			} else if (SwingUtilities.isLeftMouseButton(e) && contains(e.getPoint())) {
 				isDraggingImage = true;
 			}
 		}
@@ -978,11 +978,11 @@ public class NavigableSVGPanel extends JPanel {
 			return true;
 		} else if (isDraggingAnimation) {
 			pause();
-			isDraggingAnimation = true;
 
-			double progress = (e.getX() - getControlsProgressLine().x) / (getControlsProgressLine().width * 1.0);
+			double progress = Math.min(1, Math.max(0, (e.getX() - getControlsProgressLine().x) / (getControlsProgressLine().width * 1.0)));
 			seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
 			renderOneFrame();
+			lastMousePosition = e.getPoint();
 		}
 
 		return false;
@@ -996,6 +996,7 @@ public class NavigableSVGPanel extends JPanel {
 	 * @return whether the move is hovering something.
 	 */
 	protected boolean processMouseMove(MouseEvent e) {
+		lastMousePosition = e.getPoint();
 		if (!isDraggingImage && helperControlsArc != null && !helperControlsShowing && isInHelperControls(e.getPoint())) {
 			//we have to show the helper controls
 			helperControlsShowing = true;
@@ -1060,6 +1061,18 @@ public class NavigableSVGPanel extends JPanel {
 		if (animationControlsShowing) {
 			animationControlsShowing = false;
 			repaint();
+		}
+		if (isDraggingAnimation) {
+			isDraggingAnimation = false;
+			if (wasPlayingBeforeDragging) {
+				resume();
+			} else {
+				renderOneFrame();
+				repaint();
+			}
+		}
+		if (isDraggingImage) {
+			isDraggingImage = false;
 		}
 		return false;
 	}
