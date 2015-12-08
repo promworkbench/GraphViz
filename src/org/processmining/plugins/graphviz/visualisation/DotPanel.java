@@ -601,14 +601,25 @@ public class DotPanel extends NavigableSVGPanel {
 
 	@Deprecated
 	public void addGraphDirectionChangedListener(GraphDirectionChangedListener listener) {
-	
+
 	}
-	
+
 	public void addGraphChangedListener(GraphChangedListener listener) {
 		graphChangedListeners.add(listener);
 	}
 
 	public void addMouseInElementsChangedListener(MouseInElementsChangedListener<DotElement> listener) {
 		mouseInElementsChangedListeners.add(listener);
+	}
+
+	/**
+	 * Public method to change the graph direction. No listeners are called;
+	 * that's your responsibility.
+	 * 
+	 * @param topdown
+	 */
+	public void setDirection(GraphDirection direction) {
+		userSettings.setDirection(direction);
+		changeDot(dot, true);
 	}
 }
