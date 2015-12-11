@@ -127,7 +127,7 @@ public class DotCluster extends DotNode {
 			result.append(key + "=\"" + getOption(key) + "\";\n");
 		}
 
-		result.append(result);
+		contentToString(result);
 
 		result.append("}");
 
