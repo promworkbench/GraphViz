@@ -94,7 +94,7 @@ public class NavigableSVGPanel extends JPanel {
 	private static final String helperControlsButtonString = "?";
 
 	protected List<String> helperControlsShortcuts = new ArrayList<>(Arrays.asList("up/down", "left/right", "ctrl +",
-			"ctrl -", "ctrl 0", "ctrl s"));
+			"ctrl -", "ctrl 0", "ctrl i"));
 	protected List<String> helperControlsExplanations = new ArrayList<>(Arrays.asList("pan up/down", "pan left/right",
 			"zoom in", "zoom out", "reset view", "save image"));
 
@@ -294,9 +294,9 @@ public class NavigableSVGPanel extends JPanel {
 				"viewReset"); // - key
 		getActionMap().put("viewReset", resetViewAction);
 
-		//listen to ctrl s to save image
+		//listen to ctrl i to save image
 		{
-			getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK),
+			getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_MASK),
 					"saveAs"); // - key
 			final NavigableSVGPanel panel = this;
 			getActionMap().put("saveAs", new AbstractAction() {
