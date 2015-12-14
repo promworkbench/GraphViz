@@ -1,12 +1,12 @@
 package org.processmining.plugins.graphviz.dot;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import org.apache.commons.io.IOUtils;
 
 public class Dot extends DotCluster {
 
@@ -57,24 +57,7 @@ public class Dot extends DotCluster {
 	}
 
 	public Dot(InputStream input) throws IOException {
-		BufferedReader br = null;
-		StringBuilder result = new StringBuilder();
-		try {
-			String line;
-			br = new BufferedReader(new InputStreamReader(input));
-			while ((line = br.readLine()) != null) {
-				result.append(line);
-			}
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		this.stringValue = result.toString();
+		this.stringValue = IOUtils.toString(input, "UTF-8");
 	}
 
 	public void exportToFile(File file) throws IOException {
