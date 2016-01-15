@@ -93,10 +93,10 @@ public class NavigableSVGPanel extends JPanel {
 	private static final Font helperControlsButtonFont = new Font("TimesRoman", Font.PLAIN, 20);
 	private static final String helperControlsButtonString = "?";
 
-	protected List<String> helperControlsShortcuts = new ArrayList<>(Arrays.asList("up/down", "left/right", "ctrl +",
+	protected List<String> helperControlsShortcuts = new ArrayList<>(Arrays.asList("up/down", "left/right", "ctrl =",
 			"ctrl -", "ctrl 0", "ctrl i"));
 	protected List<String> helperControlsExplanations = new ArrayList<>(Arrays.asList("pan up/down", "pan left/right",
-			"zoom in", "zoom out", "reset view", "save image"));
+			"zoom in", "zoom out", "reset zoom & pan", "save image"));
 
 	private Action zoomInAction = new AbstractAction() {
 		private static final long serialVersionUID = 3863042569537144601L;
