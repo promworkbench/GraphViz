@@ -14,16 +14,6 @@ public class ExporterPDF extends Exporter {
 	}
 
 	public void export(NavigableSVGPanel panel, File file) throws Exception {
-//		Document document = new Document(new com.itextpdf.text.Rectangle(150, 150));
-//		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
-//		document.open();
-//
-//		PdfContentByte canvas = writer.getDirectContent();
-//		Graphics2D g2 = canvas.createGraphics(150, 150);
-//		panel.print(g2);
-//		g2.dispose();
-//		document.close();
-
 		PDFGraphics2D g = new PDFGraphics2D(panel.getImage().getViewRect().getX(), panel.getImage().getViewRect().getY(), panel.getImage().getViewRect().getWidth(), panel.getImage().getViewRect().getHeight());
 		panel.print(g);
 		FileOutputStream s = new FileOutputStream(file);
@@ -32,6 +22,20 @@ public class ExporterPDF extends Exporter {
 		} finally {
 			s.close();
 		}
+		
+//		double width = panel.getImage().getViewRect().getWidth();
+//		double height = panel.getImage().getViewRect().getHeight();
+//		
+//		Dimension dimension = new Dimension((int) Math.ceil(width), (int) Math.ceil(height));
+//		VectorGraphics g = new PDFGraphics2D(file, dimension);
+//		Properties p = new Properties(PDFGraphics2D.getDefaultProperties());
+//		p.setProperty(PDFGraphics2D.PAGE_SIZE, PDFGraphics2D.PAGE_SIZE);
+//		p.setProperty(PDFGraphics2D.PAGE_MARGINS, "0, 0, 0, 0");
+//		p.put(PDFGraphics2D.PAGE_SIZE, dimension.width + ", " + dimension.height);
+//		g.setProperties(p);
+//		g.startExport();
+//		panel.print(g);
+//		g.endExport();
 	}
 
 }

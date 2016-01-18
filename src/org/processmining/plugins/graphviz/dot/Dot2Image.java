@@ -64,9 +64,10 @@ public class Dot2Image {
 			throw new RuntimeException("Graphviz-dot binary not found. " + dotFile.toString());
 		}
 
-		String args[] = new String[2];
+		String args[] = new String[3];
 		args[0] = dotFile.getAbsolutePath();
 		args[1] = "-T" + type;
+		args[2] = "-q";
 
 		final ProcessBuilder pb = new ProcessBuilder(args);
 		pb.redirectErrorStream(true);

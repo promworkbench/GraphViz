@@ -18,6 +18,8 @@ public class ExportDialog extends JFileChooser {
 		addChoosableFileFilter(new ExporterPDF());
 		addChoosableFileFilter(new ExporterPNG());
 		addChoosableFileFilter(new ExporterSVG());
+		addChoosableFileFilter(new ExporterEPS());
+		addChoosableFileFilter(new ExporterEMF());
 		for (Exporter exporter: exporters) {
 			addChoosableFileFilter(exporter);
 		}

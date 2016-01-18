@@ -88,7 +88,7 @@ public class DotPanel extends NavigableSVGPanel {
 		private static final long serialVersionUID = 2323619233153604381L;
 
 		public void actionPerformed(ActionEvent e) {
-			userSettings.nodeSeparation = Math.min(userSettings.nodeSeparation + .2, 4);
+			userSettings.nodeSeparation = Math.min(userSettings.nodeSeparation + .05, 4);
 			changeDot(dot, true);
 			graphChanged(GraphChangedReason.nodeSeparationChanged, userSettings.nodeSeparation);
 		}
@@ -98,7 +98,7 @@ public class DotPanel extends NavigableSVGPanel {
 		private static final long serialVersionUID = 1136135860512175161L;
 
 		public void actionPerformed(ActionEvent e) {
-			userSettings.nodeSeparation = Math.max(userSettings.nodeSeparation - 0.2, 0.02);
+			userSettings.nodeSeparation = Math.max(userSettings.nodeSeparation - 0.05, 0.02);
 			changeDot(dot, true);
 			graphChanged(GraphChangedReason.nodeSeparationChanged, userSettings.nodeSeparation);
 		}
