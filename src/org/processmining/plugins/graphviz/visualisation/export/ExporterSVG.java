@@ -1,11 +1,12 @@
 package org.processmining.plugins.graphviz.visualisation.export;
 
+import java.awt.Dimension;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.util.Properties;
 
+import org.freehep.graphics2d.VectorGraphics;
+import org.freehep.graphicsio.svg.SVGGraphics2D;
 import org.processmining.plugins.graphviz.visualisation.NavigableSVGPanel;
-
-import de.erichseifert.vectorgraphics2d.SVGGraphics2D;
 
 public class ExporterSVG extends Exporter {
 
@@ -14,14 +15,25 @@ public class ExporterSVG extends Exporter {
 	}
 
 	public void export(NavigableSVGPanel panel, File file) throws Exception {
-		SVGGraphics2D g = new SVGGraphics2D(0.0, 0.0, panel.getImage().getWidth(), panel.getImage().getHeight());
+//		SVGGraphics2D g = new SVGGraphics2D(0.0, 0.0, panel.getImage().getWidth(), panel.getImage().getHeight());
+//		panel.print(g);
+//		FileOutputStream s = new FileOutputStream(file);
+//		try {
+//			s.write(g.getBytes());
+//		} finally {
+//			s.close();
+//		}
+		
+		double width = panel.getImage().getViewRect().getWidth();
+		double height = panel.getImage().getViewRect().getHeight();
+		
+		Dimension dimension = new Dimension((int) Math.ceil(width), (int) Math.ceil(height));
+		VectorGraphics g = new SVGGraphics2D(file, dimension);
+		Properties p = new Properties(SVGGraphics2D.getDefaultProperties());
+		g.setProperties(p);
+		g.startExport();
 		panel.print(g);
-		FileOutputStream s = new FileOutputStream(file);
-		try {
-			s.write(g.getBytes());
-		} finally {
-			s.close();
-		}
+		g.endExport();
 	}
 
 }
