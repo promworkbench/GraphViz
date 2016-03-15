@@ -35,7 +35,6 @@ import org.processmining.plugins.graphviz.dot.DotNode;
 import org.processmining.plugins.graphviz.visualisation.listeners.DotElementSelectionListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.GraphChangedListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.GraphChangedListener.GraphChangedReason;
-import org.processmining.plugins.graphviz.visualisation.listeners.GraphDirectionChangedListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.MouseInElementsChangedListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.SelectionChangedListener;
 
@@ -597,11 +596,6 @@ public class DotPanel extends NavigableSVGPanel {
 
 	public void addSelectionChangedListener(SelectionChangedListener<DotElement> listener) {
 		selectionChangedListeners.add(listener);
-	}
-
-	@Deprecated
-	public void addGraphDirectionChangedListener(GraphDirectionChangedListener listener) {
-
 	}
 
 	public void addGraphChangedListener(GraphChangedListener listener) {
