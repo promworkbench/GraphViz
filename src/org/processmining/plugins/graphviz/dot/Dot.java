@@ -26,11 +26,9 @@ public class Dot extends DotCluster {
 
 	private String stringValue = null;
 
-	private boolean keepOrderingOfChildren = true;
-
 	public Dot() {
 		setOption("rankdir", "TD");
-		
+
 	}
 
 	public String toString() {
@@ -40,10 +38,6 @@ public class Dot extends DotCluster {
 
 		StringBuilder result = new StringBuilder();
 		result.append("digraph G {\n");
-
-		if (keepOrderingOfChildren) {
-			result.append("graph [ordering=\"out\"];\n");
-		}
 
 		for (String key : getOptionKeySet()) {
 			result.append(key + "=\"" + getOption(key) + "\";\n");
@@ -95,10 +89,14 @@ public class Dot extends DotCluster {
 	}
 
 	public boolean isKeepOrderingOfChildren() {
-		return keepOrderingOfChildren;
+		return "out".equals(getGraphOption("ordering"));
 	}
 
 	public void setKeepOrderingOfChildren(boolean keepOrderingOfChildren) {
-		this.keepOrderingOfChildren = keepOrderingOfChildren;
+		if (keepOrderingOfChildren) {
+			setGraphOption("ordering", "out");
+		} else {
+			setGraphOption("ordering", ""); // graphviz default
+		}
 	}
 }
