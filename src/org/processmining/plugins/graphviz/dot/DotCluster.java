@@ -19,7 +19,7 @@ public class DotCluster extends DotNode {
 		edges = new ArrayList<DotEdge>();
 		clusters = new ArrayList<DotCluster>();
 	}
-	
+
 	public DotNode addNode(String label) {
 		return addNode(label, null);
 	}
@@ -42,15 +42,15 @@ public class DotCluster extends DotNode {
 			}
 		}
 	}
-	
+
 	public void addEdge(DotEdge edge) {
 		edges.add(edge);
 	}
-	
+
 	public DotEdge addEdge(DotNode source, DotNode target) {
 		return addEdge(source, target, "");
 	}
-	
+
 	public DotEdge addEdge(DotNode source, DotNode target, String label) {
 		return addEdge(source, target, label, null);
 	}
@@ -107,7 +107,7 @@ public class DotCluster extends DotNode {
 
 		return Collections.unmodifiableList(result);
 	}
-	
+
 	public List<DotEdge> getEdgesRecursive() {
 		List<DotEdge> result = new LinkedList<DotEdge>();
 		result.addAll(edges);
@@ -121,8 +121,8 @@ public class DotCluster extends DotNode {
 
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-		result.append("subgraph \"cluster_" + getId() + "\"{\n");
-		
+		result.append("subgraph \"" + getId() + "\"{\n");
+
 		for (String key : getOptionKeySet()) {
 			result.append(key + "=\"" + getOption(key) + "\";\n");
 		}
@@ -150,4 +150,10 @@ public class DotCluster extends DotNode {
 			result.append("\n");
 		}
 	}
+
+	@Override
+	public String getId() {
+		return "cluster_" + super.getId();
+	}
+
 }
