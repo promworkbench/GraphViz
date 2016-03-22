@@ -35,8 +35,8 @@
  */
 package com.kitfox.svg;
 
-import com.kitfox.svg.xml.StyleAttribute;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
@@ -46,6 +46,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.kitfox.svg.xml.StyleAttribute;
 
 //import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
 /**
@@ -208,7 +210,7 @@ public class Text extends ShapeElement
             }
         } else
         {
-            fontWeight = TXWE_BOLD;
+            fontWeight = TXWE_NORMAL;
         }
 
         if (getStyle(sty.setName("text-anchor")))
@@ -261,15 +263,25 @@ public class Text extends ShapeElement
                 break;
         }
 
-        //Get font
-        Font font = diagram.getUniverse().getFont(fontFamily);
-        if (font == null)
-        {
-//            System.err.println("Could not load font");
+		String[] fontFamilies = fontFamily.split(",");
 
-            java.awt.Font sysFont = new java.awt.Font(fontFamily, style | weight, (int) fontSize);
-            buildSysFont(sysFont);
-            return;
+        //Get font
+        Font font = null;        
+        for (String currentFamily: fontFamilies) {
+		    font = diagram.getUniverse().getFont(currentFamily);
+		    if (font != null) {
+		    	break;
+		    } else if (existsSysFont(currentFamily)) {
+		        java.awt.Font sysFont = new java.awt.Font(currentFamily, style | weight, (int) fontSize);
+		        buildSysFont(sysFont);
+		        return;
+		    }
+        }
+        
+        if (font == null) {
+        	java.awt.Font sysFont = new java.awt.Font(fontFamily, style | weight, (int) fontSize);
+        	buildSysFont(sysFont);
+		    return;
         }
 
 //        font = new java.awt.Font(font.getFamily(), style | weight, font.getSize());
@@ -365,7 +377,16 @@ public class Text extends ShapeElement
         }
     }
 
-    private void buildSysFont(java.awt.Font font) throws SVGException
+    private boolean existsSysFont(String currentFamily) {
+    	for (String existingFontFamily: GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()) {
+    		if (currentFamily.equals(existingFontFamily)) {
+    			return true;
+    		}
+    	}
+		return false;
+	}
+
+	private void buildSysFont(java.awt.Font font) throws SVGException
     {
         GeneralPath textPath = new GeneralPath();
         textShape = textPath;
