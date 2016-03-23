@@ -20,6 +20,8 @@ import org.processmining.framework.util.OsUtil;
 
 public class Dot2Image {
 
+	public static final int dotVersion = 5;
+
 	public enum Type {
 		png, pdf, svg
 	}
@@ -134,76 +136,64 @@ public class Dot2Image {
 	private static File getDotDirectory() throws IOException {
 
 		File packageDirectory;
-		try {
-			packageDirectory = OsUtil.getProMPackageDirectory();
-		} catch (Exception | ExceptionInInitializerError | NoClassDefFoundError e) {
-			//file not found --> this point is reached in RapidProM.
-			packageDirectory = new File(System.getProperty("user.home"), ".prom-graphviz");
-			if (!packageDirectory.exists()) {
-				packageDirectory.mkdirs();
+		{
+			try {
+				packageDirectory = OsUtil.getProMPackageDirectory();
+			} catch (Exception | ExceptionInInitializerError | NoClassDefFoundError e) {
+				//file not found --> this point is reached in RapidProM.
+				packageDirectory = new File(System.getProperty("user.home"), ".prom-graphviz");
+				if (!packageDirectory.exists()) {
+					packageDirectory.mkdirs();
+				}
 			}
 		}
 
-		File[] listOfFiles = packageDirectory.listFiles();
 		File graphvizFolder = null;
-		for (File file : listOfFiles) {
-			if (file.getName().startsWith("graphviz-")) {
-				// do something with the filename
-				graphvizFolder = file;
+		{
+			File[] listOfFiles = packageDirectory.listFiles();
+			for (File file : listOfFiles) {
+				if (file.getName().startsWith("graphviz-")) {
+					// do something with the filename
+					graphvizFolder = file;
+				}
 			}
 		}
 
-		File dotDirectory = new File(new File(graphvizFolder, "lib"), "dotBinaries");
+		File dotDirectory = new File(new File(graphvizFolder, "lib"), "dotBinaries" + dotVersion);
 		if (!dotDirectory.exists()) {
-			dotDirectory = getDotDirectoryByCopying();
-		}
-
-		return dotDirectory;
-
-		//System.out.println(OsUtil.getProMPackageDirectory());
-		//System.out.println(System.getProperty("user.dir"));
-	}
-
-	private static File getDotDirectoryByCopying() throws IOException {
-		File jarDirectory = getJarDirectory();
-		//		System.out.println("jar directory " + jarDirectory);
-
-		File libDirectory = new File(jarDirectory, "GraphViz-lib");
-		if (!libDirectory.exists()) {
-			libDirectory = new File(jarDirectory, "lib-GraphViz");
-			new File(jarDirectory, "lib-GraphViz").mkdir();
-		}
-
-		File dotDirectory = new File(libDirectory, "dotBinaries4");
-		//		System.out.println("dot directory " + dotDirectory);
-
-		//if the binaries do not exist yet, copy them from the jar file
-		//		System.out.println("use dot directory " + dotDirectory);
-		if (!dotDirectory.exists()) {
-			System.out.println("dot directory " + dotDirectory + " does not exist; create it and copy binaries to it");
-			dotDirectory.mkdir();
-			new File(dotDirectory, "mac").mkdir();
-			new File(dotDirectory, "linux32").mkdir();
-			new File(dotDirectory, "linux64").mkdir();
-
-			//copy files to dot directory
-			for (String fileName : dotFiles) {
-				File outputFile = new File(dotDirectory, fileName);
-				System.out.println("copy " + fileName);
-				InputStream inputStream = Dot2Image.class
-						.getResourceAsStream("/org/processmining/plugins/graphviz/dot/binaries/" + fileName);
-				FileOutputStream outputStream = new FileOutputStream(outputFile);
-				IOUtils.copy(inputStream, outputStream);
-				outputFile.setExecutable(true);
-
-				outputStream.flush();
-				outputStream.close();
-			}
+			createDotDirectoryByCopying(dotDirectory);
 		}
 
 		return dotDirectory;
 	}
 
+	private static void createDotDirectoryByCopying(File targetDirectory) throws IOException {
+		System.out.println("dot directory " + targetDirectory + " does not exist; create it and copy binaries to it");
+		targetDirectory.mkdir();
+		new File(targetDirectory, "mac").mkdir();
+		new File(targetDirectory, "linux32").mkdir();
+		new File(targetDirectory, "linux64").mkdir();
+
+		//copy files to dot directory
+		for (String fileName : dotFiles) {
+			File outputFile = new File(targetDirectory, fileName);
+			System.out.println("copy " + fileName);
+			InputStream inputStream = Dot2Image.class
+					.getResourceAsStream("/org/processmining/plugins/graphviz/dot/binaries/" + fileName);
+			FileOutputStream outputStream = new FileOutputStream(outputFile);
+			IOUtils.copy(inputStream, outputStream);
+			outputFile.setExecutable(true);
+
+			outputStream.flush();
+			outputStream.close();
+		}
+	}
+
+	/**
+	 * 
+	 * @return the directory in which the Dot2Image's .jar file is located that
+	 *         is currently executing.
+	 */
 	private static File getJarDirectory() {
 		ProtectionDomain domain = Dot2Image.class.getProtectionDomain();
 		CodeSource source = domain.getCodeSource();
