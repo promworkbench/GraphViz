@@ -39,9 +39,7 @@ public class Dot extends DotCluster {
 		StringBuilder result = new StringBuilder();
 		result.append("digraph G {\n");
 
-		for (String key : getOptionKeySet()) {
-			result.append(key + "=\"" + getOption(key) + "\";\n");
-		}
+		appendOptions(result);
 
 		contentToString(result);
 
@@ -99,4 +97,5 @@ public class Dot extends DotCluster {
 			setGraphOption("ordering", ""); // graphviz default
 		}
 	}
+
 }
