@@ -20,7 +20,7 @@ import org.processmining.framework.util.OsUtil;
 
 public class Dot2Image {
 
-	public static final int dotVersion = 5;
+	public static final int dotVersion = 6;
 
 	public enum Type {
 		png, pdf, svg
