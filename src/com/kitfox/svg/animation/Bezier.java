@@ -74,6 +74,10 @@ public class Bezier
 
 	double length;
     double[] coord;
+    
+    public double[] getCoord() {
+    	return coord;
+    }
 
     public Bezier(double sx, double sy, double[] coords, int numCoords)
     {
