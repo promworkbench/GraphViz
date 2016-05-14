@@ -45,7 +45,7 @@ public class DotEdge extends AbstractDotElement {
 				+ getId() + "\"";
 
 		for (String key : getOptionKeySet()) {
-			result += "," + key + "=\"" + getOption(key) + "\"";
+			result += "," + key + "=" + escapeString(getOption(key));
 		}
 
 		return result + "];";

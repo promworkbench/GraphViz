@@ -40,12 +40,16 @@ public abstract class AbstractDotElement implements DotElement {
 	}
 
 	public String labelToString() {
-		if (label.length() > 2 && label.substring(0, 1).equals("<")
-				&& label.substring(label.length() - 1, label.length()).equals(">")) {
-			return label;
+		return escapeString(label);
+	}
+	
+	protected String escapeString(String value) {
+		if (value.length() > 2 && value.substring(0, 1).equals("<")
+				&& value.substring(value.length() - 1, value.length()).equals(">")) {
+			return value;
 		} else {
-			String label2 = label.replace("\"", "\\\"");
-			return "\"" + label2 + "\"";
+			String value2 = value.replace("\"", "\\\"");
+			return "\"" + value2 + "\"";
 		}
 	}
 

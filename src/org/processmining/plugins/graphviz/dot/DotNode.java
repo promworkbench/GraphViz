@@ -24,8 +24,9 @@ public class DotNode extends AbstractDotElement {
 	public String toString() {
 		String result = "\"" + getId() + "\" [label=" + labelToString() + ", id=\"" + getId() + "\"";
 		for (String key : getOptionKeySet()) {
-			result += "," + key + "=\"" + getOption(key) + "\"";
+			result += "," + key + "=" + escapeString(getOption(key));
 		}
 		return result + "];";
 	}
+
 }

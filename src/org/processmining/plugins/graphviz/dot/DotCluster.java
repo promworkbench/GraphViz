@@ -410,14 +410,14 @@ public class DotCluster extends DotNode {
 		appendSpecialOptions(result, "edge", edgeOptionMap);
 	}
 
-	protected static void appendSpecialOptions(StringBuilder result, String type, Map<String, String> optionMap) {
+	protected void appendSpecialOptions(StringBuilder result, String type, Map<String, String> optionMap) {
 		Iterator<String> graphOptionIter = optionMap.keySet().iterator();
 		if (graphOptionIter.hasNext()) {
 			result.append(type);
 			result.append("[");
 			while (graphOptionIter.hasNext()) {
 				String key = graphOptionIter.next();
-				result.append(key + "=\"" + optionMap.get(key) + "\"");
+				result.append(key + "=" + escapeString(optionMap.get(key)));
 				if (graphOptionIter.hasNext()) {
 					result.append(',');
 				}
