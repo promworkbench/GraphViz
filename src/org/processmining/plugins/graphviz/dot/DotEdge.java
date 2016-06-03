@@ -67,10 +67,10 @@ public class DotEdge extends AbstractDotElement {
 		 * If the edges goes to/from a cluster, we need to set the lhead/ltail.
 		 */
 		if (localSource != source) {
-			result += ",lhead=" + escapeString(source.getId());
+			result += ",ltail=" + escapeString(source.getId());
 		}
 		if (localTarget != target) {
-			result += ",ltail=" + escapeString(target.getId());
+			result += ",lhead=" + escapeString(target.getId());
 		}
 
 		return result + "];";
