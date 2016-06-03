@@ -390,6 +390,7 @@ public class DotCluster extends DotNode {
 		StringBuilder result = new StringBuilder();
 		result.append("subgraph \"" + getId() + "\"{\n");
 
+		result.append("id=\"" + getId() + "\";");
 		result.append("label=" + labelToString() + ";");
 
 		appendOptions(result);
