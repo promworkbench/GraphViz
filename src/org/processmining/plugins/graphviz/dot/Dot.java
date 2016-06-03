@@ -28,7 +28,7 @@ public class Dot extends DotCluster {
 
 	public Dot() {
 		setOption("rankdir", "TD");
-
+		setOption("compound", "true");
 	}
 
 	public String toString() {

@@ -41,11 +41,36 @@ public class DotEdge extends AbstractDotElement {
 	}
 
 	public String toString() {
-		String result = "\"" + source.getId() + "\" -> \"" + target.getId() + "\" [label=" + labelToString() + " id=\""
-				+ getId() + "\"";
+		/**
+		 * Dot does not support edges from/to clusters. I such edges are added,
+		 * use an arbitrary node in the cluster as the target.
+		 */
+		DotNode localSource = source;
+		DotNode localTarget = target;
+		{
+			if (localSource instanceof DotCluster && !((DotCluster) localSource).getNodes().isEmpty()) {
+				localSource = ((DotCluster) localSource).getNodes().get(0);
+			}
+			if (localTarget instanceof DotCluster && !((DotCluster) localTarget).getNodes().isEmpty()) {
+				localTarget = ((DotCluster) localTarget).getNodes().get(0);
+			}
+		}
+
+		String result = "\"" + localSource.getId() + "\" -> \"" + localTarget.getId() + "\" [label=" + labelToString()
+				+ " id=\"" + getId() + "\"";
 
 		for (String key : getOptionKeySet()) {
 			result += "," + key + "=" + escapeString(getOption(key));
+		}
+		
+		/**
+		 * If the edges goes to/from a cluster, we need to set the lhead/ltail.
+		 */
+		if (localSource != source) {
+			result += ",lhead=" + escapeString(source.getId());
+		}
+		if (localTarget != target) {
+			result += ",ltail=" + escapeString(target.getId());
 		}
 
 		return result + "];";
