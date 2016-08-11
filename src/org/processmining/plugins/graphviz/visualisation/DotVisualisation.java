@@ -8,7 +8,7 @@ import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.plugins.graphviz.dot.Dot;
 
-@Plugin(name = "Dot visualization", returnLabels = { "Dot visualization" }, returnTypes = { JComponent.class }, parameterLabels = { "Dot" }, userAccessible = false)
+@Plugin(name = "Dot visualisation", returnLabels = { "Dot visualisation" }, returnTypes = { JComponent.class }, parameterLabels = { "Dot" }, userAccessible = true)
 @Visualizer
 public class DotVisualisation {
 
