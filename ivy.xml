@@ -7,9 +7,5 @@
     <dependencies>
         <dependency org="prom" name="ApacheUtils" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="Widgets" rev="latest" changing="true" transitive="true" />
-        <!--<dependency org="org.freehep" name="freehep-graphicsio-pdf" rev="2.4" />       
-        <dependency org="org.freehep" name="freehep-graphicsio-svg" rev="2.4" />
-        <dependency org="org.freehep" name="freehep-graphicsio-ps" rev="2.4" /> 
-        <dependency org="org.freehep" name="freehep-graphicsio-emf" rev="2.4" />-->
      </dependencies>
 </ivy-module>
