@@ -1,5 +1,6 @@
 package org.processmining.plugins.graphviz.dot.plugins;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 
@@ -11,15 +12,16 @@ public abstract class DotImageExportPlugin {
 
 	protected void export(Dot dot, File file, Exporter exporter) throws IOException {
 		DotPanel panel = new DotPanel(dot);
+		panel.setSize(new Dimension((int) panel.getSVG().getWidth(), (int) panel.getSVG().getHeight()));
 		try {
 			exporter.export(panel, file);
 		} catch (Exception e) {
 			if (e instanceof IOException) {
-				throw (IOException)e;
+				throw (IOException) e;
 			} else {
 				throw new IOException("Cannot export Dot.", e);
 			}
 		}
 	}
-	
+
 }

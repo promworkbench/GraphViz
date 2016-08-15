@@ -35,8 +35,6 @@
  */
 package com.kitfox.svg;
 
-import com.kitfox.svg.app.data.Handler;
-import com.kitfox.svg.xml.StyleAttribute;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics2D;
@@ -44,11 +42,15 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.kitfox.svg.app.data.Handler;
+import com.kitfox.svg.xml.StyleAttribute;
 
 /**
  * Implements an image.
@@ -119,9 +121,15 @@ public class ImageSVG extends RenderableElement
                 {
                     try
                     {
-                        imageSrc = src.toURL();
-                    } catch (Exception e)
-                    {
+                    	try {
+                    		imageSrc = src.toURL();
+                    	} catch (MalformedURLException e) {
+                    		// FM, workaround for URI's provided without schema, i.e., as absolute paths pointing to a local file.
+                    		// Those are, e.g., returned by GraphViz when embedding SVG images via the 'image' attribute.
+                    		// Try to add a 'file' scheme for those.
+                    		imageSrc = new URI("file:///"+ sty.getStringValue()).toURL();
+                    	}
+                    } catch (Exception e) {
                         Logger.getLogger(SVGConst.SVG_LOGGER).log(Level.WARNING,
                             "Could not parse xlink:href " + src, e);
 //                        e.printStackTrace();
@@ -326,7 +334,14 @@ public class ImageSVG extends RenderableElement
                     newVal = new URL(null, src.toASCIIString(), new Handler());
                 } else
                 {
-                    newVal = src.toURL();
+                	try {
+                		newVal = src.toURL();
+                	} catch (MalformedURLException e) {
+                		// FM, workaround for URI's provided without schema, i.e., as absolute paths pointing to a local file.
+                		// Those are, e.g., returned by GraphViz when embedding SVG images via the 'image' attribute.
+                		// Try to add a 'file' scheme for those.
+                		newVal = new URI("file:///"+ sty.getStringValue()).toURL();
+                	}
                 }
 
                 if (!newVal.equals(imageSrc))
