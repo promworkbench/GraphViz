@@ -143,7 +143,15 @@ public class Dot2Image {
 				//file not found --> this point is reached in RapidProM.
 				packageDirectory = new File(System.getProperty("user.home"), ".prom-graphviz");
 				if (!packageDirectory.exists()) {
-					packageDirectory.mkdirs();
+					if (!packageDirectory.mkdirs()) {
+						//in RapidProM, we are not allowed to write to the user folder, so try a temp folder
+						packageDirectory = new File(System.getProperty("java.io.tmpdir"), ".prom-graphviz");
+						if (!packageDirectory.exists()) {
+							if (!packageDirectory.mkdirs()) {
+								throw new RuntimeException("Could not create a folder to put GraphViz binaries.");
+							}
+						}
+					}
 				}
 			}
 		}
