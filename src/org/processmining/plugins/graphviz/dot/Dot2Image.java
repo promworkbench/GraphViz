@@ -7,21 +7,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.processmining.framework.util.OsUtil;
 
 public class Dot2Image {
 
-	public static final int dotVersion = 6;
-
+	public static final int dotVersion = 7;
+	
 	public enum Type {
 		png, pdf, svg
 	}
@@ -133,41 +129,8 @@ public class Dot2Image {
 			//mac
 			"mac/dot"));
 
-	private static File getDotDirectory() throws IOException {
-
-		File packageDirectory;
-		{
-			try {
-				packageDirectory = OsUtil.getProMPackageDirectory();
-			} catch (Exception | ExceptionInInitializerError | NoClassDefFoundError e) {
-				//file not found --> this point is reached in RapidProM.
-				packageDirectory = new File(System.getProperty("user.home"), ".prom-graphviz");
-				if (!packageDirectory.exists()) {
-					if (!packageDirectory.mkdirs()) {
-						//in RapidProM, we are not allowed to write to the user folder, so try a temp folder
-						packageDirectory = new File(System.getProperty("java.io.tmpdir"), ".prom-graphviz");
-						if (!packageDirectory.exists()) {
-							if (!packageDirectory.mkdirs()) {
-								throw new RuntimeException("Could not create a folder to put GraphViz binaries.");
-							}
-						}
-					}
-				}
-			}
-		}
-
-		File graphvizFolder = null;
-		{
-			File[] listOfFiles = packageDirectory.listFiles();
-			for (File file : listOfFiles) {
-				if (file.getName().startsWith("graphviz-")) {
-					// do something with the filename
-					graphvizFolder = file;
-				}
-			}
-		}
-
-		File dotDirectory = new File(new File(graphvizFolder, "lib"), "dotBinaries" + dotVersion);
+	private static synchronized File getDotDirectory() throws IOException {
+		File dotDirectory = new File(new File(System.getProperty("java.io.tmpdir"), ".prom-graphviz"), "dotBinaries" + dotVersion);
 		if (!dotDirectory.exists()) {
 			createDotDirectoryByCopying(dotDirectory);
 		}
@@ -177,7 +140,7 @@ public class Dot2Image {
 
 	private static void createDotDirectoryByCopying(File targetDirectory) throws IOException {
 		System.out.println("dot directory " + targetDirectory + " does not exist; create it and copy binaries to it");
-		targetDirectory.mkdir();
+		targetDirectory.mkdirs();
 		new File(targetDirectory, "mac").mkdir();
 		new File(targetDirectory, "linux32").mkdir();
 		new File(targetDirectory, "linux64").mkdir();
@@ -195,21 +158,5 @@ public class Dot2Image {
 			outputStream.flush();
 			outputStream.close();
 		}
-	}
-
-	/**
-	 * 
-	 * @return the directory in which the Dot2Image's .jar file is located that
-	 *         is currently executing.
-	 */
-	private static File getJarDirectory() {
-		ProtectionDomain domain = Dot2Image.class.getProtectionDomain();
-		CodeSource source = domain.getCodeSource();
-		URL url = source.getLocation();
-		File file = new File(url.getPath());
-		while (!file.isDirectory()) {
-			file = file.getParentFile();
-		}
-		return file;
 	}
 }
