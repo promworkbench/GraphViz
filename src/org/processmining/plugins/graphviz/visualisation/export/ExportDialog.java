@@ -15,8 +15,8 @@ public class ExportDialog extends JFileChooser {
 	public ExportDialog(NavigableSVGPanel parent, Exporter... exporters) {
 		super(preferences.get("lastUsedFolder", new File(".").getAbsolutePath()));
 		setAcceptAllFileFilterUsed(false);
-		addChoosableFileFilter(new ExporterPDFfit());
-		//addChoosableFileFilter(new ExporterPDF());
+		//addChoosableFileFilter(new ExporterPDFfit());
+		addChoosableFileFilter(new ExporterPDF());
 		addChoosableFileFilter(new ExporterPNG());
 		addChoosableFileFilter(new ExporterSVG());
 		addChoosableFileFilter(new ExporterEPS());
