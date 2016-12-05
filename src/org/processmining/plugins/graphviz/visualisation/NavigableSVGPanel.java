@@ -533,30 +533,30 @@ public class NavigableSVGPanel extends JPanel {
 		g.fillRoundRect(x, y, width, height, 10, 10);
 		animationControls = new Rectangle(x, y, width, height);
 
-		if (animationControlsShowing) {
+		//play button
+		g.setColor(new Color(255, 255, 255, alpha));
+		controlsPlayPause.setBounds(x + 10, y + 10, 30, height);
+		if (!isAnimationPlaying()) {
 			//play button
-			g.setColor(new Color(255, 255, 255, alpha));
-			controlsPlayPause.setBounds(x + 10, y + 10, 30, height);
-			if (!isAnimationPlaying()) {
-				//play button
-				Polygon triangle = new Polygon();
-				triangle.addPoint(x + 10, y + 10);
-				triangle.addPoint(x + 10, y + height - 10);
-				triangle.addPoint(x + 10 + 25, y + (height / 2));
-				g.fillPolygon(triangle);
-			} else {
-				//pause button
-				g.fillRoundRect(x + 10, y + 10, 10, height - 20, 5, 5);
-				g.fillRoundRect(x + 25, y + 10, 10, height - 20, 5, 5);
-			}
+			Polygon triangle = new Polygon();
+			triangle.addPoint(x + 10, y + 10);
+			triangle.addPoint(x + 10, y + height - 10);
+			triangle.addPoint(x + 10 + 25, y + (height / 2));
+			g.fillPolygon(triangle);
+		} else {
+			//pause button
+			g.fillRoundRect(x + 10, y + 10, 10, height - 20, 5, 5);
+			g.fillRoundRect(x + 25, y + 10, 10, height - 20, 5, 5);
+		}
 
-			//time scale control
-			{
-				int rightX = x + 50 + 30;
-				int leftX = x + 50;
-				int topY = y + (height / 3);
-				int bottomY = y + (height / 3) * 2;
+		//time scale control
+		{
+			int rightX = x + 50 + 30;
+			int leftX = x + 50;
+			int topY = y + (height / 3);
+			int bottomY = y + (height / 3) * 2;
 
+			if (animationControlsShowing) {
 				//dynamic part
 				{
 					int x2 = (int) (leftX + getTimeScale() * (rightX - leftX));
@@ -581,29 +581,31 @@ public class NavigableSVGPanel extends JPanel {
 					triangle.addPoint(rightX, bottomY);
 					g.drawPolygon(triangle);
 				}
-
-				controlsTimeScale.setBounds(leftX, y + 5, rightX - leftX, height - 10);
 			}
 
-			//progress line
-			{
-				int startLineX = x + 100;
-				int endLineX = x + width - 20;
-				int lineY = y + height / 2;
+			controlsTimeScale.setBounds(leftX, y + 5, rightX - leftX, height - 10);
+		}
+
+		//progress line
+		{
+			int startLineX = x + 100;
+			int endLineX = x + width - 20;
+			int lineY = y + height / 2;
+
+			if (animationControlsShowing) {
 				g.drawLine(startLineX, lineY, endLineX, lineY);
 				double progress = (getAnimationTime() - getAnimationMinimumTime())
 						/ (getAnimationMaximumTime() - getAnimationMinimumTime());
-				getControlsProgressLine().setBounds(startLineX, y, endLineX - startLineX, height);
 
 				//draw the little oval that denotes where we are
-				if (animationControlsShowing) {
-					double ovalX = (startLineX + (endLineX - startLineX) * progress) - 5;
-					double ovalY = lineY - 5;
-					g.translate(ovalX, ovalY);
-					g.fillOval(0, 0, 10, 10);
-					g.translate(-ovalX, -ovalY);
-				}
+				double ovalX = (startLineX + (endLineX - startLineX) * progress) - 5;
+				double ovalY = lineY - 5;
+				g.translate(ovalX, ovalY);
+				g.fillOval(0, 0, 10, 10);
+				g.translate(-ovalX, -ovalY);
 			}
+
+			getControlsProgressLine().setBounds(startLineX, y, endLineX - startLineX, height);
 		}
 
 		g.setColor(backupColour);
