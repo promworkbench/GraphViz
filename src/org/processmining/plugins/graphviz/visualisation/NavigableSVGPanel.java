@@ -68,9 +68,11 @@ public class NavigableSVGPanel extends JPanel {
 
 	//animation controls
 	protected boolean isDraggingAnimation = false;
+	protected boolean isDraggingTimeScale = false;
 	private boolean wasPlayingBeforeDragging = false;
 	protected Rectangle animationControls;
 	protected Rectangle controlsPlayPause = new Rectangle();
+	protected Rectangle controlsTimeScale = new Rectangle();
 	private Rectangle controlsProgressLine = new Rectangle();
 	private boolean animationControlsShowing = false;
 
@@ -93,10 +95,10 @@ public class NavigableSVGPanel extends JPanel {
 	private static final Font helperControlsButtonFont = new Font("TimesRoman", Font.PLAIN, 20);
 	private static final String helperControlsButtonString = "?";
 
-	protected List<String> helperControlsShortcuts = new ArrayList<>(Arrays.asList("up/down", "left/right", "ctrl =",
-			"ctrl -", "ctrl 0", "ctrl i"));
-	protected List<String> helperControlsExplanations = new ArrayList<>(Arrays.asList("pan up/down", "pan left/right",
-			"zoom in", "zoom out", "reset zoom & pan", "save image"));
+	protected List<String> helperControlsShortcuts = new ArrayList<>(
+			Arrays.asList("up/down", "left/right", "ctrl =", "ctrl -", "ctrl 0", "ctrl i"));
+	protected List<String> helperControlsExplanations = new ArrayList<>(
+			Arrays.asList("pan up/down", "pan left/right", "zoom in", "zoom out", "reset zoom & pan", "save image"));
 
 	private Action zoomInAction = new AbstractAction() {
 		private static final long serialVersionUID = 3863042569537144601L;
@@ -272,8 +274,8 @@ public class NavigableSVGPanel extends JPanel {
 				"zoomIn"); // + key in English keyboards
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, InputEvent.CTRL_MASK),
 				"zoomIn"); // + key in non-English keyboards
-		getInputMap(WHEN_IN_FOCUSED_WINDOW)
-				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ADD, InputEvent.CTRL_MASK), "zoomIn"); // + key on the numpad
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ADD, InputEvent.CTRL_MASK),
+				"zoomIn"); // + key on the numpad
 		getActionMap().put("zoomIn", zoomInAction);
 
 		//listen to ctrl - to zoom out
@@ -311,7 +313,8 @@ public class NavigableSVGPanel extends JPanel {
 
 	/**
 	 * Paints the panel and its image at the current zoom level, location, and
-	 * interpolation method dependent on the image scale.</p>
+	 * interpolation method dependent on the image scale.
+	 * </p>
 	 * 
 	 * @param g
 	 *            the <code>Graphics</code> context for painting
@@ -335,7 +338,8 @@ public class NavigableSVGPanel extends JPanel {
 			g2.setClip(0, 0, getWidth(), getHeight());
 		} else {
 			g2.setClip((int) Math.round(image.getViewRect().getX()), (int) Math.round(image.getViewRect().getY()),
-					(int) Math.round(image.getViewRect().getWidth()), (int) Math.round(image.getViewRect().getHeight()));
+					(int) Math.round(image.getViewRect().getWidth()),
+					(int) Math.round(image.getViewRect().getHeight()));
 		}
 
 		//draw image
@@ -364,7 +368,7 @@ public class NavigableSVGPanel extends JPanel {
 			drawHelperControls(g2);
 		}
 
-		//draw navigation controls
+		//draw animation controls
 		if (!isPaintingForPrint()) {
 			drawAnimationControls((Graphics2D) g);
 		}
@@ -491,9 +495,8 @@ public class NavigableSVGPanel extends JPanel {
 			g.setColor(new Color(255, 255, 255, 220));
 			g.setFont(helperControlsFont);
 			for (int i = 0; i < helperControlsShortcuts.size(); i++) {
-				g.drawString(
-						String.format("%-12s", helperControlsShortcuts.get(i)) + " "
-								+ helperControlsExplanations.get(i), x, y);
+				g.drawString(String.format("%-12s", helperControlsShortcuts.get(i)) + " "
+						+ helperControlsExplanations.get(i), x, y);
 				y += 20;
 			}
 		}
@@ -546,22 +549,60 @@ public class NavigableSVGPanel extends JPanel {
 			g.fillRoundRect(x + 25, y + 10, 10, height - 20, 5, 5);
 		}
 
-		//progress line
-		int startLineX = x + 50;
-		int endLineX = x + width - 20;
-		int lineY = y + height / 2;
-		g.drawLine(startLineX, lineY, endLineX, lineY);
-		double progress = (getAnimationTime() - getAnimationMinimumTime())
-				/ (getAnimationMaximumTime() - getAnimationMinimumTime());
-		getControlsProgressLine().setBounds(startLineX, y, endLineX - startLineX, height);
+		//time scale control
+		{
+			int rightX = x + 50 + 30;
+			int leftX = x + 50;
+			int topY = y + (height / 3);
+			int bottomY = y + (height / 3) * 2;
 
-		//draw the little oval that denotes where we are
-		if (animationControlsShowing) {
-			double ovalX = (startLineX + (endLineX - startLineX) * progress) - 5;
-			double ovalY = lineY - 5;
-			g.translate(ovalX, ovalY);
-			g.fillOval(0, 0, 10, 10);
-			g.translate(-ovalX, -ovalY);
+			//dynamic part
+			{
+				int x2 = (int) (leftX + getTimeScale() * (rightX - leftX));
+				int y2 = (int) (topY + getTimeScale() * (bottomY - topY));
+
+				//line
+				g.drawLine(x2, y + 10, x2, y + height - 10);
+
+				//fill
+				Polygon triangle = new Polygon();
+				triangle.addPoint(x2, y2);
+				triangle.addPoint(leftX, bottomY);
+				triangle.addPoint(x2, bottomY);
+				g.fillPolygon(triangle);
+			}
+
+			//outline
+			{
+				Polygon triangle = new Polygon();
+				triangle.addPoint(rightX, topY);
+				triangle.addPoint(leftX, bottomY);
+				triangle.addPoint(rightX, bottomY);
+				g.drawPolygon(triangle);
+			}
+
+			controlsTimeScale.setBounds(leftX, y + 5, rightX - leftX, height - 10);
+			g.draw(controlsTimeScale);
+		}
+
+		//progress line
+		{
+			int startLineX = x + 100;
+			int endLineX = x + width - 20;
+			int lineY = y + height / 2;
+			g.drawLine(startLineX, lineY, endLineX, lineY);
+			double progress = (getAnimationTime() - getAnimationMinimumTime())
+					/ (getAnimationMaximumTime() - getAnimationMinimumTime());
+			getControlsProgressLine().setBounds(startLineX, y, endLineX - startLineX, height);
+
+			//draw the little oval that denotes where we are
+			if (animationControlsShowing) {
+				double ovalX = (startLineX + (endLineX - startLineX) * progress) - 5;
+				double ovalY = lineY - 5;
+				g.translate(ovalX, ovalY);
+				g.fillOval(0, 0, 10, 10);
+				g.translate(-ovalX, -ovalY);
+			}
 		}
 
 		g.setColor(backupColour);
@@ -701,8 +742,8 @@ public class NavigableSVGPanel extends JPanel {
 		double x2 = Math.min((Math.max(0, se.getX())), getWidth());
 		double y2 = Math.min((Math.max(0, se.getY())), getHeight());
 
-		return new Rectangle((int) Math.min(x1, x2), (int) Math.min(y1, y2), (int) Math.abs(x2 - x1), (int) Math.abs(y2
-				- y1));
+		return new Rectangle((int) Math.min(x1, x2), (int) Math.min(y1, y2), (int) Math.abs(x2 - x1),
+				(int) Math.abs(y2 - y1));
 	}
 
 	/**
@@ -722,8 +763,8 @@ public class NavigableSVGPanel extends JPanel {
 		double x2 = se.getX();
 		double y2 = se.getY();
 
-		return new Rectangle((int) Math.min(x1, x2), (int) Math.min(y1, y2), (int) Math.abs(x2 - x1), (int) Math.abs(y2
-				- y1));
+		return new Rectangle((int) Math.min(x1, x2), (int) Math.min(y1, y2), (int) Math.abs(x2 - x1),
+				(int) Math.abs(y2 - y1));
 	}
 
 	/**
@@ -888,6 +929,8 @@ public class NavigableSVGPanel extends JPanel {
 
 				//repaint to make sure the button is changed
 				repaint();
+			} else if (controlsTimeScale.contains(point)) {
+				//clicked in time scale
 			}
 			return true;
 		}
@@ -938,6 +981,7 @@ public class NavigableSVGPanel extends JPanel {
 
 		isDraggingImage = false;
 		isDraggingAnimation = false;
+		isDraggingTimeScale = false;
 
 		return processMouseMove(e);
 	}
@@ -949,12 +993,16 @@ public class NavigableSVGPanel extends JPanel {
 	 * @return whether the drag was handled and did something.
 	 */
 	protected boolean processMouseDrag(MouseEvent e) {
-		if (!isDraggingImage && !isDraggingAnimation) {
+		if (!isDraggingImage && !isDraggingAnimation && !isDraggingTimeScale) {
 			if (SwingUtilities.isLeftMouseButton(e) && isAnimationEnabled() && animationControls != null
 					&& animationControls.contains(lastMousePosition)
 					&& getControlsProgressLine().contains(lastMousePosition)) {
 				isDraggingAnimation = true;
-			} else if (SwingUtilities.isLeftMouseButton(e) && contains(e.getPoint())) {
+			} else if (SwingUtilities.isLeftMouseButton(e) && isAnimationEnabled() && animationControls != null
+					&& animationControls.contains(lastMousePosition) && controlsTimeScale.contains(lastMousePosition)) {
+				isDraggingTimeScale = true;
+			} else if (SwingUtilities.isLeftMouseButton(e) && contains(e.getPoint())
+					&& !animationControls.contains(lastMousePosition)) {
 				isDraggingImage = true;
 			}
 		}
@@ -985,6 +1033,10 @@ public class NavigableSVGPanel extends JPanel {
 			seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
 			renderOneFrame();
 			lastMousePosition = e.getPoint();
+		} else if (isDraggingTimeScale) {
+			double progress = Math.min(1,
+					Math.max(0, (e.getX() - controlsTimeScale.x) / (controlsTimeScale.width * 1.0)));
+			setTimeScale(progress);
 		}
 
 		return false;
@@ -999,7 +1051,8 @@ public class NavigableSVGPanel extends JPanel {
 	 */
 	protected boolean processMouseMove(MouseEvent e) {
 		lastMousePosition = e.getPoint();
-		if (!isDraggingImage && helperControlsArc != null && !helperControlsShowing && isInHelperControls(e.getPoint())) {
+		if (!isDraggingImage && helperControlsArc != null && !helperControlsShowing
+				&& isInHelperControls(e.getPoint())) {
 			//we have to show the helper controls
 			helperControlsShowing = true;
 			animationControlsShowing = false;
@@ -1046,6 +1099,13 @@ public class NavigableSVGPanel extends JPanel {
 				repaint();
 			}
 		}
+		
+		if (controlsTimeScale.contains(e.getPoint())) {
+			double progress = Math.min(1,
+					Math.max(0, (e.getX() - controlsTimeScale.x) / (controlsTimeScale.width * 1.0)));
+			setTimeScale(progress);
+			repaint();
+		}
 
 		return isInHelperControls(e.getPoint()) || isInAnimationControls(e.getPoint()) || isInNavigation(e.getPoint());
 	}
@@ -1076,6 +1136,9 @@ public class NavigableSVGPanel extends JPanel {
 		}
 		if (isDraggingImage) {
 			isDraggingImage = false;
+		}
+		if (isDraggingTimeScale) {
+			isDraggingTimeScale = false;
 		}
 		return false;
 	}
@@ -1123,6 +1186,24 @@ public class NavigableSVGPanel extends JPanel {
 	 */
 	public boolean isAnimationPlaying() {
 		return false;
+	}
+
+	/**
+	 * Needs to be overridden by a subclass.
+	 * 
+	 * @return the time scale set, which is a 0 <= number <= 1.
+	 */
+	public double getTimeScale() {
+		return 0.5;
+	}
+
+	/**
+	 * Request the time scale to be set. Needs to be overridden by a subclass.
+	 * 
+	 * @param time
+	 */
+	public void setTimeScale(double time) {
+		
 	}
 
 	/**
