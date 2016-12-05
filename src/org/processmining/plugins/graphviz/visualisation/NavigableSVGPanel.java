@@ -563,7 +563,7 @@ public class NavigableSVGPanel extends JPanel {
 					int y2 = (int) (bottomY + getTimeScale() * (topY - bottomY));
 
 					//line
-					g.drawLine(x2, y + 10, x2, y + height - 10);
+					g.drawLine(x2, bottomY + 5, x2, y2 - 5);
 
 					//fill
 					Polygon triangle = new Polygon();
