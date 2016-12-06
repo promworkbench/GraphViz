@@ -1036,10 +1036,14 @@ public class NavigableSVGPanel extends JPanel {
 			seek(getAnimationMinimumTime() + progress * (getAnimationMaximumTime() - getAnimationMinimumTime()));
 			renderOneFrame();
 			lastMousePosition = e.getPoint();
+			return true;
 		} else if (isDraggingTimeScale) {
 			double progress = Math.min(1,
 					Math.max(0, (e.getX() - controlsTimeScale.x) / (controlsTimeScale.width * 1.0)));
 			setTimeScale(progress);
+			repaint();
+			lastMousePosition = e.getPoint();
+			return true;
 		}
 
 		return false;
