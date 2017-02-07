@@ -7,9 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -68,7 +70,7 @@ public class Dot2Image {
 		args[2] = "-q";
 
 		final ProcessBuilder pb = new ProcessBuilder(args);
-		pb.redirectErrorStream(true);
+		pb.redirectErrorStream(false);
 
 		Process dotProcess = null;
 		try {
@@ -82,6 +84,7 @@ public class Dot2Image {
 			return null;
 		}
 
+		redirectIO(dotProcess.getErrorStream(), System.err);
 		InputStream outputOfDot = new BufferedInputStream(dotProcess.getInputStream());
 
 		return outputOfDot;
@@ -158,5 +161,16 @@ public class Dot2Image {
 			outputStream.flush();
 			outputStream.close();
 		}
+	}
+	
+	private static void redirectIO(final InputStream src, final PrintStream dest) {
+	    new Thread(new Runnable() {
+	        public void run() {
+	            Scanner sc = new Scanner(src);
+	            while (sc.hasNextLine()) {
+	                dest.println(sc.nextLine());
+	            }
+	        }
+	    }).start();
 	}
 }
