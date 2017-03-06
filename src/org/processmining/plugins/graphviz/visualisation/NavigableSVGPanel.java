@@ -29,7 +29,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -101,9 +100,6 @@ public class NavigableSVGPanel extends JPanel {
 	public static final Font helperControlsFont = new Font(Font.MONOSPACED, Font.BOLD, 12);
 	private static final Font helperControlsButtonFont = new Font("TimesRoman", Font.PLAIN, 20);
 	private static final String helperControlsButtonString = "?";
-
-	//exporters
-	protected final CopyOnWriteArrayList<Exporter> exporters = new CopyOnWriteArrayList<>();
 
 	//help-popup
 	protected List<String> helperControlsShortcuts = new ArrayList<>(
@@ -186,7 +182,6 @@ public class NavigableSVGPanel extends JPanel {
 		setFocusable(true);
 		setImage(newImage, false);
 		setupListeners();
-		initExporters();
 	}
 
 	public void setupListeners() {
@@ -317,7 +312,7 @@ public class NavigableSVGPanel extends JPanel {
 				private static final long serialVersionUID = -4780600363000017631L;
 
 				public void actionPerformed(ActionEvent arg0) {
-					new ExportDialog(panel, exporters);
+					new ExportDialog(panel, getExporters());
 				}
 			});
 		}
@@ -1311,17 +1306,18 @@ public class NavigableSVGPanel extends JPanel {
 		return animationControlsShowing;
 	}
 
-	/*
-	 * Initialise or reset the exporters. Subclasses should override this method
-	 * in order to add custom exporters. NB. the 'exporters' list is thread-safe
-	 * and accessible to subclasses.
+	/**
+	 * 
+	 * @return The list of exporters. Subclasses can override this to a relevant
+	 *         list. Called everytime the user attempts to export the image.
 	 */
-	protected void initExporters() {
-		exporters.clear();
+	public List<Exporter> getExporters() {
+		List<Exporter> exporters = new ArrayList<>();
 		exporters.add(new ExporterPDF());
 		exporters.add(new ExporterPNG());
 		exporters.add(new ExporterSVG());
 		exporters.add(new ExporterEPS());
 		exporters.add(new ExporterEMF());
+		return exporters;
 	}
 }
