@@ -32,6 +32,7 @@ import org.processmining.plugins.graphviz.dot.Dot2Image.Type;
 import org.processmining.plugins.graphviz.dot.DotEdge;
 import org.processmining.plugins.graphviz.dot.DotElement;
 import org.processmining.plugins.graphviz.dot.DotNode;
+import org.processmining.plugins.graphviz.visualisation.export.ExporterDot;
 import org.processmining.plugins.graphviz.visualisation.listeners.DotElementSelectionListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.GraphChangedListener;
 import org.processmining.plugins.graphviz.visualisation.listeners.GraphChangedListener.GraphChangedReason;
@@ -248,6 +249,12 @@ public class DotPanel extends NavigableSVGPanel {
 		changed |= exitAllElements(e);
 
 		return changed;
+	}
+	
+	@Override
+	protected void initExporters() {
+		super.initExporters();
+		exporters.add(new ExporterDot());
 	}
 
 	/**

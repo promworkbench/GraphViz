@@ -1,6 +1,7 @@
 package org.processmining.plugins.graphviz.visualisation.export;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
@@ -12,7 +13,12 @@ public class ExportDialog extends JFileChooser {
 	private static final long serialVersionUID = -6928894765212379860L;
 	private static final Preferences preferences = Preferences.userRoot().node("org.processmining.graphviz");
 
+	@Deprecated
 	public ExportDialog(NavigableSVGPanel parent, Exporter... exporters) {
+		this(parent, Arrays.asList(exporters));
+	}
+	
+	public ExportDialog(NavigableSVGPanel parent, Iterable<Exporter> exporters) {
 		super(preferences.get("lastUsedFolder", new File(".").getAbsolutePath()));
 		setAcceptAllFileFilterUsed(false);
 		//addChoosableFileFilter(new ExporterPDFfit());

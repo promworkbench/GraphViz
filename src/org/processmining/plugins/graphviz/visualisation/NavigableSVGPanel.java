@@ -29,6 +29,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -38,6 +39,12 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import org.processmining.plugins.graphviz.visualisation.export.ExportDialog;
+import org.processmining.plugins.graphviz.visualisation.export.Exporter;
+import org.processmining.plugins.graphviz.visualisation.export.ExporterEMF;
+import org.processmining.plugins.graphviz.visualisation.export.ExporterEPS;
+import org.processmining.plugins.graphviz.visualisation.export.ExporterPDF;
+import org.processmining.plugins.graphviz.visualisation.export.ExporterPNG;
+import org.processmining.plugins.graphviz.visualisation.export.ExporterSVG;
 import org.processmining.plugins.graphviz.visualisation.listeners.ImageTransformationChangedListener;
 
 import com.kitfox.svg.SVGDiagram;
@@ -95,6 +102,10 @@ public class NavigableSVGPanel extends JPanel {
 	private static final Font helperControlsButtonFont = new Font("TimesRoman", Font.PLAIN, 20);
 	private static final String helperControlsButtonString = "?";
 
+	//exporters
+	protected final CopyOnWriteArrayList<Exporter> exporters = new CopyOnWriteArrayList<>();
+
+	//help-popup
 	protected List<String> helperControlsShortcuts = new ArrayList<>(
 			Arrays.asList("up/down", "left/right", "ctrl =", "ctrl -", "ctrl 0", "ctrl i"));
 	protected List<String> helperControlsExplanations = new ArrayList<>(
@@ -175,6 +186,7 @@ public class NavigableSVGPanel extends JPanel {
 		setFocusable(true);
 		setImage(newImage, false);
 		setupListeners();
+		initExporters();
 	}
 
 	public void setupListeners() {
@@ -305,7 +317,7 @@ public class NavigableSVGPanel extends JPanel {
 				private static final long serialVersionUID = -4780600363000017631L;
 
 				public void actionPerformed(ActionEvent arg0) {
-					new ExportDialog(panel);
+					new ExportDialog(panel, exporters);
 				}
 			});
 		}
@@ -1297,5 +1309,19 @@ public class NavigableSVGPanel extends JPanel {
 
 	public boolean isAnimationControlsShowing() {
 		return animationControlsShowing;
+	}
+
+	/*
+	 * Initialise or reset the exporters. Subclasses should override this method
+	 * in order to add custom exporters. NB. the 'exporters' list is thread-safe
+	 * and accessible to subclasses.
+	 */
+	protected void initExporters() {
+		exporters.clear();
+		exporters.add(new ExporterPDF());
+		exporters.add(new ExporterPNG());
+		exporters.add(new ExporterSVG());
+		exporters.add(new ExporterEPS());
+		exporters.add(new ExporterEMF());
 	}
 }
