@@ -1041,8 +1041,8 @@ public class NavigableSVGPanel extends JPanel {
 			double progress = Math.min(1,
 					Math.max(0, (e.getX() - controlsTimeScale.x) / (controlsTimeScale.width * 1.0)));
 			setTimeScale(progress);
-			repaint();
 			lastMousePosition = e.getPoint();
+			repaint();
 			return true;
 		}
 
