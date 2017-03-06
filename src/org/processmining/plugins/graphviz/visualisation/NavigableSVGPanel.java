@@ -312,7 +312,7 @@ public class NavigableSVGPanel extends JPanel {
 				private static final long serialVersionUID = -4780600363000017631L;
 
 				public void actionPerformed(ActionEvent arg0) {
-					new ExportDialog(panel, getExporters());
+					exportView();
 				}
 			});
 		}
@@ -1319,5 +1319,12 @@ public class NavigableSVGPanel extends JPanel {
 		exporters.add(new ExporterEPS());
 		exporters.add(new ExporterEMF());
 		return exporters;
+	}
+
+	/**
+	 * Prompts the user for a file name and saves the view under that file name.
+	 */
+	public void exportView() {
+		new ExportDialog(this, getExporters());
 	}
 }
