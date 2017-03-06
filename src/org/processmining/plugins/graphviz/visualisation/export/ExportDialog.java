@@ -22,11 +22,6 @@ public class ExportDialog extends JFileChooser {
 		super(preferences.get("lastUsedFolder", new File(".").getAbsolutePath()));
 		setAcceptAllFileFilterUsed(false);
 		//addChoosableFileFilter(new ExporterPDFfit());
-		addChoosableFileFilter(new ExporterPDF());
-		addChoosableFileFilter(new ExporterPNG());
-		addChoosableFileFilter(new ExporterSVG());
-		addChoosableFileFilter(new ExporterEPS());
-		addChoosableFileFilter(new ExporterEMF());
 		for (Exporter exporter: exporters) {
 			addChoosableFileFilter(exporter);
 		}
