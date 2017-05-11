@@ -404,6 +404,18 @@ public class DotCluster extends DotNode {
 
 	protected void appendOptions(StringBuilder result) {
 		for (String key : getOptionKeySet()) {
+			/*
+			 * HV, May 11, 2017
+			 * Graph label may contain HTML code. Deal with that.
+			 */
+			if (key.equals("label")) {
+				String label = getOption(key);
+				if (label.startsWith("<") && label.endsWith(">")) {
+					// Label contains HTML code, copy as-is
+					result.append(key + "=" + label + ";\n");
+					continue;
+				}
+			} 
 			result.append(key + "=\"" + getOption(key) + "\";\n");
 		}
 		appendSpecialOptions(result, "graph", graphOptionMap);
