@@ -18,7 +18,7 @@
 
 	<property name="author" value="SJJ Leemans" />
 	<property name="organization" value="Eindhoven University of Technology" />
-	<property name="description" value="Inductive Miner" />
+	<property name="description" value="Library to layout and display graphs" />
 	<property name="license" value="L-GPL" />
 	<property name="logo" value="http://www.promtools.org/prom6/packages/prom_subtitle_hat_300.png" />
 
