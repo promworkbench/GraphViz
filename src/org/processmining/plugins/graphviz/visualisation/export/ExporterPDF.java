@@ -1,12 +1,24 @@
 package org.processmining.plugins.graphviz.visualisation.export;
 
-import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.io.File;
+import java.io.FileOutputStream;
 
-import org.freehep.graphics2d.VectorGraphics;
-import org.freehep.graphicsio.pdf.PDFGraphics2D;
 import org.processmining.plugins.graphviz.visualisation.NavigableSVGPanel;
 
+import com.itextpdf.awt.PdfGraphics2D;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfWriter;
+
+/**
+ * Due to bugs in direct pdf export, first export to eps and then convert to
+ * pdf.
+ * 
+ * @author sander
+ *
+ */
 
 public class ExporterPDF extends Exporter {
 
@@ -14,20 +26,20 @@ public class ExporterPDF extends Exporter {
 		return "pdf";
 	}
 
-	public void export(NavigableSVGPanel panel, File file) throws Exception {	
-		double width = panel.getImage().getViewRect().getWidth();
-		double height = panel.getImage().getViewRect().getHeight();
+	public void export(NavigableSVGPanel panel, File file) throws Exception {
+		float width = (float) panel.getImage().getViewRect().getWidth();
+		float height = (float) panel.getImage().getViewRect().getHeight();
+
+		Document document = new Document(new Rectangle(width, height), 0, 0, 0, 0);
+		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
+		document.open();
+		PdfContentByte canvas = writer.getDirectContent();
 		
-		Dimension dimension = new Dimension((int) Math.ceil(width), (int) Math.ceil(height));
-		VectorGraphics g = new PDFGraphics2D(file, dimension);
-		//Properties p = new Properties(PDFGraphics2D.getDefaultProperties());
-		//p.setProperty(PDFGraphics2D.PAGE_SIZE, PDFGraphics2D.CUSTOM_PAGE_SIZE);
-		//p.setProperty(PDFGraphics2D.PAGE_MARGINS, "0, 0, 0, 0");
-		//p.put(PDFGraphics2D.CUSTOM_PAGE_SIZE, dimension.width + ", " + dimension.height);
-		//g.setProperties(p);
-		g.startExport();
+		Graphics2D g = new PdfGraphics2D(canvas, width, height);
 		panel.print(g);
-		g.endExport();
+		g.dispose();
+		
+		document.close();
 	}
 
 }
