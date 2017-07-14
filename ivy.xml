@@ -9,5 +9,7 @@
         <dependency org="prom" name="ApacheUtils" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="KitFox" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="Widgets" rev="latest" changing="true" transitive="true" />
+        
+        <dependency org="com.itextpdf" name="itextpdf" rev="5.5.11" />
      </dependencies>
 </ivy-module>
