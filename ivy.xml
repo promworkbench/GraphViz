@@ -4,7 +4,7 @@
     		Version VERSION
     	</description>
     </info>
-    <dependencies>
+    <dependencies defaultconf="default">
         <dependency org="prom" name="ProM-Plugins" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="ApacheUtils" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="KitFox" rev="latest" changing="true" transitive="true" />
