@@ -259,7 +259,7 @@ public class NavigableSVGPanel extends JPanel {
 					} else {
 						zoomNavigation(0.8);
 					}
-				} else if (isInImage(p)) {
+				} else {
 					//zoom image
 					try {
 						if (zoomIn) {
