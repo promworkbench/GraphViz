@@ -26,6 +26,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +61,7 @@ import com.kitfox.svg.SVGException;
  * @author sleemans
  *
  */
-public class NavigableSVGPanel extends JPanel {
+public class NavigableSVGPanel extends JPanel implements Printable {
 
 	private static final long serialVersionUID = -3285916948952045282L;
 
@@ -103,9 +107,9 @@ public class NavigableSVGPanel extends JPanel {
 
 	//help-popup
 	protected List<String> helperControlsShortcuts = new ArrayList<>(
-			Arrays.asList("up/down", "left/right", "ctrl =", "ctrl -", "ctrl 0", "ctrl i"));
-	protected List<String> helperControlsExplanations = new ArrayList<>(
-			Arrays.asList("pan up/down", "pan left/right", "zoom in", "zoom out", "reset zoom & pan", "save image"));
+			Arrays.asList("up/down", "left/right", "ctrl =", "ctrl -", "ctrl 0", "ctrl i", "ctrl p"));
+	protected List<String> helperControlsExplanations = new ArrayList<>(Arrays.asList("pan up/down", "pan left/right",
+			"zoom in", "zoom out", "reset zoom & pan", "save image", "print"));
 
 	private Action zoomInAction = new AbstractAction() {
 		private static final long serialVersionUID = 3863042569537144601L;
@@ -173,6 +177,21 @@ public class NavigableSVGPanel extends JPanel {
 			}
 			updateTransformation();
 			repaint();
+		}
+	};
+
+	private Action printAction = new AbstractAction() {
+		public void actionPerformed(ActionEvent e) {
+			PrinterJob job = PrinterJob.getPrinterJob();
+			job.setPrintable(NavigableSVGPanel.this);
+			boolean ok = job.printDialog();
+			if (ok) {
+				try {
+					job.print();
+				} catch (PrinterException ex) {
+					/* The job did not successfully complete */
+				}
+			}
 		}
 	};
 
@@ -316,6 +335,10 @@ public class NavigableSVGPanel extends JPanel {
 				}
 			});
 		}
+
+		//listen to ctrl p to print
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK), "print"); // - key
+		getActionMap().put("print", printAction);
 	}
 
 	/**
@@ -1326,5 +1349,41 @@ public class NavigableSVGPanel extends JPanel {
 	 */
 	public void exportView() {
 		new ExportDialog(this, getExporters());
+	}
+
+	public int print(Graphics g, PageFormat pageFormat, int page) throws PrinterException {
+		if (page > 0) {
+			return NO_SUCH_PAGE;
+		}
+
+		Graphics2D g2d = (Graphics2D) g;
+
+		double scaleX = pageFormat.getImageableWidth() / image.getWidth();
+		double scaleY = pageFormat.getImageableHeight() / image.getHeight();
+
+		if (scaleX < scaleY) {
+			g2d.translate(pageFormat.getImageableWidth() / 2, pageFormat.getImageableHeight() / 2);
+			g2d.rotate(Math.toRadians(-90));
+			g2d.translate(pageFormat.getImageableHeight() / -2, pageFormat.getImageableWidth() / -2);
+			g2d.translate(-pageFormat.getImageableX(), pageFormat.getImageableY());
+
+			double scale = pageFormat.getImageableHeight() / image.getWidth();
+			g2d.scale(scale, scale);
+		} else {
+			g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+			g2d.scale(scaleY, scaleY);
+		}
+
+		// Now we perform our rendering
+		try {
+			image.render(g2d);
+		} catch (SVGException e) {
+			e.printStackTrace();
+			throw new PrinterException(e.getMessage());
+		}
+
+		// tell the caller that this page is part
+		// of the printed document
+		return PAGE_EXISTS;
 	}
 }
