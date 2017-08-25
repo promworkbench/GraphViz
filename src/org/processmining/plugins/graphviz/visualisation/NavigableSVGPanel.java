@@ -181,6 +181,8 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 	};
 
 	private Action printAction = new AbstractAction() {
+		private static final long serialVersionUID = -7112953904402077397L;
+
 		public void actionPerformed(ActionEvent e) {
 			PrinterJob job = PrinterJob.getPrinterJob();
 			job.setPrintable(NavigableSVGPanel.this);
@@ -326,7 +328,6 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 		{
 			getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_MASK),
 					"saveAs"); // - key
-			final NavigableSVGPanel panel = this;
 			getActionMap().put("saveAs", new AbstractAction() {
 				private static final long serialVersionUID = -4780600363000017631L;
 
@@ -1375,12 +1376,7 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 		}
 
 		// Now we perform our rendering
-		try {
-			image.render(g2d);
-		} catch (SVGException e) {
-			e.printStackTrace();
-			throw new PrinterException(e.getMessage());
-		}
+		print(g2d);
 
 		// tell the caller that this page is part
 		// of the printed document
