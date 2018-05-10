@@ -28,6 +28,7 @@ import org.processmining.plugins.graphviz.colourMaps.ColourMap;
 import org.processmining.plugins.graphviz.dot.Dot;
 import org.processmining.plugins.graphviz.dot.Dot.GraphDirection;
 import org.processmining.plugins.graphviz.dot.Dot2Image;
+import org.processmining.plugins.graphviz.dot.Dot2Image.Engine;
 import org.processmining.plugins.graphviz.dot.Dot2Image.Type;
 import org.processmining.plugins.graphviz.dot.DotEdge;
 import org.processmining.plugins.graphviz.dot.DotElement;
@@ -251,7 +252,7 @@ public class DotPanel extends NavigableSVGPanel {
 
 		return changed;
 	}
-	
+
 	@Override
 	public List<Exporter> getExporters() {
 		List<Exporter> exporters = super.getExporters();
@@ -443,6 +444,12 @@ public class DotPanel extends NavigableSVGPanel {
 	public static SVGDiagram dot2svg(Dot dot) {
 		SVGUniverse universe = new SVGUniverse();
 
+		Engine engine;
+		if (dot.getOption("engine") == "neato") {
+			engine = Engine.neato;
+		} else {
+			engine = Engine.dot;
+		}
 		InputStream stream = Dot2Image.dot2imageInputStream(dot, Type.svg);
 		URI uri;
 		try {
