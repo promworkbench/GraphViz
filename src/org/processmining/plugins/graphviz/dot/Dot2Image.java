@@ -29,11 +29,21 @@ public class Dot2Image {
 	}
 
 	public static InputStream dot2imageInputStream(Dot dot, Type type) {
-		return dot2imageInputStream(dot.toString(), type);
+		Engine engine;
+		if (dot.getOption("engine") == "neato") {
+			engine = Engine.neato;
+		} else {
+			engine = Engine.dot;
+		}
+		return dot2imageInputStream(dot.toString(), type, engine);
 	}
 
 	public static InputStream dot2imageInputStream(String dot, Type type) {
 		return dot2imageInputStream(dot, type, Engine.dot);
+	}
+
+	public static InputStream dot2imageInputStream(Dot dot, Type type, Engine engine) {
+		return dot2imageInputStream(dot.toString(), type, engine);
 	}
 
 	public static InputStream dot2imageInputStream(String dot, Type type, Engine engine) {
