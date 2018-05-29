@@ -20,7 +20,7 @@ public interface DotElement extends MouseListener {
 	 * @return the value of the option if it was set, otherwise null.
 	 */
 	public String getOption(String key);
-	
+
 	/**
 	 * 
 	 * @return the set of options that is set (keys)
@@ -30,6 +30,19 @@ public interface DotElement extends MouseListener {
 	public String getId();
 
 	//mouse listeners, gui stuff
+
+	/**
+	 * Please note that in the current implementation, only a click on a drawn
+	 * pixel of an element is registered as a click (due to Bezier curves for
+	 * edges and irregular shapes for nodes). Thus, only if a user clicks on the
+	 * border or label of a node, the click is registered. The same holds for
+	 * mouseEnter and mouseExit events: these are based on drawn pixels.
+	 * 
+	 * To avoid this problem, give each node a fill using
+	 * node.setOption("fillcolor", "#FFFFFF").
+	 * 
+	 * @param l
+	 */
 	public void addMouseListener(MouseListener l);
 
 	//selection listeners
@@ -37,11 +50,26 @@ public interface DotElement extends MouseListener {
 	/**
 	 * Sets whether this node can be selected.
 	 * 
+	 * Please note that in the current implementation, only a click on a drawn
+	 * pixel of an element is registered as a click (due to Bezier curves for
+	 * edges and irregular shapes for nodes). Thus, only if a user clicks on the
+	 * border or label of a node, the click is registered.
+	 * 
+	 * To avoid this problem, give each node a fill using
+	 * node.setOption("fillcolor", "#FFFFFF").
+	 * 
 	 * @param selectable
 	 */
 	public void setSelectable(boolean selectable);
 
 	/**
+	 * Please note that in the current implementation, only a click on a drawn
+	 * pixel of an element is registered as a click (due to Bezier curves for
+	 * edges and irregular shapes for nodes). Thus, only if a user clicks on the
+	 * border or label of a node, the click is registered.
+	 * 
+	 * To avoid this problem, give each node a fill using
+	 * node.setOption("fillcolor", "#FFFFFF").
 	 * 
 	 * @return whether the element is selectable.
 	 */
@@ -50,6 +78,14 @@ public interface DotElement extends MouseListener {
 	/**
 	 * Add a selection/deselection listener. Side-effect: enables selection of
 	 * the element. Thread-safe.
+	 * 
+	 * Please note that in the current implementation, only a click on a drawn
+	 * pixel of an element is registered as a click (due to Bezier curves for
+	 * edges and irregular shapes for nodes). Thus, only if a user clicks on the
+	 * border or label of a node, the click is registered.
+	 * 
+	 * To avoid this problem, give each node a fill using
+	 * node.setOption("fillcolor", "#FFFFFF").
 	 * 
 	 * @param listener
 	 */
