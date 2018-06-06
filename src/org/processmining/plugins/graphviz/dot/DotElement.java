@@ -39,7 +39,8 @@ public interface DotElement extends MouseListener {
 	 * mouseEnter and mouseExit events: these are based on drawn pixels.
 	 * 
 	 * To avoid this problem, give each node a fill using
-	 * node.setOption("fillcolor", "#FFFFFF").
+	 * node.setOption("fillcolor", "#FFFFFF") and node.setOption("style",
+	 * "filled").
 	 * 
 	 * @param l
 	 */
@@ -56,7 +57,8 @@ public interface DotElement extends MouseListener {
 	 * border or label of a node, the click is registered.
 	 * 
 	 * To avoid this problem, give each node a fill using
-	 * node.setOption("fillcolor", "#FFFFFF").
+	 * node.setOption("fillcolor", "#FFFFFF") and node.setOption("style",
+	 * "filled").
 	 * 
 	 * @param selectable
 	 */
@@ -69,7 +71,8 @@ public interface DotElement extends MouseListener {
 	 * border or label of a node, the click is registered.
 	 * 
 	 * To avoid this problem, give each node a fill using
-	 * node.setOption("fillcolor", "#FFFFFF").
+	 * node.setOption("fillcolor", "#FFFFFF") and node.setOption("style",
+	 * "filled").
 	 * 
 	 * @return whether the element is selectable.
 	 */
@@ -85,7 +88,8 @@ public interface DotElement extends MouseListener {
 	 * border or label of a node, the click is registered.
 	 * 
 	 * To avoid this problem, give each node a fill using
-	 * node.setOption("fillcolor", "#FFFFFF").
+	 * node.setOption("fillcolor", "#FFFFFF") and node.setOption("style",
+	 * "filled").
 	 * 
 	 * @param listener
 	 */
