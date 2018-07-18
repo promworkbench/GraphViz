@@ -20,7 +20,7 @@
 	<property name="organization" value="Eindhoven University of Technology" />
 	<property name="description" value="Library to layout and display graphs" />
 	<property name="license" value="L-GPL" />
-	<property name="logo" value="http://www.promtools.org/prom6/packages/prom_subtitle_hat_300.png" />
+	<property name="logo" value="prom_subtitle_hat_300.png" />
 
 	<!-- Compilation macro
 		 This Macro compiles the sources is one ${src}-... folder.
@@ -147,7 +147,7 @@
 			</exec>
 			<echo file="${release}/packages.xml">
 					&lt;packages&gt;
-						&lt;package name="${project}" version="${version}" os="${os}" url="http://www.promtools.org/prom6/packages/${project}/${project}-${version}-${os}.zip" desc="${description}" org="${organization}" license="${license}" author="${author}" auto="false" hasPlugins="true" logo="${logo}"&gt;
+						&lt;package name="${project}" version="${version}" os="${os}" url="${project}/${project}-${version}-${os}.zip" desc="${description}" org="${organization}" license="${license}" author="${author}" auto="false" hasPlugins="true" logo="${logo}"&gt;
 				</echo>
 			<concat destfile="${release}/packages.xml" append="true">
 				<filelist files="ivypack.xml" />
