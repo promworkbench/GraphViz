@@ -10,5 +10,10 @@ public class ColourMapLightBlue extends ColourMap {
 		x = (x * 0.25f) + 0.1f;
 		return new Color(1 - x, 1 - x, 1);
 	}
+	
+	public Color colour(double x) {
+		x = (x * 0.25f) + 0.1f;
+		return new Color((float) (1 - x), (float) (1 - x), 1);
+	}
 
 }

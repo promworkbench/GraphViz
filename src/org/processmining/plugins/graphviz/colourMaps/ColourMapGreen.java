@@ -8,4 +8,8 @@ public class ColourMapGreen extends ColourMap {
 		return ColourMaps.colourMapGreen(weight, maxWeight);
 	}
 
+	public Color colour(double value) {
+		return ColourMaps.colourMapGreen(value);
+	}
+
 }

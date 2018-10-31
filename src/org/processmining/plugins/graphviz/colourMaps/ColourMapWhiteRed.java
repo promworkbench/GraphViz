@@ -7,4 +7,8 @@ public class ColourMapWhiteRed extends ColourMap {
 		float x = weight / (float) maxWeight;
 		return new Color(1, x, x);
 	}
+
+	public Color colour(double value) {
+		return new Color(1, (float) value, (float) value);
+	}
 }
