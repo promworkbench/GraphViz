@@ -19,15 +19,15 @@ public abstract class ColourMapInterpolate extends ColourMap {
 
 	public Color colour(double x) {
 		float[][] data = getData();
-		int indexBelow = (int) Math.floor(data.length * x);
-		int indexAbove = (int) Math.ceil(data.length * x);
+		int indexBelow = (int) Math.floor((data.length - 1) * x);
+		int indexAbove = (int) Math.ceil((data.length - 1) * x);
 		if (indexBelow == indexAbove) {
 			return new Color(data[indexAbove][0], data[indexAbove][1], data[indexAbove][2]);
 		}
 
-		float r = interpolate(data[indexBelow][0], data[indexAbove][0], indexBelow, indexAbove, data.length * x);
-		float g = interpolate(data[indexBelow][1], data[indexAbove][1], indexBelow, indexAbove, data.length * x);
-		float b = interpolate(data[indexBelow][2], data[indexAbove][2], indexBelow, indexAbove, data.length * x);
+		float r = interpolate(data[indexBelow][0], data[indexAbove][0], indexBelow, indexAbove, (data.length - 1) * x);
+		float g = interpolate(data[indexBelow][1], data[indexAbove][1], indexBelow, indexAbove, (data.length - 1) * x);
+		float b = interpolate(data[indexBelow][2], data[indexAbove][2], indexBelow, indexAbove, (data.length - 1) * x);
 		return new Color(r, g, b);
 	}
 
