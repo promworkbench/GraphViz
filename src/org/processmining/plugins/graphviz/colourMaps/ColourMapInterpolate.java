@@ -10,10 +10,12 @@ import java.awt.Color;
  */
 public abstract class ColourMapInterpolate extends ColourMap {
 
-	protected float[][] data;
+	protected abstract float[][] getData();
 
 	public Color colour(long weight, long maxWeight) {
 		float x = weight / (float) maxWeight;
+
+		float[][] data = getData();
 
 		int indexBelow = (int) Math.floor(data.length * x);
 		int indexAbove = (int) Math.ceil(data.length * x);
@@ -28,6 +30,7 @@ public abstract class ColourMapInterpolate extends ColourMap {
 	}
 
 	public Color colour(double x) {
+		float[][] data = getData();
 		int indexBelow = (int) Math.floor(data.length * x);
 		int indexAbove = (int) Math.ceil(data.length * x);
 		if (indexBelow == indexAbove) {

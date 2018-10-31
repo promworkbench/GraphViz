@@ -130,4 +130,8 @@ public class ColourMapViridis extends ColourMapInterpolate {
 			{ 0.945636f, 0.899815f, 0.112838f }, { 0.955300f, 0.901065f, 0.118128f },
 			{ 0.964894f, 0.902323f, 0.123941f }, { 0.974417f, 0.903590f, 0.130215f },
 			{ 0.983868f, 0.904867f, 0.136897f }, { 0.993248f, 0.906157f, 0.143936f } };
+
+	protected float[][] getData() {
+		return data;
+	}
 }
