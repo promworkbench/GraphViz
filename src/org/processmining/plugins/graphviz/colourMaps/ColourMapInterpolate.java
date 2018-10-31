@@ -14,19 +14,7 @@ public abstract class ColourMapInterpolate extends ColourMap {
 
 	public Color colour(long weight, long maxWeight) {
 		float x = weight / (float) maxWeight;
-
-		float[][] data = getData();
-
-		int indexBelow = (int) Math.floor(data.length * x);
-		int indexAbove = (int) Math.ceil(data.length * x);
-		if (indexBelow == indexAbove) {
-			return new Color(data[indexAbove][0], data[indexAbove][1], data[indexAbove][2]);
-		}
-
-		float r = interpolate(data[indexBelow][0], data[indexAbove][0], indexBelow, indexAbove, x);
-		float g = interpolate(data[indexBelow][1], data[indexAbove][1], indexBelow, indexAbove, x);
-		float b = interpolate(data[indexBelow][2], data[indexAbove][2], indexBelow, indexAbove, x);
-		return new Color(r, g, b);
+		return colour(x);
 	}
 
 	public Color colour(double x) {
@@ -37,9 +25,9 @@ public abstract class ColourMapInterpolate extends ColourMap {
 			return new Color(data[indexAbove][0], data[indexAbove][1], data[indexAbove][2]);
 		}
 
-		float r = interpolate(data[indexBelow][0], data[indexAbove][0], indexBelow, indexAbove, x);
-		float g = interpolate(data[indexBelow][1], data[indexAbove][1], indexBelow, indexAbove, x);
-		float b = interpolate(data[indexBelow][2], data[indexAbove][2], indexBelow, indexAbove, x);
+		float r = interpolate(data[indexBelow][0], data[indexAbove][0], indexBelow, indexAbove, data.length * x);
+		float g = interpolate(data[indexBelow][1], data[indexAbove][1], indexBelow, indexAbove, data.length * x);
+		float b = interpolate(data[indexBelow][2], data[indexAbove][2], indexBelow, indexAbove, data.length * x);
 		return new Color(r, g, b);
 	}
 
