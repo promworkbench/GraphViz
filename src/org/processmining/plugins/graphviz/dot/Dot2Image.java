@@ -18,7 +18,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class Dot2Image {
 
-	public static final int dotVersion = 7;
+	public static final int dotVersion = 8;
 
 	public enum Type {
 		png, pdf, svg
