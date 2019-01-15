@@ -66,11 +66,11 @@ public class Dot2Image {
 			dotFile = new File(new File(dotDirectory, "mac"), "dot");
 			dotFile.setExecutable(true);
 		} else if (System.getProperty("os.arch").contains("64")) {
-			//assume linux 32 bit
+			//assume linux 64 bit
 			dotFile = new File(new File(dotDirectory, "linux64"), "dot");
 			dotFile.setExecutable(true);
 		} else {
-			//assume linux 64 bit
+			//assume linux 32 bit
 			dotFile = new File(new File(dotDirectory, "linux32"), "dot");
 			dotFile.setExecutable(true);
 		}
@@ -182,6 +182,14 @@ public class Dot2Image {
 				"dotBinaries" + dotVersion);
 		if (!dotDirectory.exists()) {
 			createDotDirectoryByCopying(dotDirectory);
+		}
+
+		for (String fileName : dotFiles) {
+			File outputFile = new File(dotDirectory, fileName);
+			if (!outputFile.exists()) {
+				createDotDirectoryByCopying(dotDirectory);
+				break;
+			}
 		}
 
 		return dotDirectory;
