@@ -252,6 +252,9 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 			}
 
 			public void mouseClicked(MouseEvent e) {
+				if (isFocusable()) {
+					requestFocusInWindow();
+				}
 				processMouseClick(e);
 			}
 		});
