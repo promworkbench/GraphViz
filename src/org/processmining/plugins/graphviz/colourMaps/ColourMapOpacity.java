@@ -10,14 +10,14 @@ public class ColourMapOpacity extends ColourMap {
 	}
 
 	public Color colour(long weight, long maxWeight) {
-		float opacity = weight / (float) maxWeight;
+		double opacity = weight / (double) maxWeight;
 		Color colour = base.colour(weight, maxWeight);
-		return new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), opacity);
+		return new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), Math.round(opacity * 255));
 	}
 
 	public Color colour(double opacity) {
 		Color colour = base.colour(opacity);
-		return new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), (float) opacity);
+		return new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), Math.round(opacity * 255));
 	}
 
 }
