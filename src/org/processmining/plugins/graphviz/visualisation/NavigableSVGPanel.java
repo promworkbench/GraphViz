@@ -209,24 +209,38 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 		//set up resize listener
 		addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) {
+				AffineTransform u2i = (AffineTransform) user2image.clone();
+				AffineTransform i2u = (AffineTransform) image2user.clone();
 				try {
+					System.out.println("[NavigableSVGPanel] width = " + getWidth() + ", height = " + getHeight());
 					if (image2user.isIdentity() || resetViewLater) {
 						lastPanelDimension = new Dimension(getWidth(), getHeight());
 						resetView();
 					} else if (lastPanelDimension != null) {
 						//on resizing, keep the center in center, and scale proportionally to the width.
+						System.out.println("[NavigableSVGPanel] last width = " + lastPanelDimension.getWidth()
+								+ ", last height = " + lastPanelDimension.getHeight());
 						double zoom = lastPanelDimension.getWidth() / getWidth();
-						user2image.translate(lastPanelDimension.getWidth() / 2.0, lastPanelDimension.getHeight() / 2.0);
-						user2image.scale(zoom, zoom);
+						u2i.translate(lastPanelDimension.getWidth() / 2.0, lastPanelDimension.getHeight() / 2.0);
+						u2i.scale(zoom, zoom);
 						lastPanelDimension = new Dimension(getWidth(), getHeight());
-						user2image.translate(-lastPanelDimension.getWidth() / 2.0,
+						u2i.translate(-lastPanelDimension.getWidth() / 2.0,
 								-lastPanelDimension.getHeight() / 2.0);
-						image2user = user2image.createInverse();
+						i2u = user2image.createInverse();
+						/*
+						 * Made it to here, both transformations are okay. Set them.
+						 */
+						user2image = u2i;
+						image2user = i2u;
 					} else {
 						lastPanelDimension = new Dimension(getWidth(), getHeight());
 					}
 				} catch (NoninvertibleTransformException e1) {
+					/*
+					 * Problems with the new transformations. No harm done, but do not proceed.
+					 */
 					e1.printStackTrace();
+					return;
 				}
 				updateTransformation();
 				repaint();
