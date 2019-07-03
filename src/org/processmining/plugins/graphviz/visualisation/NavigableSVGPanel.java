@@ -212,14 +212,14 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 				AffineTransform u2i = (AffineTransform) user2image.clone();
 				AffineTransform i2u = (AffineTransform) image2user.clone();
 				try {
-					System.out.println("[NavigableSVGPanel] width = " + getWidth() + ", height = " + getHeight());
+					//System.out.println("[NavigableSVGPanel] width = " + getWidth() + ", height = " + getHeight());
 					if (image2user.isIdentity() || resetViewLater) {
 						lastPanelDimension = new Dimension(getWidth(), getHeight());
 						resetView();
 					} else if (lastPanelDimension != null) {
 						//on resizing, keep the center in center, and scale proportionally to the width.
-						System.out.println("[NavigableSVGPanel] last width = " + lastPanelDimension.getWidth()
-								+ ", last height = " + lastPanelDimension.getHeight());
+						//						System.out.println("[NavigableSVGPanel] last width = " + lastPanelDimension.getWidth()
+						//								+ ", last height = " + lastPanelDimension.getHeight());
 						double zoom = lastPanelDimension.getWidth() / getWidth();
 						u2i.translate(lastPanelDimension.getWidth() / 2.0, lastPanelDimension.getHeight() / 2.0);
 						u2i.scale(zoom, zoom);
