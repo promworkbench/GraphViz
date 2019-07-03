@@ -26,8 +26,8 @@ public abstract class ColourMap {
 		if (max == min) {
 			return colour(1);
 		}
-		double x = (weight - min) / (max-min);
-		
+		double x = (weight - min) / (max - min);
+
 		return colour(x);
 	}
 
@@ -37,6 +37,11 @@ public abstract class ColourMap {
 
 	public static String toHexString(Color colour) {
 		return "#" + toHex(colour.getRed()) + toHex(colour.getGreen()) + toHex(colour.getBlue());
+	}
+
+	public static String toHexAlphaString(Color colour) {
+		return "#" + toHex(colour.getRed()) + toHex(colour.getGreen()) + toHex(colour.getBlue())
+				+ toHex(colour.getAlpha());
 	}
 
 	public static String toHex(int i) {
