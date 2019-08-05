@@ -226,7 +226,7 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 						lastPanelDimension = new Dimension(getWidth(), getHeight());
 						u2i.translate(-lastPanelDimension.getWidth() / 2.0,
 								-lastPanelDimension.getHeight() / 2.0);
-						i2u = user2image.createInverse();
+						i2u = u2i.createInverse();
 						/*
 						 * Made it to here, both transformations are okay. Set them.
 						 */
