@@ -212,18 +212,29 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 				AffineTransform u2i = (AffineTransform) user2image.clone();
 				AffineTransform i2u = (AffineTransform) image2user.clone();
 				try {
-					//System.out.println("[NavigableSVGPanel] width = " + getWidth() + ", height = " + getHeight());
+					System.out.println("[NavigableSVGPanel] width = " + getWidth() + ", height = " + getHeight());
+					/*
+					 * HV: Igoore if width or height not set properly.
+					 */
+					int width = getWidth();
+					int height = getHeight();				
+					if (width == 0 || height == 0) {
+						return;
+					}
+					/*
+					 * Both width and height are set properly. Continue.
+					 */
 					if (image2user.isIdentity() || resetViewLater) {
-						lastPanelDimension = new Dimension(getWidth(), getHeight());
+						lastPanelDimension = new Dimension(width, height);
 						resetView();
 					} else if (lastPanelDimension != null) {
 						//on resizing, keep the center in center, and scale proportionally to the width.
 						//						System.out.println("[NavigableSVGPanel] last width = " + lastPanelDimension.getWidth()
 						//								+ ", last height = " + lastPanelDimension.getHeight());
-						double zoom = lastPanelDimension.getWidth() / getWidth();
+						double zoom = lastPanelDimension.getWidth() / width;
 						u2i.translate(lastPanelDimension.getWidth() / 2.0, lastPanelDimension.getHeight() / 2.0);
 						u2i.scale(zoom, zoom);
-						lastPanelDimension = new Dimension(getWidth(), getHeight());
+						lastPanelDimension = new Dimension(width, height);
 						u2i.translate(-lastPanelDimension.getWidth() / 2.0,
 								-lastPanelDimension.getHeight() / 2.0);
 						i2u = u2i.createInverse();
@@ -233,7 +244,7 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 						user2image = u2i;
 						image2user = i2u;
 					} else {
-						lastPanelDimension = new Dimension(getWidth(), getHeight());
+						lastPanelDimension = new Dimension(width, height);
 					}
 				} catch (NoninvertibleTransformException e1) {
 					/*
@@ -382,13 +393,13 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		//set clipping mask to save a few cpu/gpu cycles
-		if (!isPaintingForPrint()) {
-			g2.setClip(0, 0, getWidth(), getHeight());
-		} else {
-			g2.setClip((int) Math.round(image.getViewRect().getX()), (int) Math.round(image.getViewRect().getY()),
-					(int) Math.round(image.getViewRect().getWidth()),
-					(int) Math.round(image.getViewRect().getHeight()));
-		}
+//		if (!isPaintingForPrint()) {
+//			g2.setClip(0, 0, getWidth(), getHeight());
+//		} else {
+//			g2.setClip((int) Math.round(image.getViewRect().getX()), (int) Math.round(image.getViewRect().getY()),
+//					(int) Math.round(image.getViewRect().getWidth()),
+//					(int) Math.round(image.getViewRect().getHeight()));
+//		}
 
 		//draw image
 		if (!isPaintingForPrint()) {
@@ -424,7 +435,9 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 
 	protected void paintImage(Graphics2D g) {
 		try {
+			System.out.println("[NavigableSVGPanel] Start rendering graph.");
 			image.render(g);
+			System.out.println("[NavigableSVGPanel] End rendering graph.");
 		} catch (SVGException e) {
 			e.printStackTrace();
 		}
