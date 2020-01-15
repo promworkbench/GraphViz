@@ -435,9 +435,9 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 
 	protected void paintImage(Graphics2D g) {
 		try {
-			System.out.println("[NavigableSVGPanel] Start rendering graph.");
+//			System.out.println("[NavigableSVGPanel] Start rendering graph.");
 			image.render(g);
-			System.out.println("[NavigableSVGPanel] End rendering graph.");
+//			System.out.println("[NavigableSVGPanel] End rendering graph.");
 		} catch (SVGException e) {
 			e.printStackTrace();
 		}
