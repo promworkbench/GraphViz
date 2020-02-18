@@ -102,8 +102,8 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 	private boolean helperControlsShowing = false;
 	public static final int helperControlsWidth = 350;
 	public static final Font helperControlsFont = new Font(Font.MONOSPACED, Font.BOLD, 12);
-	private static final Font helperControlsButtonFont = new Font("TimesRoman", Font.PLAIN, 20);
-	private static final String helperControlsButtonString = "?";
+	protected static final Font helperControlsButtonFont = new Font("TimesRoman", Font.PLAIN, 20);
+	protected static final String helperControlsButtonString = "?";
 
 	//help-popup
 	protected List<String> helperControlsShortcuts = new ArrayList<>(
@@ -217,7 +217,7 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 					 * HV: Igoore if width or height not set properly.
 					 */
 					int width = getWidth();
-					int height = getHeight();				
+					int height = getHeight();
 					if (width == 0 || height == 0) {
 						return;
 					}
@@ -235,11 +235,11 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 						u2i.translate(lastPanelDimension.getWidth() / 2.0, lastPanelDimension.getHeight() / 2.0);
 						u2i.scale(zoom, zoom);
 						lastPanelDimension = new Dimension(width, height);
-						u2i.translate(-lastPanelDimension.getWidth() / 2.0,
-								-lastPanelDimension.getHeight() / 2.0);
+						u2i.translate(-lastPanelDimension.getWidth() / 2.0, -lastPanelDimension.getHeight() / 2.0);
 						i2u = u2i.createInverse();
 						/*
-						 * Made it to here, both transformations are okay. Set them.
+						 * Made it to here, both transformations are okay. Set
+						 * them.
 						 */
 						user2image = u2i;
 						image2user = i2u;
@@ -248,7 +248,8 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 					}
 				} catch (NoninvertibleTransformException e1) {
 					/*
-					 * Problems with the new transformations. No harm done, but do not proceed.
+					 * Problems with the new transformations. No harm done, but
+					 * do not proceed.
 					 */
 					e1.printStackTrace();
 					return;
@@ -393,13 +394,13 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		//set clipping mask to save a few cpu/gpu cycles
-//		if (!isPaintingForPrint()) {
-//			g2.setClip(0, 0, getWidth(), getHeight());
-//		} else {
-//			g2.setClip((int) Math.round(image.getViewRect().getX()), (int) Math.round(image.getViewRect().getY()),
-//					(int) Math.round(image.getViewRect().getWidth()),
-//					(int) Math.round(image.getViewRect().getHeight()));
-//		}
+		//		if (!isPaintingForPrint()) {
+		//			g2.setClip(0, 0, getWidth(), getHeight());
+		//		} else {
+		//			g2.setClip((int) Math.round(image.getViewRect().getX()), (int) Math.round(image.getViewRect().getY()),
+		//					(int) Math.round(image.getViewRect().getWidth()),
+		//					(int) Math.round(image.getViewRect().getHeight()));
+		//		}
 
 		//draw image
 		if (!isPaintingForPrint()) {
