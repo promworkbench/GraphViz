@@ -212,7 +212,6 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 				AffineTransform u2i = (AffineTransform) user2image.clone();
 				AffineTransform i2u = (AffineTransform) image2user.clone();
 				try {
-					System.out.println("[NavigableSVGPanel] width = " + getWidth() + ", height = " + getHeight());
 					/*
 					 * HV: Igoore if width or height not set properly.
 					 */
