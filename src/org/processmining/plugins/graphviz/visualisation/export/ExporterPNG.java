@@ -16,8 +16,10 @@ public class ExporterPNG extends Exporter {
 	}
 
 	public void export(NavigableSVGPanel panel, File file) throws Exception {
-		BufferedImage bi = new BufferedImage(Math.round(panel.getImage().getWidth()), Math.round(panel.getImage().getHeight()),
-				BufferedImage.TYPE_INT_ARGB);
+		float width = (float) panel.getImage().getViewRect().getWidth();
+		float height = (float) panel.getImage().getViewRect().getHeight();
+
+		BufferedImage bi = new BufferedImage(Math.round(width), Math.round(height), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = bi.createGraphics();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		panel.print(g);
