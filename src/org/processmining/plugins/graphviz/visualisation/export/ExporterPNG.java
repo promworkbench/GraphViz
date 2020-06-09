@@ -25,5 +25,4 @@ public class ExporterPNG extends Exporter {
 		panel.print(g);
 		ImageIO.write(bi, "PNG", file);
 	}
-
 }

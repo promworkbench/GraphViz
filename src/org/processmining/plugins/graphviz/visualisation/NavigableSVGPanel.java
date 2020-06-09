@@ -11,6 +11,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
@@ -402,12 +403,20 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 		//		}
 
 		//draw image
+		Shape oldClip = null;
 		if (!isPaintingForPrint()) {
 			g2.transform(image2user);
+		} else {
+			oldClip = g2.getClip();
+			g2.setClip((int) Math.round(image.getViewRect().getX()), (int) Math.round(image.getViewRect().getY()),
+					(int) Math.round(image.getViewRect().getWidth()),
+					(int) Math.round(image.getViewRect().getHeight()));
 		}
 		paintImage(g2);
 		if (!isPaintingForPrint()) {
 			g2.transform(user2image);
+		} else {
+			g2.setClip(oldClip);
 		}
 
 		//draw animation
@@ -435,9 +444,9 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 
 	protected void paintImage(Graphics2D g) {
 		try {
-//			System.out.println("[NavigableSVGPanel] Start rendering graph.");
+			//			System.out.println("[NavigableSVGPanel] Start rendering graph.");
 			image.render(g);
-//			System.out.println("[NavigableSVGPanel] End rendering graph.");
+			//			System.out.println("[NavigableSVGPanel] End rendering graph.");
 		} catch (SVGException e) {
 			e.printStackTrace();
 		}
