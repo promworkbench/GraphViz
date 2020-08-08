@@ -1239,6 +1239,11 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 		}
 	}
 
+	public void setTransformation(AffineTransform image2user, AffineTransform user2image) {
+		this.image2user = image2user;
+		this.user2image = user2image;
+	}
+
 	public Point2D transformUser2Image(Point2D p) {
 		return user2image.transform(p, null);
 	}
