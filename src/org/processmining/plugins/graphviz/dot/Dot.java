@@ -29,6 +29,7 @@ public class Dot extends DotCluster {
 	public Dot() {
 		setOption("rankdir", "TD");
 		setOption("compound", "true");
+		setNodeOption("fontname", "sans");
 	}
 
 	public String toString() {
