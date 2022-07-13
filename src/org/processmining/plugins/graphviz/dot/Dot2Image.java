@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class Dot2Image {
@@ -58,9 +59,20 @@ public class Dot2Image {
 		//detect the operating system and locate dot binary
 		String os = System.getProperty("os.name").toLowerCase();
 		File dotFile;
+		String[] osArgs = {};
 		if (os.indexOf("win") >= 0) {
 			//windows
 			dotFile = new File(dotDirectory, "dot.exe");
+			/**
+			 * The default font for DOT is Times New Roman.
+			 * https://graphviz.org/docs/attrs/fontname/ On Windows, this does
+			 * not support Unicode characters such as those in Chinese. The Sans
+			 * family does have this support, at least on Windows 10 in July
+			 * 2022. If present, the dot.fontname Java system property forces an
+			 * override.
+			 */
+			String defaultFont = System.getProperty("dot.fontname", "sans");
+			osArgs = new String[] { "-Nfontname=" + defaultFont };
 		} else if (os.indexOf("mac") >= 0) {
 			//assume mac
 			dotFile = new File(new File(dotDirectory, "mac"), "dot");
@@ -103,8 +115,8 @@ public class Dot2Image {
 				args[1] = "-T" + type;
 				args[2] = "-q";
 				break;
-
 		}
+		args = ArrayUtils.addAll(args, osArgs);
 
 		final ProcessBuilder pb = new ProcessBuilder(args);
 		pb.redirectErrorStream(false);
@@ -224,6 +236,7 @@ public class Dot2Image {
 				while (sc.hasNextLine()) {
 					dest.println(sc.nextLine());
 				}
+				sc.close();
 			}
 		}).start();
 	}
