@@ -52,7 +52,10 @@ import org.processmining.plugins.graphviz.visualisation.export.ExporterSVG;
 import org.processmining.plugins.graphviz.visualisation.listeners.ImageTransformationChangedListener;
 
 import com.kitfox.svg.SVGDiagram;
+import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGException;
+import com.kitfox.svg.SVGRoot;
+import com.kitfox.svg.TransformableElement;
 
 /**
  * A JPanel that displays an SVG image. Animation support is present, but not
@@ -1250,6 +1253,26 @@ public class NavigableSVGPanel extends JPanel implements Printable {
 
 	public Point2D transformImage2User(Point2D p) {
 		return image2user.transform(p, null);
+	}
+
+	public Point2D transformElement2Image(Point2D p, SVGElement svgElement) {
+		SVGElement element = svgElement;
+		Point2D result = new Point2D.Double(p.getX(), p.getY());
+		while (element != null && element instanceof TransformableElement) {
+
+			AffineTransform xForm;
+			if (element instanceof SVGRoot) {
+				xForm = ((SVGRoot) element).getViewXform();
+			} else {
+				xForm = ((TransformableElement) element).getXForm();
+			}
+			if (xForm != null) {
+				xForm.transform(result, result);
+			}
+
+			element = element.getParent();
+		}
+		return result;
 	}
 
 	/**
