@@ -1,6 +1,6 @@
 
 					<packages>
-						<package name="GraphViz" version="6.14.1" os="all" url="GraphViz/GraphViz-6.14.1-all.zip" desc="Library to layout and display graphs" org="Eindhoven University of Technology" license="L-GPL" author="SJJ Leemans" auto="false" hasPlugins="true" logo="prom_subtitle_hat_300.png">
+						<package name="GraphViz" version="6.14.2" os="all" url="GraphViz/GraphViz-6.14.2-all.zip" desc="Library to layout and display graphs" org="Eindhoven University of Technology" license="L-GPL" author="SJJ Leemans" auto="false" hasPlugins="true" logo="prom_subtitle_hat_300.png">
 				        <dependency org="prom" name="ProM-Plugins" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="ApacheUtils" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="KitFox" rev="latest" changing="true" transitive="true" />
